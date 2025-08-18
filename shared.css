@@ -314,6 +314,7 @@ body{
     flex: 0 0 calc(20% - 16px); /* 5 items per row, accounting for gap */
     max-width: 246px; /* Maintain max width for larger screens */
     margin-bottom: 0; /* Remove default margin-bottom from .item-grid > * */
+    /* background-color: var(--ctp-surface0); /* Catppuccin surface color for item boxes */ 
 }
 
 .item-list.grid-view .item {
@@ -385,6 +386,7 @@ body{
         /* prevent overflow due to long titles with no spaces:
         https://stackoverflow.com/a/43312314 */
         min-width: 0;
+        /* background-color: var(--ctp-surface0); /* Catppuccin surface color for list items */ 
     }
     .vertical-item-box .item{
         width: 168px;

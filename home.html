@@ -1,0 +1,58 @@
+{% set page_title = title %}
+{% set is_homepage = True %}
+{% extends "base.html" %}
+{% block style %}
+    main {
+        flex-grow: 1;
+        display: flex; /* Add flexbox to main */
+        align-items: center; /* Align items to the center vertically */
+        justify-content: center; /* Center horizontally */
+        padding-top: 20px; /* Add some space below the header */
+    }
+    .home-links-container {
+        display: flex;
+        flex-direction: row; /* Horizontal order */
+        flex-wrap: wrap; /* Allow wrapping */
+        align-items: center;
+        justify-content: center; /* Center horizontally */
+        gap: 20px; /* Space between buttons */
+        max-width: 1000px; /* Limit width to keep buttons somewhat grouped */
+    }
+
+    .home-link-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 250px; /* Adjust width for horizontal layout */
+        padding: 20px 30px; /* Make buttons big */
+        font-size: 1.2rem; /* Larger font */
+        border-radius: 30px; /* More rounded */
+        text-transform: uppercase;
+        font-weight: 700;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        background-color: var(--ctp-surface0);
+        color: var(--ctp-text);
+        border: none;
+    }
+
+    .home-link-button:hover {
+        background-color: var(--ctp-surface1);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+{% endblock style %}
+{% block main %}
+    <pre style="text-align: center; font-size: 2em; color: var(--ctp-blue); margin-bottom: 20px;">
+  _  _ _   _ _ _ _   _ 
+ | || | | | | | | \ | |
+ | __ | |_| | | |  \| |
+ |_||_|\___/|_|_|_|\__|
+    </pre>
+    <div class="home-links-container">
+        <a href="/youtube.com/playlists" class="home-link-button material-button">Local playlists</a>
+        <a href="/youtube.com/subscriptions" class="home-link-button material-button">Subscriptions</a>
+        <a href="/youtube.com/subscription_manager" class="home-link-button material-button">Subscription Manager</a>
+        <a href="/youtube.com/settings" class="home-link-button material-button">Settings</a>
+    </div>
+{% endblock main %}

@@ -1,0 +1,89 @@
+{% set search_box_value = query %}
+{% set page_title = query + ' - Search' %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block style %}
+    /* main > * removed to allow full width for search results */
+        #result-info{
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+            #number-of-results{
+                font-weight:bold;
+            }
+        .item-list{
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+            .badge{
+                background-color:#cccccc;
+            }
+{% endblock style %}
+
+{% block main %}
+            <div id="result-info">
+                <div id="number-of-results">Approximately {{ '{:,}'.format(estimated_results) }} results ({{ '{:,}'.format(estimated_pages) }} pages)</div>
+{% if corrections['type'] == 'showing_results_for' %}
+                <div>Showing results for <a>{{ common_elements.text_runs(corrections['corrected_query_text']) }}</a></div>
+                <div>Search instead for <a href="{{ corrections['original_query_url'] }}">{{ corrections['original_query_text'] }}</a></div>
+{% elif corrections['type'] == 'did_you_mean' %}
+                <div>Did you mean <a href="{{ corrections['corrected_query_url'] }}">{{ common_elements.text_runs(corrections['corrected_query_text']) }}</a></div>
+{% endif %}
+            </div>
+
+            <div class="view-toggle-buttons" style="text-align: center; margin-bottom: 15px;">
+                <button id="list-view-button" class="material-button">List View</button>
+                <button id="grid-view-button" class="material-button" style="margin-left: 10px;">Grid View</button>
+            </div>
+
+            <div class="item-list" id="search-results-list">
+                {% for info in results %}
+                    {{ common_elements.item(info, description=true) }}
+                {% endfor %}
+            </div>
+            <nav class="page-button-row">
+                {{ common_elements.page_buttons(estimated_pages, '/https://www.youtube.com/results', parameters_dictionary) }}
+            </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const listViewButton = document.getElementById('list-view-button');
+        const gridViewButton = document.getElementById('grid-view-button');
+        const searchResultsList = document.getElementById('search-results-list');
+
+        function setView(viewType) {
+            listViewButton.classList.remove('active-view-button');
+            gridViewButton.classList.remove('active-view-button');
+            if (viewType === 'list') {
+                searchResultsList.classList.add('list-view');
+                searchResultsList.classList.remove('grid-view');
+                listViewButton.classList.add('active-view-button');
+                localStorage.setItem('searchViewPreference', 'list');
+            } else if (viewType === 'grid') {
+                searchResultsList.classList.add('grid-view');
+                searchResultsList.classList.remove('list-view');
+                gridViewButton.classList.add('active-view-button');
+                localStorage.setItem('searchViewPreference', 'grid');
+            }
+        }
+
+        listViewButton.addEventListener('click', function() {
+            setView('list');
+        });
+
+        gridViewButton.addEventListener('click', function() {
+            setView('grid');
+        });
+
+        // Apply saved preference on load, or default to grid view
+        const savedView = localStorage.getItem('searchViewPreference');
+        if (savedView) {
+            setView(savedView);
+        } else {
+            setView('grid'); // Default view
+        }
+    });
+</script>
+{% endblock main %}

@@ -658,7 +658,7 @@ def to_valid_filename(name):
 # https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/youtube.py#L72
 INNERTUBE_CLIENTS = {
     'android': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'hl': 'en',
@@ -681,7 +681,7 @@ INNERTUBE_CLIENTS = {
     },
 
     'android-test-suite': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'hl': 'en',
@@ -706,7 +706,7 @@ INNERTUBE_CLIENTS = {
 
 
     'ios': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'hl': 'en',
@@ -724,7 +724,7 @@ INNERTUBE_CLIENTS = {
     # This client can access age restricted videos (unless the uploader has disabled the 'allow embedding' option)
     # See: https://github.com/zerodytrash/YouTube-Internal-Clients
     'tv_embedded': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'hl': 'en',
@@ -744,7 +744,7 @@ INNERTUBE_CLIENTS = {
     },
 
     'web': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'clientName': 'WEB',
@@ -755,7 +755,7 @@ INNERTUBE_CLIENTS = {
         'INNERTUBE_CONTEXT_CLIENT_NAME': 1
     },
     'android_vr': {
-        'INNERTUBE_API_KEY': 'API_KEY',
+        'INNERTUBE_API_KEY': 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
         'INNERTUBE_CONTEXT': {
             'client': {
                 'clientName': 'ANDROID_VR',

@@ -13,6 +13,7 @@ osd.style.padding = '5px';
 osd.style.zIndex = '1000'; // Ensure it's on top
 osd.style.display = 'none'; // Initially hidden
 osd.id = 'video-osd';
+
 document.body.appendChild(osd);
 
 

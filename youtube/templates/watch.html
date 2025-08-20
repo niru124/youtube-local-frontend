@@ -8,54 +8,37 @@
         --video_height: {{ video_height }};
         --video_width: {{ video_width }};
         --plyr-control-spacing-num: {{ '3' if video_height < 240 else '10' }};
-        --screen-width: calc(100vw - 25px);
-    }
-    details > summary{
-        background-color: var(--interface-color);
-        border-style: outset;
-        border-width: 2px;
-        font-weight: bold;
-        padding: 4px;
-    }
-    details > summary:hover{
-        text-decoration: underline;
+        --screen-width: calc(100vw - 40px); /* Adjusted for new main padding */
     }
 
-    .playability-error{
+    .playability-error, .live-url-choices {
         height: 360px;
         max-width: 640px;
         grid-column: 2;
-        background-color: var(--video-background-color);
         text-align:center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
         .playability-error span{
-            position: relative;
-            top: 50%;
-            transform: translate(-50%, -50%);
             white-space: pre-wrap;
         }
 
-    .live-url-choices{
-        min-height: 360px;
-        max-width: 640px;
-        grid-column: 2;
-        background-color: var(--video-background-color);
-        padding: 25px 0px 0px 25px;
+    .live-url-choices ol{
+        list-style: none;
+        padding:0px;
+        margin:0px;
+        margin-top: 15px;
     }
-        .live-url-choices ol{
-            list-style: none;
-            padding:0px;
-            margin:0px;
-            margin-top: 15px;
-        }
-        .live-url-choices input{
-            max-width: 400px;
-            width: 100%;
-        }
-        .url-choice-label{
-            display: inline-block;
-            width: 150px;
-        }
+    .live-url-choices input{
+        max-width: 400px;
+        width: 100%;
+    }
+    .url-choice-label{
+        display: inline-block;
+        width: 150px;
+    }
 
     {% if settings.theater_mode %}
         #video-container{
@@ -65,21 +48,9 @@
             max-height: calc(var(--screen-width)*var(--video_height)/var(--video_width));
             height: calc(var(--video_height)*1px);
             width: calc(var(--theater_video_target_width)*1px);
-            margin-bottom: 10px;
+            margin-bottom: 20px; /* Increased margin */
             --plyr-video-background: rgba(0, 0, 0, 0);
         }
-
-        /*
-        Really just want this as another max-height variable in
-        #video-container, but have to use media queries instead because min
-        is only supported by newer browsers:
-            https://stackoverflow.com/questions/30568424/min-max-width-height-with-multiple-values
-
-        Because CSS is extra special, we cannot change
-        this max-height value using javascript when the video resolution
-        is changed, so we use this technique:
-        https://stackoverflow.com/a/39610272
-        */
 
         {% set heights = [] %}
 
@@ -94,13 +65,15 @@
             {% endif %}
         {% endfor %}
 
-                video{
-                    background-color: var(--video-background-color);
-                }
-                #video-container > video, #video-container > .plyr{
-                    width: 100%;
-                    height: 100%;
-                }
+        video{
+            background-color: var(--ctp-crust); /* Use crust for video background */
+        }
+        #video-container > video, #video-container > .plyr{
+            width: 100%;
+            height: 100%;
+            border-radius: 8px; /* Rounded corners for video player */
+            overflow: hidden;
+        }
         .side-videos{
             grid-row: 2 /span 3;
             max-width: 400px;
@@ -115,6 +88,8 @@
         #video-container, video{
             height: calc(640px*var(--video_height)/var(--video_width)) !important;
             width: 640px !important;
+            border-radius: 8px; /* Rounded corners for video player */
+            overflow: hidden;
         }
         .plyr {
             height: 100%;
@@ -125,16 +100,12 @@
         }
     {% endif %}
 
-
-
     main{
         display:grid;
-        /* minmax(0, 1fr) needed instead of 1fr for Chrome: https://stackoverflow.com/a/43312314 */
         grid-template-columns: minmax(0, 1fr) 640px 40px 400px minmax(0, 1fr);
         grid-template-rows: auto auto auto auto;
         align-content: start;
-        padding-left: 0px;
-        padding-right: 0px;
+        /* Padding handled by shared.css now */
     }
 
         .video-info{
@@ -154,108 +125,118 @@
                 "v-description            v-description"
                 "v-music-list             v-music-list"
                 "v-more-info              v-more-info";
+            padding: 16px; /* Consistent padding with other content boxes */
+            background-color: var(--ctp-surface0); /* Consistent background */
+            border-radius: 8px; /* Consistent border-radius */
+            margin-top: 20px; /* Space from video player */
         }
             .video-info > .title{
                 grid-area: v-title;
                 min-width: 0;
+                font-size: 1.8rem; /* Larger title */
+                font-weight: 700;
+                margin-bottom: 10px;
             }
             .video-info > .labels{
                 grid-area: v-labels;
                 justify-self:start;
                 list-style: none;
                 padding: 0px;
-                margin: 5px 0px;
+                margin: 0px 0px 15px 0px; /* Adjusted margin */
             }
             .video-info > .labels:empty{
                 margin: 0px;
             }
-                .labels > li{
-                    display: inline;
-                    margin-right:5px;
-                    background-color: var(--interface-color);
-                    padding: 2px 5px;
-                    border-style: solid;
-                    border-width: 1px;
-                }
             .video-info > address{
                 grid-area: v-uploader;
                 justify-self: start;
+                font-size: 1.1rem;
+                color: var(--ctp-subtext1);
             }
             .video-info > .views{
                 grid-area: v-views;
                 justify-self:end;
+                font-size: 1.1rem;
+                color: var(--ctp-subtext1);
             }
             .video-info > time{
                 grid-area: v-date;
                 justify-self:start;
+                font-size: 1.1rem;
+                color: var(--ctp-subtext1);
             }
             .video-info > .likes-dislikes{
                 grid-area: v-likes-dislikes;
                 justify-self:end;
+                font-size: 1.1rem;
+                color: var(--ctp-subtext1);
             }
             .video-info > .external-player-controls{
                 grid-area: external-player-controls;
                 justify-self: start;
-                margin-bottom: 8px;
+                margin-top: 15px; /* Space from previous elements */
+                margin-bottom: 15px;
+                display: flex;
+                gap: 10px; /* Space between controls */
+                align-items: center;
             }
-                #speed-control{
-                    width: 65px;
+                #speed-control, #quality-select {
+                    width: 120px; /* Wider for better usability */
                     text-align: center;
-                    background-color: var(--interface-color);
-                    color: var(--text-color);
                 }
             .video-info > .checkbox{
                 grid-area: v-checkbox;
                 justify-self:end;
-                align-self: start;
+                align-self: center; /* Vertically align with controls */
                 height: 25px;
                 width: 25px;
             }
             .video-info > .direct-link{
                 grid-area: v-direct-link;
-                margin-bottom: 8px;
+                margin-bottom: 15px;
             }
             .video-info > .download-dropdown{
                 grid-area: v-download;
+                margin-bottom: 15px;
             }
             .video-info > .description{
-                background-color:var(--interface-color);
-                margin-top:8px;
+                margin-top:15px;
                 white-space: pre-wrap;
                 min-width: 0;
                 word-wrap: break-word;
                 grid-area: v-description;
-                padding: 5px;
+                padding: 0; /* Padding handled by parent .video-info */
             }
 
             .music-list{
                 grid-area: v-music-list;
-                background-color: var(--interface-color);
                 padding-bottom: 7px;
+                margin-top: 15px;
             }
                 .music-list table,th,td{
-                    border: 1px solid;
+                    border: 1px solid var(--ctp-surface1); /* Catppuccin border */
                 }
                 .music-list th,td{
-                    padding-left:4px;
-                    padding-right:5px;
+                    padding-left:8px; /* Increased padding */
+                    padding-right:8px;
                 }
                 .music-list caption{
                     text-align:left;
                     font-weight:bold;
-                    margin-bottom:5px;
+                    margin-bottom:10px; /* Increased margin */
+                    font-size: 1.2rem;
+                    color: var(--ctp-mauve);
                 }
             .more-info{
                 grid-area: v-more-info;
-                background-color: var(--interface-color);
+                margin-top: 15px;
             }
                 .more-info > summary{
                     font-weight: normal;
-                    border-width: 1px 0px;
-                    border-style: solid;
+                    border-width: 0; /* Border handled by shared.css */
                 }
                 .more-info-content{
-                    padding: 5px;
+                    padding: 0; /* Padding handled by shared.css */
                 }
                     .more-info-content p{
                         margin: 8px 0px;
@@ -263,11 +244,10 @@
         .comments-area-outer{
             grid-column: 2;
             grid-row: 3;
-            margin-top:10px;
+            margin-top:20px; /* Space from video info */
         }
         .comments-disabled{
-            background-color: var(--interface-color);
-            padding: 5px;
+            padding: 16px; /* Consistent padding */
             font-weight: bold;
         }
         .comments-area-inner{
@@ -281,62 +261,65 @@
             list-style: none;
             grid-column: 4;
             max-width: 640px;
+            margin-top: 20px; /* Space from video player */
         }
             #transcript-details{
-                margin-bottom: 10px;
+                margin-bottom: 15px;
             }
                 table#transcript-table {
                     border-collapse: collapse;
                     width: 100%;
                 }
                 table#transcript-table td, th {
-                    border: 1px solid #dddddd;
+                    border: 1px solid var(--ctp-overlay0);
                 }
                 div#transcript-div {
-                    background-color: var(--interface-color);
-                    padding: 5px;
+                    padding: 16px; /* Consistent padding */
                 }
             .playlist{
-                border-style: solid;
-                border-width: 2px;
-                border-color: lightgray;
-                margin-bottom: 10px;
+                border: 1px solid var(--ctp-surface1); /* Consistent border */
+                border-radius: 8px; /* Consistent border-radius */
+                margin-bottom: 15px;
+                background-color: var(--ctp-surface0); /* Consistent background */
             }
                 .playlist-header{
-                    background-color: var(--interface-color);
-                    padding: 3px;
-                    border-bottom-style: solid;
-                    border-bottom-width: 2px;
-                    border-bottom-color: lightgray;
+                    padding: 12px 16px; /* Increased padding */
+                    border-bottom: 1px solid var(--ctp-surface1); /* Consistent border */
+                    border-radius: 8px 8px 0 0; /* Rounded top corners */
                 }
                     .playlist-header h3{
-                        margin: 2px;
+                        margin: 0;
+                        font-size: 1.3rem;
+                        color: var(--ctp-text);
                     }
                     .playlist-metadata{
                         list-style: none;
                         padding: 0px;
-                        margin: 0px;
+                        margin: 5px 0px 0px 0px;
+                        font-size: 0.9rem;
+                        color: var(--ctp-subtext0);
                     }
                         .playlist-metadata li{
                             display: inline;
-                            margin: 2px;
+                            margin-right: 10px;
                         }
                 .playlist-videos{
                     height: 300px;
-                    overflow-y: scroll;
+                    overflow-y: auto; /* Changed to auto for scrollbar only when needed */
                     display: grid;
                     grid-auto-rows: 90px;
                     grid-row-gap: 10px;
-                    padding-top: 10px;
+                    padding: 10px 16px; /* Consistent padding */
                 }
             .autoplay-toggle-container{
-                margin-bottom: 10px;
+                margin-bottom: 15px;
                 display: flex;
                 align-items: center;
                 background-color: var(--ctp-surface0);
                 padding: 12px 16px;
-                border-radius: 24px;
+                border-radius: 8px; /* Consistent border-radius */
                 box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14);
+                border: 1px solid var(--ctp-surface1);
             }
             .autoplay-toggle-container label {
                 color: var(--ctp-text);
@@ -391,7 +374,6 @@
                 }
 
     .download-dropdown-content{
-        background-color: var(--interface-color);
         padding: 10px;
         list-style: none;
         margin: 0px;
@@ -401,10 +383,16 @@
         }
             .download-link{
                 display: block;
-                background-color: rgba(var(--link-color-rgb), 0.07);
+                background-color: var(--ctp-surface1); /* Use surface1 for download links */
+                padding: 8px 12px;
+                border-radius: 4px;
+                transition: background-color 0.2s ease-in-out;
+            }
+            .download-link:hover{
+                background-color: var(--ctp-surface2);
             }
             .download-link:visited{
-                background-color: rgba(var(--visited-link-color-rgb), 0.07);
+                color: var(--ctp-subtext0); /* Adjust visited link color */
             }
                 .format-attributes{
                     list-style: none;
@@ -413,10 +401,12 @@
                     display: flex;
                     flex-direction: row;
                     flex-wrap: wrap;
+                    gap: 10px; /* Space between attributes */
                 }
                     .format-attributes li{
                         white-space: nowrap;
                         max-height: 1.2em;
+                        color: var(--ctp-subtext1); /* Subtext color for attributes */
                     }
                     .format-ext{
                         width: 60px;
@@ -441,7 +431,7 @@
             grid-template-columns: minmax(0, 1fr) 640px 0 minmax(0, 1fr);
         }
         .side-videos{
-            margin-top: 10px;
+            margin-top: 20px; /* Consistent margin */
             grid-column: 2;
             grid-row: 3;
             width: initial;
@@ -489,6 +479,7 @@
 {% endblock style %}
 
 {% block head %}
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; connect-src 'self' https://sponsor.ajay.app; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
     {% if settings.video_player == 1 %}
         <!-- plyr -->
         <link href="/youtube.com/static/modules/plyr/plyr.css" rel="stylesheet"/>
@@ -558,7 +549,7 @@ Reload without invidious (for usage of new identity button).</a>
         <span class="likes-dislikes">{{ like_count }} likes {{ dislike_count }} dislikes</span>
 
         <div class="external-player-controls">
-            <input type="number" id="speed-control" class="material-select" placeholder="Speed" step="0.05" min="0.1" max="4.0" list="speed-options" style="width: 150px; height: 40px;">
+            <input type="number" id="speed-control" class="material-select" placeholder="Speed" step="0.05" min="0.1" max="4.0" list="speed-options">
             <datalist id="speed-options">
                 <option value="0.25"></option>
                 <option value="0.5"></option>
@@ -580,7 +571,7 @@ Reload without invidious (for usage of new identity button).</a>
                 <option value="3.0"></option>
             </datalist>
             {% if settings.video_player == 0 %}
-                <select id="quality-select" autocomplete="off">
+                <select id="quality-select" autocomplete="off" class="material-select">
                     {% for src in uni_sources %}
                         <option value='{"type": "uni", "index": {{ loop.index0 }}}' {{ 'selected' if loop.index0 == uni_idx and not using_pair_sources else '' }} >{{ src['quality_string'] }}</option>
                     {% endfor %}

@@ -10,12 +10,17 @@ osd.style.left = '10px';
 osd.style.backgroundColor = 'rgb(186, 187, 241)';
 osd.style.color = 'white';
 osd.style.padding = '5px';
-osd.style.zIndex = '1000'; // Ensure it's on top
-osd.style.display = 'none'; // Initially hidden
+osd.style.zIndex = '1000';
+osd.style.display = 'none';
 osd.id = 'video-osd';
 
-document.body.appendChild(osd);
-
+const plyrContainer = document.querySelector('.plyr');
+if (plyrContainer) {
+    plyrContainer.style.position = 'relative';
+    plyrContainer.appendChild(osd);
+} else {
+    console.warn("Plyr container not found");
+}
 
 function updateOSD(text) {
     osd.textContent = text;
@@ -104,11 +109,11 @@ function onKeyDown(e) {
         e.preventDefault();
         v.volume = Math.max(0, v.volume - 0.05);
         updateOSD(`Volume: ${Math.round(v.volume * 100)}%`);
-    } else if (c === ".") {
+    } else if (c === "]") {
         e.preventDefault();
         v.playbackRate = Math.min(4, v.playbackRate + 0.1);
         updateOSD(`Speed: ${v.playbackRate.toFixed(1)}x`);
-    } else if (c === ",") {
+    } else if (c === "[") {
         e.preventDefault();
         v.playbackRate = Math.max(0.1, v.playbackRate - 0.1);
         updateOSD(`Speed: ${v.playbackRate.toFixed(1)}x`);

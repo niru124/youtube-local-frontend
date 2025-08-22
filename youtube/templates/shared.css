@@ -13,7 +13,10 @@ address{
 
 html{
     font-family: 'Roboto', sans-serif;
-    /* Catppuccin Mocha Palette */
+}
+
+/* Catppuccin Mocha Palette (Dark Mode - Default) */
+body {
     --ctp-rosewater: #F5E0DC;
     --ctp-flamingo: #F2CDCD;
     --ctp-pink: #F5C2E7;
@@ -40,6 +43,50 @@ html{
     --ctp-base: #1E1E2E;
     --ctp-mantle: #181825;
     --ctp-crust: #11111B;
+
+    /* RGB values for box-shadows */
+    --ctp-blue-rgb: 137, 180, 250;
+
+    /* Mapped to existing variables for easier integration */
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --interface-color: var(--ctp-surface0);
+    --interface-border-color: var(--ctp-overlay0);
+    --interface-color-darker: var(--ctp-surface1);
+    --interface-color-darkest: var(--ctp-surface2);
+}
+
+/* Catppuccin Latte Palette (Light Mode) */
+body.light-mode {
+    --ctp-rosewater: #DC8A78;
+    --ctp-flamingo: #DD7878;
+    --ctp-pink: #EA769E;
+    --ctp-mauve: #8839EF;
+    --ctp-red: #D20F39;
+    --ctp-maroon: #E64553;
+    --ctp-peach: #FE640B;
+    --ctp-yellow: #DF8E1D;
+    --ctp-green: #40A02B;
+    --ctp-teal: #179299;
+    --ctp-sky: #04A5E5;
+    --ctp-sapphire: #209FB5;
+    --ctp-blue: #1E66F5;
+    --ctp-lavender: #7287FD;
+    --ctp-text: #4C4F69;
+    --ctp-subtext1: #5C5F77;
+    --ctp-subtext0: #6C6F85;
+    --ctp-overlay2: #7C7F93;
+    --ctp-overlay1: #8C8FA1;
+    --ctp-overlay0: #9CA0B0;
+    --ctp-surface2: #ACB0BE;
+    --ctp-surface1: #BCC0CC;
+    --ctp-surface0: #CCD0DA;
+    --ctp-base: #EFF1F5;
+    --ctp-mantle: #E6E9EF;
+    --ctp-crust: #DCE0EE;
+
+    /* RGB values for box-shadows */
+    --ctp-blue-rgb: 30, 102, 245;
 
     /* Mapped to existing variables for easier integration */
     --text-color: var(--ctp-text);
@@ -223,8 +270,8 @@ body{
 
 /* New Material Design inspired button styles */
 .material-button {
-    background-color: var(--interface-color); /* Using existing variable */
-    color: var(--text-color); /* Using existing variable */
+    background-color: var(--ctp-surface0); /* Explicitly use ctp-surface0 */
+    color: var(--ctp-text); /* Explicitly use ctp-text */
     border: none;
     border-radius: 4px;
     padding: 12px 24px; /* Make buttons bigger */
@@ -240,12 +287,12 @@ body{
 }
 
 .material-button:hover {
-    background-color: var(--interface-color-darker, #555); /* A slightly darker shade for hover */
+    background-color: var(--ctp-surface1); /* Explicitly use ctp-surface1 for hover */
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
 .material-button:active {
-    background-color: var(--interface-color-darkest, #444); /* Even darker for active */
+    background-color: var(--ctp-surface2); /* Explicitly use ctp-surface2 for active */
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
 }
 
@@ -278,7 +325,7 @@ body{
 
 .item-list.list-view {
     display: grid;
-    grid-row-gap: 15px; /* Increased gap for list view */
+    grid-row-gap: 25px; /* Increased gap for list view */
     justify-content: center;
     grid-template-columns: minmax(0, 90%); /* Takes 90% of the page width */
 }
@@ -306,7 +353,7 @@ body{
     display: flex;
     flex-wrap: wrap;
     justify-content: center; /* Center items in grid */
-    gap: 20px; /* Gap between grid items */
+    gap: 30px; /* Gap between grid items */
     padding: 10px;
 }
 
@@ -348,7 +395,7 @@ body{
 }
 
 .item-list.grid-view .item-metadata{
-    padding: 8px;
+    padding: 10px;
 }
 
 .item-list.grid-view .item .title{
@@ -447,6 +494,7 @@ body{
                 }
         .item-metadata{
             overflow: hidden;
+            padding: 10px; /* Add overall padding to metadata block */
         }
         .item .title{
             min-width: 0;
@@ -459,13 +507,19 @@ body{
             font-size: 1.1rem; /* Slightly larger font size */
             font-weight: 600; /* Bolder title */
             text-decoration:initial;
-            padding: 4px 8px 0 8px; /* Add some padding */
+            margin-bottom: 8px; /* Add margin below title */
+            padding: 0; /* Remove existing padding, now handled by .item-metadata */
+        }
+
+        .item-metadata address {
+            margin-bottom: 5px; /* Add margin below author */
         }
 
         .stats{
             list-style: none;
-            padding: 0px 8px 8px 8px; /* Add padding to stats */
+            padding: 0; /* Remove existing padding, now handled by .item-metadata */
             margin: 0px;
+            margin-bottom: 8px; /* Add margin below stats */
             color: var(--ctp-subtext0); /* Set stats text color */
             font-size: 0.9rem; /* Slightly larger font for stats */
         }
@@ -495,6 +549,10 @@ body{
                 max-height: 1.3em;
                 overflow: hidden;
             }
+
+        .description {
+            margin-top: 5px; /* Add margin above description */
+        }
 
     .item-checkbox{
         justify-self:start;

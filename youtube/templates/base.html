@@ -26,7 +26,7 @@
         {% block head %}
         {% endblock %}
     </head>
-    <body{% if is_homepage %} class="homepage-search"{% endif %}>
+    <body class="{% if is_homepage %}homepage-search{% endif %}{% if not settings.dark_mode %} light-mode{% endif %}">
         <header>
                 <form id="site-search" action="/youtube.com/results">
                     <a href="/youtube.com" id="home-link" class="material-button">Home</a>

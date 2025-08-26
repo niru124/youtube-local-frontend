@@ -108,6 +108,50 @@ if (data.playlist && data.playlist['id'] !== null) {
 }
 
 
+// Watch time tracking
+let lastSentTime = 0;
+const WATCH_TIME_SEND_INTERVAL = 15; // seconds
+
+function sendWatchTimeUpdate() {
+    if (video.paused || video.ended) {
+        return;
+    }
+
+    const currentTime = video.currentTime;
+    const duration = video.duration;
+    const videoId = data.video_id; // Assuming data.video_id is available
+
+    if (videoId && duration > 0 && (currentTime - lastSentTime > WATCH_TIME_SEND_INTERVAL || currentTime === duration)) {
+        fetch('/log_watch_time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                video_id: videoId,
+                watched_time: currentTime,
+                total_duration: duration
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                lastSentTime = currentTime;
+            } else {
+                console.error("Failed to log watch time:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error sending watch time update:", error);
+        });
+    }
+}
+
+if (video) {
+    video.addEventListener('timeupdate', sendWatchTimeUpdate);
+    video.addEventListener('ended', sendWatchTimeUpdate); // Ensure final watch time is sent
+}
+
 // Autoplay
 if (data.settings.related_videos_mode !== 0 || data.playlist !== null) {
     let playability_error = !!data.playability_error;

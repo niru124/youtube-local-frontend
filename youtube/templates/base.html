@@ -212,5 +212,27 @@
 {{ main }}
 {% endblock %}
         </main>
+        <script>
+            document.addEventListener('keydown', function(event) {
+                // Ctrl+K for search
+                if (event.ctrlKey && event.key === 'k') {
+                    event.preventDefault();
+                    const searchBox = document.querySelector('.search-box');
+                    if (searchBox) {
+                        searchBox.focus();
+                    }
+                }
+                // Shift+H for back
+                if (event.shiftKey && event.key === 'H') {
+                    event.preventDefault();
+                    window.history.back();
+                }
+                // Shift+L for forward
+                if (event.shiftKey && event.key === 'L') {
+                    event.preventDefault();
+                    window.history.forward();
+                }
+            });
+        </script>
     </body>
 </html>

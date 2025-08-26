@@ -710,6 +710,7 @@ def extract_watch_info(polymer_json):
     liberal_update(info, 'id',          vd.get('videoId'))
     liberal_update(info, 'author',      vd.get('author'))
     liberal_update(info, 'author_id',   vd.get('channelId'))
+    liberal_update(info, 'thumbnail',   deep_get(vd, 'thumbnail', 'thumbnails', -1, 'url'))
     info['was_live'] =                  vd.get('isLiveContent')
     conservative_update(info, 'unlisted', not vd.get('isCrawlable', True))  #isCrawlable is false on limited state videos even if they aren't unlisted
     liberal_update(info, 'tags',        vd.get('keywords', []))
@@ -737,6 +738,7 @@ def extract_watch_info(polymer_json):
     info['allowed_countries'] = mf.get('availableCountries', [])
 
     # other stuff
+    conservative_update(info, 'author', info.get('uploader')) # uploader is from _extract_watch_info_desktop or _extract_watch_info_mobile
     info['author_url'] = 'https://www.youtube.com/channel/' + info['author_id'] if info['author_id'] else None
     info['storyboard_spec_url'] = deep_get(player_response, 'storyboards', 'playerStoryboardSpecRenderer', 'spec')
 

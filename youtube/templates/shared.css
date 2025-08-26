@@ -187,6 +187,50 @@ body{
                 display: none;
                 border-radius: 24px; /* Rounded */
             }
+                        #home-link{
+                align-self: center;
+                grid-area: home;
+                border-radius: 12px; /* Rounded home button */
+            }
+            .search-input-container {
+                grid-area: search-bar;
+                display: flex;
+                align-items: center;
+                position: relative;
+                height: 48px; /* Default smaller height for search bar */
+                border: 1px solid var(--ctp-surface1);
+                border-radius: 12px;
+                background-color: var(--ctp-base);
+                flex-grow: 1;
+            }
+            #site-search .search-box{
+                flex-grow: 1;
+                height: 100%;
+                border: none;
+                background-color: transparent;
+                color: var(--ctp-text);
+                font-size: 1rem;
+                padding: 0 16px;
+                padding-right: 40px; /* Space for icon */
+                border-radius: 12px;
+            }
+            
+            #site-search .search-button{
+                align-self:center;
+                grid-area: search-button;
+                border-radius: 12px; /* Rounded */
+            }
+
+            #site-search .filter-dropdown-toggle-button{
+                align-self:center;
+                grid-area: filter-button;
+                border-radius: 12px; /* Rounded */
+            }
+            #site-search .playlist-form-toggle-button{
+                grid-area: playlist;
+                display: none;
+                border-radius: 12px; /* Rounded */
+            }
             #site-search .filter-dropdown-content{
                 position: absolute;
                 grid-area: dropdown;
@@ -200,7 +244,676 @@ body{
                 border-color: var(--interface-border-color);
                 top: 0px;
                 z-index:1;
+                border-radius: 12px; /* Rounded */
             }
+                #site-search .filter-dropdown-content h3{
+                    grid-column:1 / span 2;
+                    color: var(--ctp-mauve);
+                    margin-top: 10px;
+                    margin-bottom: 5px;
+                }
+                #site-search .filter-dropdown-content label {
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    transition: background-color 0.2s ease-in-out;
+                    cursor: pointer;
+                }
+                #site-search .filter-dropdown-content label:hover {
+                    background-color: var(--ctp-surface1);
+                }
+
+        #playlist-edit{
+            align-self: center;
+        }
+            #local-playlists{
+                margin-right:5px;
+                color: var(--ctp-text);
+            }
+            #playlist-name-selection{
+                height: 48px; /* Larger height */
+                border: 1px solid var(--ctp-surface1);
+                border-radius: 12px; /* Rounded */
+                padding: 0 16px; /* More padding */
+                background-color: var(--ctp-base);
+                color: var(--ctp-text);
+                font-size: 1rem;
+            }
+            #playlist-add-button{
+                border-radius: 12px; /* Rounded */
+            }
+            #item-selection-reset{
+                border-radius: 12px; /* Rounded */
+            }
+
+    main{
+        flex-grow: 1;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 20px;
+    }
+        #message-box{
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: var(--ctp-overlay0);
+            border-radius: 12px;
+            padding: 20px;
+            background-color: var(--ctp-surface0);
+            color: var(--ctp-text);
+            opacity: 0;
+            transition-property: opacity;
+            transition-duration: 0.5s;
+            z-index: 1000;
+            max-width: 300px; /* Limit width */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+/* New Material Design inspired button styles */
+.material-button {
+    background-color: var(--ctp-surface0); /* Explicitly use ctp-surface0 */
+    color: var(--ctp-text); /* Explicitly use ctp-text */
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px; /* Make buttons bigger */
+    font-size: 1rem; /* Make font bigger */
+    text-transform: uppercase;
+    font-weight: 500;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.material-button:hover {
+    background-color: var(--ctp-surface1); /* Explicitly use ctp-surface1 for hover */
+    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+}
+
+.material-button:active {
+    background-color: var(--ctp-surface2); /* Explicitly use ctp-surface2 for active */
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.material-select {
+    background-color: var(--ctp-surface0);
+    color: var(--ctp-text);
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 12px; /* Rounded */
+    padding: 12px 16px; /* Make select box bigger */
+    font-size: 1rem; /* Make font bigger */
+    cursor: pointer;
+    appearance: none; /* Remove default select arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23CDD6F4%22%20d%3D%22M287%2C114.7L159.7%2C242c-3.9%2C3.9-10.2%2C3.9-14.1%2C0L5.4%2C114.7c-3.9-3.9-3.9-10.2%2C0-14.1s10.2-3.9%2C14.1%2C0l133.3%2C133.3l133.3-133.3c3.9-3.9%2C10.2-3.9%2C14.1%2C0S290.9%2C110.8%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+}
+
+.material-select:hover {
+    background-color: var(--ctp-surface1);
+}
+
+.material-select:focus {
+    outline: none;
+    border-color: var(--ctp-blue);
+    box-shadow: 0 0 0 3px rgba(var(--ctp-blue-rgb), 0.3);
+}
+
+.item-list.list-view {
+    display: grid;
+    grid-row-gap: 25px; /* Increased gap for list view */
+    justify-content: center;
+    grid-template-columns: minmax(0, 90%); /* Takes 90% of the page width */
+}
+
+.item-list.list-view .horizontal-item-box .item {
+    flex-grow: 1;
+    display: grid;
+    align-content: start;
+    grid-template-columns: auto 1fr;
+    min-width: 0;
+    width: auto; /* Override fixed width */
+    border-radius: 12px; /* Rounded */
+    background-color: var(--ctp-surface0); /* Catppuccin surface color for list items */
+}
+
+.item-list.list-view .has-description .thumbnail-box{
+    width: 246px;
+    height:138px;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.list-view .no-description .thumbnail-box{
+    width: 168px;
+    height:94px;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center items in grid */
+    gap: 30px; /* Gap between grid items */
+    padding: 10px;
+}
+
+.item-list.grid-view .item-box {
+    flex: 0 0 calc(20% - 16px); /* 5 items per row, accounting for gap */
+    max-width: 246px; /* Maintain max width for larger screens */
+    margin-bottom: 0; /* Remove default margin-bottom from .item-grid > * */
+    background-color: var(--ctp-surface0); /* Catppuccin surface color for item boxes */
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view .item {
+    width: 100%; /* Make item fill its box */
+    height: 100%;
+    display: block; /* Ensure block display for vertical layout */
+}
+
+.item-list.grid-view .horizontal-item-box .item {
+    display: block; /* Force vertical layout for grid items */
+}
+
+.item-list.grid-view .thumbnail-box{
+    width: 100%; /* Thumbnail takes full width of item */
+    height: auto;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view .has-description .thumbnail-box{
+    width: 100%;
+    height: auto;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view .no-description .thumbnail-box{
+    width: 100%;
+    height: auto;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view .thumbnail-img{
+    width: 100%;
+    height: auto;
+    border-radius: 12px; /* Rounded */
+}
+
+.item-list.grid-view .item-metadata{
+    padding: 10px;
+}
+
+.item-list.grid-view .item .title{
+    max-height: 3.9em; /* Ensure title truncation */
+}
+
+.item-list.grid-view .stats{
+    padding: 0 8px 8px 8px;
+}
+
+.item-list.grid-view .horizontal-stats{
+    display: flex;
+    flex-direction: column;
+}
+
+.item-list.grid-view .horizontal-stats > li::after{
+    content: "";
+}
+
+.item-list.grid-view .horizontal-stats > li{
+    display: block;
+}
+
+
+.item-list{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+    .horizontal-item-box .item {
+        flex-grow: 1;
+        display: grid;
+        align-content: start;
+        grid-template-columns: auto 1fr;
+        /* prevent overflow due to long titles with no spaces:
+        https://stackoverflow.com/a/43312314 */
+        min-width: 0;
+        background-color: var(--ctp-surface0); /* Catppuccin surface color for list items */
+        border-radius: 12px; /* Rounded */
+    }
+    .vertical-item-box .item{
+        width: 168px;
+    }
+        .thumbnail-box{
+            font-size: 0px; /* prevent newlines and blank space from creating gaps */
+            position: relative;
+            display: block;
+            border-radius: 12px; /* Slightly rounded corners for thumbnails */
+            overflow: hidden; /* Ensures content respects border-radius */
+        }
+        .horizontal-item-box  .thumbnail-box{
+            margin-right: 4px;
+        }
+        .no-description .thumbnail-box{
+            width: 168px;
+            height:94px;
+            border-radius: 12px; /* Rounded */
+        }
+        .has-description .thumbnail-box{
+            width: 246px;
+            height:138px;
+            border-radius: 12px; /* Rounded */
+        }
+            .video-item .thumbnail-info{
+                position: absolute;
+                bottom: 2px;
+                right: 2px;
+                opacity: .8;
+                color: var(--ctp-text);
+                font-size: 0.8125rem;
+                background-color: var(--ctp-crust);
+            }
+            .playlist-item .thumbnail-info{
+                position: absolute;
+                right: 0px;
+                bottom: 0px;
+                height: 100%;
+                width: 50%;
+                text-align:center;
+                white-space: pre-line;
+                opacity: .8;
+                color: var(--ctp-subtext1);
+                font-size: 0.8125rem;
+                background-color: var(--ctp-crust);
+            }
+                .playlist-item .thumbnail-info span{ /* trick to vertically center the text */
+                    position: absolute;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                .thumbnail-img{ /* center it */
+                    margin: auto;
+                    display: block;
+                    max-height: 100%;
+                    max-width: 100%;
+                    border-radius: 12px; /* Rounded */
+                }
+                .horizontal-item-box .thumbnail-img{
+                    height: 100%;
+                }
+        .item-metadata{
+            overflow: hidden;
+            padding: 10px; /* Add overall padding to metadata block */
+        }
+        .item .title{
+            min-width: 0;
+            line-height:1.3em;
+            max-height:3.9em; /* Adjusted for 3 lines with new line-height */
+            overflow-y: hidden;
+            overflow-wrap: break-word;
+
+            color: var(--ctp-text);
+            font-size: 1.1rem; /* Slightly larger font size */
+            font-weight: 600; /* Bolder title */
+            text-decoration:initial;
+            margin-bottom: 8px; /* Add margin below title */
+            padding: 0; /* Remove existing padding, now handled by .item-metadata */
+        }
+
+        .item-metadata address {
+            margin-bottom: 5px; /* Add margin below author */
+        }
+
+        .stats{
+            list-style: none;
+            padding: 0; /* Remove existing padding, now handled by .item-metadata */
+            margin: 0px;
+            margin-bottom: 8px; /* Add margin below stats */
+            color: var(--ctp-subtext0); /* Set stats text color */
+            font-size: 0.9rem; /* Slightly larger font for stats */
+        }
+        .horizontal-stats{
+            max-height:2.4em;
+            overflow:hidden;
+        }
+            .horizontal-stats > li{
+                display: inline;
+            }
+
+            .horizontal-stats > li::after{
+                content: " | ";
+            }
+            .horizontal-stats > li:last-child::after{
+                content: "";
+            }
+
+        .vertical-stats{
+            display: flex;
+            flex-direction: column;
+        }
+            .stats address{
+                display: inline;
+            }
+            .vertical-stats li{
+                max-height: 1.3em;
+                overflow: hidden;
+            }
+
+        .description {
+            margin-top: 5px; /* Add margin above description */
+        }
+
+    .item-checkbox{
+        justify-self:start;
+        align-self:center;
+        height:30px;
+        width:30px;
+        min-width:30px;
+        margin: 0px;
+    }
+
+
+.page-button-row{
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-self:center;
+    justify-content: center;
+}
+.page-button-row .page-button{
+    margin-top: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px; /* Rounded */
+}
+.next-previous-button-row{
+    margin: 10px 0px;
+    display: flex;
+    justify-self:center;
+    justify-content: center;
+    height: 40px;
+}
+    .page-button{
+        background-color: var(--ctp-surface0);
+        color: var(--ctp-text);
+        border: none;
+        border-radius: 12px;
+        font-weight: bold;
+        text-align: center;
+        padding: 5px;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+        transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    .page-button:hover {
+        background-color: var(--ctp-surface1);
+        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    }
+    .page-button:active {
+        background-color: var(--ctp-surface2);
+        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    }
+    .page-button.current-page {
+        background-color: var(--ctp-blue) !important; /* Highlight color for current page */
+        color: var(--ctp-crust) !important; /* Text color for current page */
+    }
+    .next-page:nth-child(2){    /* only if there's also a previous page button */
+        margin-left: 10px;
+    }
+.sort-button{
+    background-color: var(--ctp-surface0);
+    color: var(--ctp-text);
+    padding: 8px 16px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    cursor: pointer;
+    justify-self: start;
+}
+.sort-button:hover {
+    background-color: var(--ctp-surface1);
+    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+}
+.sort-button:active {
+    background-color: var(--ctp-surface2);
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.active-view-button {
+    background-color: var(--ctp-blue) !important; /* Highlight color for active view button */
+    color: var(--ctp-crust) !important; /* Text color for active view button */
+}
+
+/* error page stuff */
+h1{
+    font-size: 2rem;
+    font-weight: normal;
+}
+#error-box, #error-message{
+    background-color: var(--interface-color);
+    width: 80%;
+    margin: auto;
+    margin-top: 20px;
+    padding: 5px;
+    border-radius: 12px; /* Rounded */
+}
+#error-message{
+    white-space: pre-wrap;
+}
+#error-box > div, #error-box > p, #error-box > h1{
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+}
+.code-box{
+    white-space: pre-wrap;
+    padding: 5px;
+    border-style:solid;
+    border-width:1px;
+    border-radius:12px;
+    border-color: var(--ctp-surface2);
+    background-color: var(--ctp-mantle);
+    color: var(--ctp-text);
+}
+
+@media (max-width:950px){
+    #site-search{
+        grid-template-areas: "home search-bar search-button filter-button playlist"
+                             ".    dropdown   dropdown      dropdown      .";
+    }
+    #site-search .filter-dropdown-content{
+        justify-self: end;
+    }
+}
+@media (max-width:920px){
+    header{
+        flex-direction:column;
+    }
+        #site-search{
+            margin-bottom: 5px;
+            width: 100%;
+            align-self: center;
+        }
+        #playlist-edit > *{
+            margin-bottom: 10px;
+        }
+    #playlist-form-toggle-cbox:not(:checked) + #playlist-edit{
+        display: none;
+    }
+    #site-search .playlist-form-toggle-button{
+        display: inline-flex;
+    }
+
+}
+
+/* convert big items (has-description) to vertical format. e.g. search results */
+@media (max-width:600px){
+    .has-description.horizontal-item-box .item {
+        flex-grow: unset;
+        display: block;
+        width: 246px;
+        border-radius: 12px; /* Rounded */
+    }
+        .has-description.horizontal-item-box  .thumbnail-box{
+            margin-right: 0px;
+        }
+                .has-description.horizontal-item-box .thumbnail-img{
+                    height: 100%;
+                }
+
+        .has-description .horizontal-stats{
+            max-height: unset;
+            overflow:hidden;
+        }
+            .has-description .horizontal-stats > li{
+                display: initial;
+            }
+
+            .has-description .horizontal-stats > li::after{
+                content: "";
+            }
+
+        .has-description .horizontal-stats{
+            display: flex;
+            flex-direction: column;
+        }
+            .has-description .horizontal-stats li{
+                max-height: 1.3em;
+                overflow: hidden;
+            }
+}
+
+
+@media (max-width:500px){
+    #site-search{
+        grid-template-columns: 0fr auto auto auto;
+        grid-template-rows: 40px 40px 0fr;
+        grid-template-areas: "home search-bar    search-bar    search-bar"
+                             ".    search-button filter-button playlist"
+                             ".    dropdown      dropdown      dropdown";
+    }
+    #site-search .filter-dropdown-content{
+        justify-self: end;
+    }
+}
+
+@media (max-width:400px) {
+    .horizontal-item-box.no-description .thumbnail-box{
+        width: 120px;
+        border-radius: 12px; /* Rounded */
+    }
+        .horizontal-item-box.no-description .thumbnail-img{
+            object-fit: scale-down;
+            object-position: center;
+        }
+}
+
+@media (max-width: 300px){
+    #site-search{
+        grid-template-columns: auto auto auto;
+        grid-template-areas: "home          search-bar    search-bar"
+                             "search-button filter-button playlist"
+                             "dropdown      dropdown      dropdown";
+    }
+}
+
+.homepage-search .search-input-container {
+    height: 60px; /* Larger height for homepage search bar */
+    border-radius: 12px; /* Rounded */
+}
+
+.homepage-search #site-search .search-box {
+    font-size: 1.2rem; /* Larger font size for homepage search box */
+}
+
+/* General Catppuccin color refinements */
+details > summary {
+    background-color: var(--ctp-surface0);
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 12px;
+    color: var(--ctp-text);
+    padding: 12px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+details > summary:hover {
+    background-color: var(--ctp-surface1);
+    border-color: var(--ctp-overlay0);
+}
+
+.playability-error,
+.live-url-choices,
+.comments-disabled,
+.playlist,
+.playlist-header,
+div#transcript-div,
+.download-dropdown-content,
+.music-list,
+.more-info-content {
+    background-color: var(--ctp-surface0);
+    border: 1px solid var(--ctp-surface1);
+    border-radius: 12px;
+    color: var(--ctp-text);
+    padding: 16px; /* Increased padding for content boxes */
+}
+
+table#transcript-table td,
+table#transcript-table th {
+    border-color: var(--ctp-overlay0);
+}
+
+.badge, .labels > li { /* Apply badge style to labels as well */
+    background-color: var(--ctp-surface1);
+    color: var(--ctp-text);
+    padding: 4px 8px;
+    border-radius: 12px; /* Pill shape */
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+/* General input and select styling */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select:not(.material-select) { /* Exclude material-select as it has its own styles */
+    background-color: var(--ctp-base);
+    border: 1px solid var(--ctp-surface1);
+    color: var(--ctp-text);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:not(.material-select):focus {
+    outline: none;
+    border-color: var(--ctp-blue);
+    box-shadow: 0 0 0 3px rgba(var(--ctp-blue-rgb), 0.3);
+}
+
+/* Adjust main padding */
+main {
+    flex-grow: 1;
+    padding: 20px; /* Increased overall padding for main content */
+}
+
             #filter-dropdown-toggle-cbox:not(:checked) + .filter-dropdown-content{
                 display: none;
             }

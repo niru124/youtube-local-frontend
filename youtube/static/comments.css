@@ -7,6 +7,9 @@
         "video-metadata-thumbnail-box page"
         "video-metadata-thumbnail-box sort";
     margin-bottom: 10px;
+    background-color: var(--ctp-surface0);
+    border-radius: 12px;
+    padding: 15px;
 }
     .video-metadata > .video-metadata-thumbnail-box{
         grid-area: video-metadata-thumbnail-box;
@@ -14,6 +17,8 @@
         position: relative;
         width:320px;
         max-width:100%;
+        border-radius: 12px;
+        overflow: hidden;
     }
     .video-metadata > .video-metadata-thumbnail-box:before{
         display: block;
@@ -27,17 +32,24 @@
             left: 0;
             width: 100%;
             height: 100%;
+            border-radius: 12px;
         }
     .video-metadata > .title{
         word-wrap:break-word;
         grid-area: title;
+        color: var(--ctp-text);
+        font-size: 1.2em;
+        margin-left: 15px;
     }
     .video-metadata > h2{
         grid-area: page;
-        font-size: 0.875rem;
+        font-size: 0.9em;
+        color: var(--ctp-subtext1);
+        margin-left: 15px;
     }
     .video-metadata > span{
         grid-area: sort;
+        margin-left: 15px;
     }
 
 .comment-form{
@@ -45,6 +57,10 @@
     align-content: start;
     justify-items: start;
     align-items: start;
+    background-color: var(--ctp-surface0);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
 }
     #comment-account-options{
         display:grid;
@@ -55,6 +71,7 @@
     }
         #comment-account-options a{
             margin-left:10px;
+            color: var(--ctp-blue);
         }
 
 .comments-area{
@@ -63,10 +80,23 @@
     .comments-area textarea{
         resize: vertical;
         justify-self:stretch;
+        background-color: var(--ctp-base);
+        border: 1px solid var(--ctp-surface1);
+        color: var(--ctp-text);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 1rem;
     }
     .post-comment-button{
         margin-top:10px;
         justify-self:end;
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: bold;
+        cursor: pointer;
     }
     .comment-links{
         display:grid;
@@ -91,19 +121,24 @@
         "author-avatar comment-text  comment-text  comment-text"
         "author-avatar comment-likes comment-likes comment-likes"
         ".             bottom-row    bottom-row    bottom-row";
-    background-color: var(--interface-color);
+    background-color: var(--ctp-surface0);
     justify-content: start;
+    border-radius: 12px;
+    padding: 15px;
 }
 
     .comment .author-avatar{
         grid-area: author-avatar;
         align-self: start;
-        margin-right: 5px;
-        height:32px;
-        width:32px;
+        margin-right: 10px;
+        height:40px;
+        width:40px;
+        border-radius: 50%;
+        overflow: hidden;
     }
         .comment .author-avatar-img{
             max-height: 100%;
+            max-width: 100%;
         }
 
     .comment .author-name{
@@ -111,6 +146,8 @@
         margin-right:15px;
         white-space: nowrap;
         overflow:hidden;
+        color: var(--ctp-text);
+        font-weight: bold;
     }
 
     .comment .text{
@@ -118,11 +155,14 @@
         white-space: pre-wrap;
         min-width: 0;
         word-wrap: break-word;
+        color: var(--ctp-subtext0);
     }
 
     .comment .permalink{
         grid-area: permalink;
         white-space: nowrap;
+        color: var(--ctp-overlay1);
+        font-size: 0.8em;
     }
 
 
@@ -130,24 +170,30 @@
         grid-area: comment-likes;
         font-weight:bold;
         white-space: nowrap;
+        color: var(--ctp-subtext1);
+        font-size: 0.9em;
     }
 
     .comment .bottom-row{
         grid-area: bottom-row;
         justify-self:start;
+        margin-top: 10px;
     }
 
 details.replies > summary{
-    background-color: var(--interface-color);
-    border-style: outset;
-    border-width: 1px;
+    background-color: var(--ctp-surface1);
+    border: 1px solid var(--ctp-overlay0);
+    border-radius: 8px;
     font-weight: bold;
-    padding: 2px;
+    padding: 8px 12px;
+    color: var(--ctp-text);
+    cursor: pointer;
 }
 
 .replies-open-new-tab{
     display: inline-block;
     margin-top: 5px;
+    color: var(--ctp-blue);
 }
 
 details.replies .comment{
@@ -158,6 +204,13 @@ details.replies .comment{
     justify-self:center;
     margin-top:10px;
     margin-bottom: 10px;
+    background-color: var(--ctp-surface1);
+    color: var(--ctp-text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 @media (max-width:500px){

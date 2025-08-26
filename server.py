@@ -7,7 +7,7 @@ from youtube import yt_app
 from youtube import util
 
 # these are just so the files get run - they import yt_app and add routes to it
-from youtube import watch, search, playlist, channel, local_playlist, comments, subscriptions
+from youtube import watch, search, playlist, channel, local_playlist, comments, subscriptions, videolog
 
 import settings
 
@@ -222,6 +222,16 @@ def site_dispatch(env, start_response):
         # redirect localhost:8080 to localhost:8080/https://youtube.com
         if path == '' or path == '/':
             start_response('302 Found', [('Location', '/https://youtube.com')])
+            return
+        elif path == '/videolog':
+            env['SERVER_NAME'] = 'youtube.com' # Dummy server name for yt_app
+            env['PATH_INFO'] = '/videolog'
+            yield from yt_app(env, start_response)
+            return
+        elif path == '/log_watch_time':
+            env['SERVER_NAME'] = 'youtube.com' # Dummy server name for yt_app
+            env['PATH_INFO'] = '/log_watch_time'
+            yield from yt_app(env, start_response)
             return
 
         try:

@@ -1,10 +1,10 @@
 body{
-    --interface-color: #333333;
-    --text-color: #cccccc;
-    --background-color: #000000;
-    --video-background-color: #080808;
-    --link-color-rgb: 34, 170, 255;
-    --visited-link-color-rgb: 119, 85, 255;
+    --interface-color: var(--ctp-surface0);
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --video-background-color: var(--ctp-mantle);
+    --link-color-rgb: 137, 180, 250; /* ctp-blue-rgb */
+    --visited-link-color-rgb: 180, 190, 254; /* ctp-lavender-rgb */
 }
 
 a:link {
@@ -20,38 +20,40 @@ a:not([href]){
 }
 
 .comment .permalink{
-    color: #ffffff;
+    color: var(--ctp-text);
 }
 
 .setting-item{
-    background-color: #444444;
+    background-color: var(--ctp-surface1);
+    border-radius: 12px;
 }
 
 
 .muted{
-    background-color: #111111;
-    color: gray;
+    background-color: var(--ctp-surface0);
+    color: var(--ctp-overlay1);
+    border-radius: 12px;
 }
 
 .muted a:link {
-    color: #10547f;
+    color: var(--ctp-sky);
 }
 
 .button,
 input,
 select,
 button[type=submit]{
-    color: var(--text-color);
-    background-color: #444444;
-    border: 1px solid var(--text-color);
-    border-radius: 3px;
-    padding: 2px 3px;
+    color: var(--ctp-text);
+    background-color: var(--ctp-surface1);
+    border: 1px solid var(--ctp-overlay0);
+    border-radius: 12px;
+    padding: 8px 16px;
 }
 .button:hover,
 input:hover,
 select:hover,
 button[type=submit]:hover{
-    background-color: #222222;
+    background-color: var(--ctp-surface2);
 }
 
 input[type="checkbox"]{

@@ -309,6 +309,14 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'comment': '',
     }),
 
+    ('enable_history_logging', {
+        'type': bool,
+        'default': True,
+        'label': 'Enable Video History Logging',
+        'comment': '''If disabled, video URLs will not be saved to the log file.''',
+        'category': 'other',
+    }),
+
     ('debugging_save_responses', {
         'type': bool,
         'default': False,
@@ -542,6 +550,7 @@ def settings_page():
         return flask.render_template('settings.html',
             categories = categories,
             settings_by_category = settings_by_category,
+            util=util
         )
     elif request.method == 'POST':
         for key, value in request.values.items():

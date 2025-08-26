@@ -1,6 +1,6 @@
 import youtube
 from youtube import yt_app
-from youtube import util, comments, local_playlist, yt_data_extract
+from youtube import util, comments, local_playlist, yt_data_extract, videolog
 import settings
 
 from flask import request
@@ -737,6 +737,8 @@ def get_watch_page(video_id=None):
         template_name = 'embed.html'
     else:
         template_name = 'watch.html'
+    video_url = util.URL_ORIGIN + '/watch?v=' + video_id
+    videolog.save_video_url(video_url)
     return flask.render_template(template_name,
         header_playlist_names   = local_playlist.get_playlist_names(),
         uploader_channel_url    = ('/' + info['author_url']) if info['author_url'] else '',

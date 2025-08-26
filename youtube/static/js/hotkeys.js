@@ -10,6 +10,7 @@ osd.style.left = '10px';
 osd.style.backgroundColor = 'rgb(186, 187, 241)';
 osd.style.color = 'white';
 osd.style.padding = '5px';
+osd.style.borderRadius= '20px';
 osd.style.zIndex = '1000';
 osd.style.display = 'none';
 osd.id = 'video-osd';
@@ -117,6 +118,11 @@ function onKeyDown(e) {
         e.preventDefault();
         v.playbackRate = Math.max(0.1, v.playbackRate - 0.1);
         updateOSD(`Speed: ${v.playbackRate.toFixed(1)}x`);
+    }else if (c === 'g') {
+        e.preventDefault();
+        // Assuming v is your Plyr instance
+        v.loop = !v.loop;
+        updateOSD(`Loop ${v.loop ? 'enabled' : 'disabled'}`);
     } else if (c === "f") {
         e.preventDefault();
         if (typeof data !== 'undefined' && data.settings?.video_player === 1) {
@@ -126,6 +132,12 @@ function onKeyDown(e) {
             else v.requestFullscreen();
         }
         updateOSD("Fullscreen toggled");
+    }
+    else if (c === 'm') {
+        e.preventDefault();
+        v.muted = !v.muted;
+        updateOSD(v.muted ? 'Muted' : 'Unmuted');
+        return;
     }
 
     // --- X: Save note ---

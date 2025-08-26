@@ -1,6 +1,6 @@
 body{
     --plyr-control-spacing: calc(var(--plyr-control-spacing-num)*1px);
-	--plyr-video-controls-background: rgba(0,0,0,0.8);
+	--plyr-video-controls-background: rgba(30,30,46,0.8); /* ctp-base with transparency */
 }
 
 /* Scale captions with video height, not page width. Scale down to a minimum
@@ -8,12 +8,13 @@ body{
    exactly proportional to video height */
 .plyr__captions {
     font-size: calc(18px + 8px*(var(--video_height) - 720)/720) !important;
+    color: var(--ctp-text);
 }
 
 
 /* make buffered progress more visible */
 .plyr--video .plyr__progress__buffer{
-    color: rgba(255,255,255,0.75) !important;
+    color: var(--ctp-overlay2) !important; /* Catppuccin overlay color */
 }
 
 /* Avoid visual jumps and flashes as plyr loads */
@@ -24,6 +25,8 @@ body{
 .plyr__video-wrapper{
     height: 100% !important;
     width: 100% !important;
+    border-radius: 12px; /* Rounded video player */
+    overflow: hidden; /* Ensures content respects border-radius */
 }
 
 /* Prevent this div from blocking right-click menu for video
@@ -34,8 +37,9 @@ e.g. Firefox playback speed options */
 
 /* Get rid of obnoxiously high padding on controls bar */
 .plyr__controls{
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
+    padding-top: 8px !important; /* Increased padding */
+    padding-bottom: 8px !important; /* Increased padding */
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners for controls */
 }
 
 .plyr__captions{
@@ -48,6 +52,8 @@ e.g. Firefox playback speed options */
 .plyr div[role="menu"]{
     overflow-y: scroll;
     max-height: calc(var(--video_height)*1px - 10px - 40px);
+    background-color: var(--ctp-surface0); /* Catppuccin surface color */
+    border-radius: 8px; /* Rounded menus */
 }
 
 /* For menus with a button above them */
@@ -56,4 +62,6 @@ e.g. Firefox playback speed options */
     /* Subtract margin between controls and menu, and controls height,
        and height of top menu button*/
     max-height: calc(var(--video_height)*1px - 10px - 40px - 42px*var(--plyr-control-spacing-num)/10);
+    background-color: var(--ctp-surface0); /* Catppuccin surface color */
+    border-radius: 8px; /* Rounded menus */
 }

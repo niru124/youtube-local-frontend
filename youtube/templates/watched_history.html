@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Watched History{% endblock %}
+
+{% block style %}
+    main {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--ctp-surface0);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: var(--ctp-text);
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .history-entry {
+        background-color: var(--ctp-surface1);
+        border-left: 4px solid var(--ctp-blue);
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 4px;
+    }
+    .history-entry p {
+        margin: 5px 0;
+        color: var(--ctp-text);
+    }
+    .history-entry a {
+        color: var(--ctp-lavender);
+        text-decoration: none;
+    }
+    .history-entry a:hover {
+        text-decoration: underline;
+    }
+    .date-header {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: var(--ctp-mauve);
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid var(--ctp-surface2);
+        padding-bottom: 5px;
+    }
+{% endblock %}
+
+{% block main %}
+    <h1>Watched Video History</h1>
+    {% if history_data %}
+        {% for date, urls in history_data.items() %}
+            <h2 class="date-header">{{ date }}</h2>
+            {% for url in urls %}
+                <div class="history-entry">
+                    <p><a href="{{ url }}">{{ url }}</a></p>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: var(--ctp-subtext0);">No watched video history found.</p>
+    {% endif %}
+{% endblock %}

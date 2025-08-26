@@ -77,6 +77,16 @@
         {% endfor %}
         <input type="submit" value="Save settings">
     </form>
+    <h2>History Management</h2>
+    <div class="settings-form">
+        <form action="{{ util.URL_ORIGIN }}/videolog/export" method="GET">
+            <input type="submit" value="Export History">
+        </form>
+        <form action="{{ util.URL_ORIGIN }}/videolog/import" method="POST" enctype="multipart/form-data">
+            <input type="file" name="history_file" accept=".txt">
+            <input type="submit" value="Import History">
+        </form>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const defaultSpeedInput = document.getElementById('setting_default_playback_speed');

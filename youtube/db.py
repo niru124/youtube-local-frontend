@@ -5,8 +5,6 @@ import os
 from youtube import settings
 
 DATABASE_FILE = os.path.join(settings.data_dir, 'youtube_history.db')
-
-def get_db_connection():
 print(f"[DEBUG] Database file path: {DATABASE_FILE}")
 
 def get_db_connection():

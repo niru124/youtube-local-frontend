@@ -76,19 +76,14 @@ def videolog_page():
             return {"status": "success", "message": "Video URL saved."}
         return {"status": "error", "message": "No video URL provided."}, 400
     else:
-        video_urls_by_date = load_video_urls(today)
-        monthly_summary = db.get_monthly_summary(today.year, today.month)
-        return render_template('videolog.html', video_urls_by_date=video_urls_by_date, monthly_summary=monthly_summary, util=util)
-
-@yt_app.route('/videolog/export_db')
-def export_videolog_db():
-    # This will export the entire SQLite database file
-    if os.path.exists(db.DATABASE_FILE):
-        return flask.send_file(db.DATABASE_FILE, as_attachment=True, download_name='youtube_history.db')
-    return "No history database found.", 404
         video_urls_by_date = load_video_urls(selected_date)
         monthly_summary = db.get_monthly_summary(selected_date.year, selected_date.month)
         return render_template('videolog.html', video_urls_by_date=video_urls_by_date, monthly_summary=monthly_summary, util=util, selected_date=selected_date, timedelta=datetime.timedelta)
+
+
+
+
+
 
 
 def save_video_url(url):

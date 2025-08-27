@@ -472,12 +472,18 @@ def _extract_formats(info, player_response):
     for yt_fmt in yt_formats:
         itag = yt_fmt.get('itag')
 
-        # Translated audio track
-        # Example: https://www.youtube.com/watch?v=gF9kkB0UWYQ
-        # Only get the original language for now so a foreign
-        # translation will not be picked just because it comes first
-        if deep_get(yt_fmt, 'audioTrack', 'audioIsDefault') is False:
-            continue
+        # Translated audio track handling
+        audio_track_info = yt_fmt.get('audioTrack')
+        if audio_track_info:
+            # If audioTrack info exists, prioritize original language
+            # Check if it's explicitly marked as not default or if it's a translated track
+            if audio_track_info.get('audioIsDefault') is False:
+                # Skip if it's not the default audio track
+                continue
+            if "original" not in audio_track_info.get('displayName', '').lower():
+                # If it has audioTrack info but doesn't contain "original" in display name, skip it
+                continue
+        # If no audioTrack info, or if it's the default/original, proceed
 
         fmt = {}
         fmt['itag'] = itag

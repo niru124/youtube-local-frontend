@@ -59,6 +59,16 @@ def get_video_details(video_id):
 @yt_app.route('/videolog', methods=['GET', 'POST'])
 def videolog_page():
     today = datetime.date.today()
+    selected_date_str = request.args.get('date')
+    
+    if selected_date_str:
+        try:
+            selected_date = datetime.datetime.strptime(selected_date_str, '%d-%m-%Y').date()
+        except ValueError:
+            selected_date = today # Fallback to today if date format is invalid
+    else:
+        selected_date = today
+
     if request.method == 'POST':
         video_url = request.form.get('video_url')
         if video_url:
@@ -76,9 +86,9 @@ def export_videolog_db():
     if os.path.exists(db.DATABASE_FILE):
         return flask.send_file(db.DATABASE_FILE, as_attachment=True, download_name='youtube_history.db')
     return "No history database found.", 404
-
-
-
+        video_urls_by_date = load_video_urls(selected_date)
+        monthly_summary = db.get_monthly_summary(selected_date.year, selected_date.month)
+        return render_template('videolog.html', video_urls_by_date=video_urls_by_date, monthly_summary=monthly_summary, util=util, selected_date=selected_date, timedelta=datetime.timedelta)
 
 
 def save_video_url(url):

@@ -6,16 +6,18 @@ var sha256 = function a(b) { function c(a, b) { return a >>> b | a << 32 - b } f
 
 window.addEventListener("load", load_sponsorblock);
 
-async function load_sponsorblock() {
+window.load_sponsorblock = async function() {
   const video_obj = Q("video");
   if (!video_obj) return;
 
   if (!window.data || !data.video_id) {
-    console.error("data.video_id is not defined.");
+    console.error("SponsorBlock: data.video_id is not defined.");
     return;
   }
 
+  console.log("SponsorBlock: Video ID:", data.video_id);
   const hash = sha256(data.video_id).substring(0, 4);
+  console.log("SponsorBlock: Video ID Hash (first 4 chars):", hash);
 
   const skipCategories = [
     "sponsor",
@@ -31,10 +33,16 @@ async function load_sponsorblock() {
 
   const params = skipCategories.map((cat) => `categories=${encodeURIComponent(cat)}`).join("&");
   const url = `https://sponsor.ajay.app/api/skipSegments/${hash}?${params}`;
+  console.log("SponsorBlock: API URL:", url);
 
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      console.error("SponsorBlock: API request failed with status:", response.status);
+      return;
+    }
     const videos = await response.json();
+    console.log("SponsorBlock: Raw API response:", videos);
 
     let segmentsToSkip = [];
 
@@ -43,15 +51,32 @@ async function load_sponsorblock() {
 
       segmentsToSkip = video.segments
         .filter((seg) => skipCategories.includes(seg.category))
-        .map((seg) => ({ start: seg.segment[0], end: seg.segment[1] }));
+        .map((seg) => ({ start: seg.segment[0], end: seg.segment[1], skipped: false }));
       break;
     }
 
     if (segmentsToSkip.length) {
+      console.log("SponsorBlock: Segments to skip:", segmentsToSkip);
       video_obj.addEventListener("timeupdate", function () {
+        // console.log("SponsorBlock: timeupdate fired, current time:", this.currentTime);
+        if (this.paused || this.seeking) return; // Don't skip if paused or seeking
         const t = this.currentTime;
-        const seg = segmentsToSkip.find((s) => t >= s.start && t < s.end - 1);
-        if (seg) this.currentTime = seg.end;
+        // Find a segment that is currently active and hasn't been skipped yet
+        const seg = segmentsToSkip.find((s) => t >= s.start && t < s.end && !s.skipped);
+
+        if (seg) {
+          // Mark segment as skipped to prevent re-skipping
+          seg.skipped = true;
+          this.currentTime = seg.end;
+          console.log(`SponsorBlock: Skipped segment from ${seg.start.toFixed(2)} to ${seg.end.toFixed(2)}`);
+        }
+
+        // Reset skipped flag for segments that have been passed
+        segmentsToSkip.forEach(s => {
+            if (t >= s.end && s.skipped) {
+                s.skipped = false;
+            }
+        });
       });
     }
   } catch (err) {

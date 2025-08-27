@@ -7,6 +7,11 @@ from youtube import settings
 DATABASE_FILE = os.path.join(settings.data_dir, 'youtube_history.db')
 
 def get_db_connection():
+print(f"[DEBUG] Database file path: {DATABASE_FILE}")
+
+def get_db_connection():
+    # Ensure the directory for the database file exists
+    os.makedirs(os.path.dirname(DATABASE_FILE), exist_ok=True)
     conn = sqlite3.connect(DATABASE_FILE)
     conn.row_factory = sqlite3.Row
     return conn

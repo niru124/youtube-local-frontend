@@ -34,6 +34,7 @@ function changeQuality(selection) {
         video.play();
     }
     video.playbackRate = videoSpeed;
+    window.load_sponsorblock(); // Re-initialize SponsorBlock after quality change
 }
 
 // Initialize av-merge

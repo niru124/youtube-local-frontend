@@ -108,6 +108,14 @@
     <div class="video-log-container">
         <h1>Video Log</h1>
 
+        <div class="date-navigation" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            {% set prev_day = selected_date - timedelta(days=1) %}
+            {% set next_day = selected_date + timedelta(days=1) %}
+            <a href="/videolog?date={{ prev_day.strftime('%d-%m-%Y') }}" class="nav-link">&lt; Previous Day</a>
+            <h2 style="margin: 0;">History for {{ selected_date.strftime('%Y-%m-%d') }}</h2>
+            <a href="/videolog?date={{ next_day.strftime('%d-%m-%Y') }}" class="nav-link">Next Day &gt;</a>
+        </div>
+
         <div class="monthly-summary-container">
             <h2>Monthly Summary</h2>
             {% if monthly_summary %}
@@ -118,6 +126,7 @@
                 <p>No monthly summary available yet.</p>
             {% endif %}
             <a href="/videolog/export_db" class="export-button">Export Video History Database</a>
+            
         </div>
 
         {% if video_urls_by_date %}

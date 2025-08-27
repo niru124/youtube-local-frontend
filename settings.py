@@ -64,7 +64,7 @@ For security reasons, enabling this is not recommended.''',
 
     ('subtitles_mode', {
         'type': int,
-        'default': 0,
+        'default': 0, # Changed from default 0 to 0 to explicitly turn off autodubbing
         'comment': '''0 - off by default
 1 - only manually created subtitles on by default
 2 - enable even if automatically generated is all that's available''',

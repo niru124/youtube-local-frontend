@@ -17,15 +17,47 @@ main{
         li{
             margin-bottom: 10px;
         }
+    #playlist-search {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: var(--ctp-mantle);
+        color: var(--ctp-text);
+    }
 {% endblock style %}
 
 {% block main %}
     <ul>
+        <input type="text" id="playlist-search" placeholder="Filter playlists...">
         {% for playlist_name, playlist_url in playlists %}
             <li><a href="{{ playlist_url }}">{{ playlist_name }}</a></li>
         {% endfor %}
     </ul>
 {% endblock main %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('playlist-search');
+        const playlistItems = document.querySelectorAll('#main ul li');
+
+        searchInput.addEventListener('input', function() {
+            const filter = searchInput.value.toLowerCase();
+            playlistItems.forEach(item => {
+                const playlistName = item.textContent.toLowerCase();
+                if (playlistName.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock scripts %}
 
 
 

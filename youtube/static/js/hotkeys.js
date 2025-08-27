@@ -32,6 +32,44 @@ function updateOSD(text) {
     }, 2000); // Hide after 2 seconds
 }
 
+// Helper to find quality by resolution string
+function findQualitySelection(resolution) {
+    console.log("findQualitySelection: Searching for resolution", resolution);
+    if (typeof data === 'undefined' || (!data.uni_sources && !data.pair_sources)) {
+        console.warn("findQualitySelection: Quality data (data.uni_sources or data.pair_sources) not available.");
+        return null;
+    }
+
+    const targetQualityString = `${resolution}p`;
+    console.log("findQualitySelection: Target quality string", targetQualityString);
+
+    // Check unified sources first
+    if (data.uni_sources) {
+        console.log("findQualitySelection: Checking uni_sources:", data.uni_sources);
+        for (let i = 0; i < data.uni_sources.length; i++) {
+            console.log(`findQualitySelection: Comparing '${data.uni_sources[i].quality_string}' with '${targetQualityString}'`);
+            if (data.uni_sources[i].quality_string === targetQualityString) {
+                console.log("findQualitySelection: Match found in uni_sources.");
+                return { type: 'uni', index: i, quality: targetQualityString };
+            }
+        }
+    }
+
+    // If not found in unified, check paired sources
+    if (data.pair_sources) {
+        console.log("findQualitySelection: Checking pair_sources:", data.pair_sources);
+        for (let i = 0; i < data.pair_sources.length; i++) {
+            console.log(`findQualitySelection: Comparing '${data.pair_sources[i].quality_string}' with '${targetQualityString}'`);
+            if (data.pair_sources[i].quality_string === targetQualityString) {
+                console.log("findQualitySelection: Match found in pair_sources.");
+                return { type: 'pair', index: i, quality: targetQualityString };
+            }
+        }
+    }
+    console.log("findQualitySelection: No match found for", targetQualityString);
+    return null;
+}
+
 function onKeyDown(e) {
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return false;
 
@@ -39,6 +77,38 @@ function onKeyDown(e) {
     if (!v || !e.isTrusted) return;
 
     const c = e.key.toLowerCase();
+
+    // Hotkeys for quality change (Ctrl + 1-8)
+    if (e.ctrlKey && c >= '1' && c <= '8') {
+        e.preventDefault();
+        let resolution;
+        switch (c) {
+            case '1': resolution = 2160; break; // 4K
+            case '2': resolution = 1440; break; // 1440p
+            case '3': resolution = 1080; break;
+            case '4': resolution = 720; break;
+            case '5': resolution = 480; break;
+            case '6': resolution = 360; break;
+            case '7': resolution = 240; break;
+            case '8': resolution = 144; break;
+            default: return;
+        }
+
+        const selection = findQualitySelection(resolution);
+        if (selection) {
+            // Assuming changeQuality is globally available from watch.js
+            if (typeof changeQuality === 'function') {
+                changeQuality({ type: selection.type, index: selection.index });
+                updateOSD(`Quality: ${selection.quality}`);
+            } else {
+                console.error("changeQuality function not found.");
+                updateOSD("Error: Quality change failed.");
+            }
+        } else {
+            updateOSD(`Quality ${resolution}p not available.`);
+        }
+        return;
+    }
 
     // Press 'c' to start/stop recording a clip
     if (c === 'c') {

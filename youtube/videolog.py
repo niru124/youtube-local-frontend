@@ -27,9 +27,10 @@ def log_watch_time():
     title = video_details.get('title', 'Unknown Title')
     link = video_details.get('url', f'{util.URL_ORIGIN}/watch?v={video_id}')
     channel_name = video_details.get('channel_name', 'Unknown Channel')
+    channel_link = video_details.get('channel_link', '')
 
     try:
-        db.log_video_watch_time(video_id, title, link, watched_time, total_duration, channel_name)
+        db.log_video_watch_time(video_id, title, link, watched_time, total_duration, channel_name, channel_link)
         return {"status": "success", "message": "Watch time logged successfully"}
     except Exception as e:
         print(f"Error logging watch time to DB: {e}")
@@ -44,7 +45,8 @@ def get_video_details(video_id):
                 'title': info.get('title', 'Unknown Title'),
                 'thumbnail': util.prefix_url(info.get('thumbnail', '')),
                 'url': util.URL_ORIGIN + '/watch?v=' + video_id,
-                'channel_name': info.get('author', 'Unknown Channel')
+                'channel_name': info.get('author', 'Unknown Channel'),
+                'channel_link': info.get('author_url', '')
             }
     except Exception as e:
         print(f"Error fetching details for video {video_id}: {e}")
@@ -95,9 +97,10 @@ def save_video_url(url):
             title = video_details.get('title', 'Unknown Title')
             link = video_details.get('url', f'{util.URL_ORIGIN}/watch?v={video_id}')
             channel_name = video_details.get('channel_name', 'Unknown Channel')
+            channel_link = video_details.get('channel_link', '')
             
             # When a video is manually saved, we don't have actual watch time, so log with 0
-            db.log_video_watch_time(video_id, title, link, 0, 0, channel_name)
+            db.log_video_watch_time(video_id, title, link, 0, 0, channel_name, channel_link)
         else:
             print(f"Warning: Could not extract video ID from URL: {url}")
 
@@ -120,7 +123,8 @@ def load_video_urls(date_obj):
                 'url': entry['link'],
                 'watched_time': entry['watched_time'],
                 'watch_time_percentage': entry['watch_time_percentage'],
-                'channel_name': entry.get('channel_name', video_details.get('channel_name', ''))
+                'channel_name': entry.get('channel_name', video_details.get('channel_name', '')),
+                'channel_link': entry.get('channel_link', '').replace('https://www.youtube.com', '')
             })
 
     return video_urls_by_date

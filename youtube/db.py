@@ -26,6 +26,7 @@ def create_daily_table(date_obj):
             link TEXT NOT NULL,
             watched_time REAL NOT NULL,
             channel_name TEXT,
+            channel_link TEXT,
             watch_time_percentage REAL NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -50,7 +51,7 @@ def create_monthly_table(month_year_str):
     conn.commit()
     conn.close()
 
-def log_video_watch_time(video_id, title, link, watched_time, total_duration, channel_name=None):
+def log_video_watch_time(video_id, title, link, watched_time, total_duration, channel_name=None, channel_link=None):
     today_obj = datetime.date.today()
     month_year_str = today_obj.strftime('%m_%Y')
 
@@ -82,9 +83,9 @@ def log_video_watch_time(video_id, title, link, watched_time, total_duration, ch
         # Insert new entry
         cursor.execute(f"""
             INSERT INTO {daily_table_name}
-            (video_id, title, link, watched_time, channel_name, watch_time_percentage)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (video_id, title, link, watched_time, channel_name, watch_time_percentage))
+            (video_id, title, link, watched_time, channel_name, channel_link, watch_time_percentage)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (video_id, title, link, watched_time, channel_name, channel_link, watch_time_percentage))
     
     conn.commit()
     conn.close()

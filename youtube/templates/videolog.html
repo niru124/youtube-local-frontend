@@ -3,13 +3,14 @@
 
 {% block style %}
     .video-log-container {
-        max-width: 800px;
-        margin: 20px auto;
+        width: 100%;
+        margin: 0 auto;
         padding: 20px;
         background-color: var(--ctp-surface0);
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     .date-group {
         margin-bottom: 20px;
         border-bottom: 1px solid var(--ctp-surface1);
@@ -18,61 +19,75 @@
     .date-group:last-child {
         border-bottom: none;
     }
+
     .date-header {
         font-size: 1.5em;
         color: var(--ctp-blue);
         margin-bottom: 10px;
     }
+
     .video-list {
         list-style: none;
         padding: 0;
     }
+
     .video-list li {
         margin-bottom: 15px;
         display: flex;
         align-items: center;
         background-color: var(--ctp-surface1);
-        padding: 10px;
-        border-radius: 5px;
+        padding: 12px;
+        border-radius: 6px;
     }
+
     .video-list li a {
         display: flex;
         align-items: center;
         color: var(--ctp-text);
         text-decoration: none;
         font-weight: bold;
-        flex: 1; /* Use flex shorthand for better control */
-        min-width: 0; /* Allow content to shrink below its intrinsic size */
+        flex: 1;
+        min-width: 0;
     }
+
     .video-list li a:hover {
         text-decoration: underline;
     }
+
     .video-list li img {
-        border-radius: 3px;
-        margin-right: 15px;
+        width: 180px;
+        height: 100px;
+        border-radius: 4px;
+        margin-right: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        flex-shrink: 0; /* Prevent image from shrinking */
+        flex-shrink: 0;
     }
+
     .video-list li .video-title {
-        flex-grow: 1; /* Allow title to take up remaining space */
+        flex-grow: 1;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap; /* Prevent title from wrapping */
+        white-space: nowrap;
     }
+
     .video-info {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
+        width: 100%;
         min-width: 0;
     }
+
     .video-watched-time,
-    .video-watch-percentage {
+    .video-watch-percentage,
+    .video-channel-name {
         font-size: 0.9em;
         color: var(--ctp-subtext1);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .monthly-summary-container {
         background-color: var(--ctp-surface1);
         padding: 15px;
@@ -80,15 +95,18 @@
         margin-bottom: 20px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
+
     .monthly-summary-container h2 {
         color: var(--ctp-mauve);
         margin-top: 0;
         margin-bottom: 10px;
     }
+
     .monthly-summary-container p {
         margin-bottom: 5px;
         color: var(--ctp-text);
     }
+
     .export-button {
         display: inline-block;
         background-color: var(--ctp-green);
@@ -99,6 +117,7 @@
         font-weight: bold;
         margin-top: 10px;
     }
+
     .export-button:hover {
         background-color: var(--ctp-teal);
     }
@@ -125,7 +144,6 @@
             {% else %}
                 <p>No monthly summary available yet.</p>
             {% endif %}
-            
         </div>
 
         {% if video_urls_by_date %}
@@ -135,15 +153,13 @@
                     <ul class="video-list">
                         {% for video in urls %}
                             <li>
-                                <a href="{{ video.url }}" target="_blank">
-                                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}" style="width: 120px; height: 90px;">
-                                    <div class="video-info">
-                                        <span class="video-title">{{ video.title }}</span>
-                                        <span class="video-channel-name">{{ video.channel_name }}</span>
-                                        <span class="video-watched-time">Watched: {{ (video.watched_time / 60) | round(1) }} minutes</span>
-                                        <span class="video-watch-percentage">({{ video.watch_time_percentage | round(1) }}%)</span>
-                                    </div>
-                                </a>
+                                <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+                                <div class="video-info">
+                                    <span class="video-title"><a href="{{ video.url }}" target="_blank">{{ video.title }}</a></span>
+                                    <span class="video-channel-name"><a href="{{ util.URL_ORIGIN }}{{ video.channel_link }}" target="_blank">{{ video.channel_name }}</a></span>
+                                    <span class="video-watched-time"><a href="{{ video.url }}?t={{ video.watched_time | int }}" target="_blank">Watched: {{ (video.watched_time / 60) | round(1) }} minutes</a></span>
+                                    <span class="video-watch-percentage">({{ video.watch_time_percentage | round(1) }}%)</span>
+                                </div>
                             </li>
                         {% endfor %}
                     </ul>
@@ -154,3 +170,4 @@
         {% endif %}
     </div>
 {% endblock main %}
+

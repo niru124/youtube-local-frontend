@@ -270,7 +270,7 @@ body{
                 color: var(--ctp-text);
             }
             #playlist-name-selection{
-                height: 48px; /* Larger height */
+                height: 70px; /* Larger height */
                 border: 1px solid var(--ctp-surface1);
                 border-radius: 12px; /* Rounded */
                 padding: 0 16px; /* More padding */
@@ -501,7 +501,7 @@ body{
             margin-right: 4px;
         }
         .no-description .thumbnail-box{
-            width: 168px;
+            width: 200px;
             height:94px;
             border-radius: 12px; /* Rounded */
         }

@@ -102,8 +102,9 @@
 
     main{
         display:grid;
-        grid-template-columns: minmax(0, 1fr) 640px 40px 400px minmax(0, 1fr);
-        grid-template-rows: auto auto auto auto;
+        /* 5 columns: left-padding, video, info/side-videos, comments, right-padding */
+        grid-template-columns: minmax(0, 1fr) minmax(640px, 1fr) minmax(0, 0.5fr) minmax(0, 0.5fr) minmax(0, 1fr);
+        grid-template-rows: auto auto; /* video, then info/side, then comments */
         align-content: start;
         /* Padding handled by shared.css now */
     }
@@ -199,14 +200,20 @@
                 grid-area: v-download;
                 margin-bottom: 15px;
             }
-            .video-info > .description{
+            .video-info > .description-container{
                 margin-top:15px;
-                white-space: pre-wrap;
-                min-width: 0;
-                word-wrap: break-word;
                 grid-area: v-description;
-                padding: 0; /* Padding handled by parent .video-info */
             }
+                .video-info > .description-container > summary{
+                    font-weight: normal;
+                    border-width: 0;
+                }
+                .video-info > .description-container > .description{
+                    white-space: pre-wrap;
+                    min-width: 0;
+                    word-wrap: break-word;
+                    padding: 0; /* Padding handled by parent .video-info */
+                }
 
             .music-list{
                 grid-area: v-music-list;
@@ -241,11 +248,28 @@
                     .more-info-content p{
                         margin: 8px 0px;
                     }
-        .comments-area-outer{
-            grid-column: 2;
-            grid-row: 3;
-            margin-top:20px; /* Space from video info */
+
+        /*  NEW LAYOUT */
+        .side-and-comments-container {
+            grid-column: 1 / -1; /* Span the full width */
+            grid-row: 3; /* Put it on the new row */
+            display: flex;
+            width: 100%;
+            padding: 0 20px; /* Match the main padding */
+            box-sizing: border-box; /* Include padding in the width */
         }
+
+        .side-videos{
+            width: 60%; /* 40% for related videos */
+            padding-right: 20px;
+            box-sizing: border-box;
+        }
+
+        .comments-area-outer{
+            width: 40%; /* 60% for comments */
+            box-sizing: border-box;
+        }
+
         .comments-disabled{
             padding: 16px; /* Consistent padding */
             font-weight: bold;
@@ -254,14 +278,13 @@
             padding-top: 10px;
         }
             .comment{
-                max-width:640px;
+                max-width:100%;
             }
 
         .side-videos{
             list-style: none;
-            grid-column: 4;
-            max-width: 640px;
-            margin-top: 20px; /* Space from video player */
+            max-width: initial;
+            margin-top:20px;
         }
             #transcript-details{
                 margin-bottom: 15px;
@@ -304,7 +327,7 @@
                             margin-right: 10px;
                         }
                 .playlist-videos{
-                    height: 300px;
+                    height: 500px;
                     overflow-y: auto; /* Changed to auto for scrollbar only when needed */
                     display: grid;
                     grid-auto-rows: 90px;
@@ -370,7 +393,7 @@
             }
                 .thumbnail-box{     /* overides rule in shared.css */
                     height: 90px !important;
-                    width: 120px !important;
+                    width: 170px !important;
                 }
 
     .download-dropdown-content{
@@ -428,22 +451,19 @@
     /* 1100px instead of 1080 because W3C is full of idiots who include scrollbar width */
     @media (max-width:1100px){
         main{
-            grid-template-columns: minmax(0, 1fr) 640px 0 minmax(0, 1fr);
+            grid-template-columns: 5px minmax(0, 1fr) 5px;
         }
-        .side-videos{
-            margin-top: 20px; /* Consistent margin */
-            grid-column: 2;
-            grid-row: 3;
-            width: initial;
+        .side-and-comments-container{
+            flex-direction: column;
         }
-        .comments-area-outer{
-            grid-row: 4;
+        .side-videos, .comments-area-outer{
+            width: 100%;
         }
     }
 
     @media (max-width:660px){
         main{
-            grid-template-columns: 5px minmax(0, 1fr) 0 5px;
+            grid-template-columns: 5px minmax(0, 1fr) 5px;
         }
         .format-attributes{
             display: grid;
@@ -535,10 +555,10 @@ Reload without invidious (for usage of new identity button).</a>
                 <li class="age-restricted">Age-restricted</li>
             {%- endif -%}
             {%- if limited_state -%}
-                <li>Limited state</li>
+                <li class="limited-state">Limited state</li>
             {%- endif -%}
             {%- if live -%}
-                <li>Live</li>
+                <li class="live">Live</li>
             {%- endif -%}
         </ul>
         <address>Uploaded by <a href="{{ uploader_channel_url }}">{{ uploader }}</a></address>
@@ -615,7 +635,10 @@ Reload without invidious (for usage of new identity button).</a>
         </details>
 
 
-        <span class="description">{{ common_elements.text_runs(description)|escape|urlize|timestamps|safe }}</span>
+        <details class="description-container">
+            <summary>Description</summary>
+            <span class="description">{{ common_elements.text_runs(description)|escape|urlize|timestamps|safe }}</span>
+        </details>
         <div class="music-list">
             {% if music_list.__len__() != 0 %}
                 <hr>
@@ -658,81 +681,84 @@ Reload without invidious (for usage of new identity button).</a>
         </details>
     </div>
 
-    <div class="side-videos">
-        {% if playlist %}
-            <div class="playlist">
-                <div class="playlist-header">
-                    <a href="{{ playlist['url'] }}" title="{{ playlist['title'] }}"><h3>{{ playlist['title'] }}</h3></a>
-                    <ul class="playlist-metadata">
-                        <li>Autoplay: <input type="checkbox" id="autoplay-toggle"></li>
-                        {% if playlist['current_index'] is none %}
-                            <li>[Error!]/{{ playlist['video_count'] }}</li>
-                        {% else %}
-                            <li>{{ playlist['current_index']+1 }}/{{ playlist['video_count'] }}</li>
-                        {% endif %}
-                        <li><a href="{{ playlist['author_url'] }}" title="{{ playlist['author'] }}">{{ playlist['author'] }}</a></li>
-                    </ul>
-                </div>
-                <nav class="playlist-videos">
-                    {% for info in playlist['items'] %}
-                        {# non-lazy load for 5 videos surrounding current video #}
-                        {# for non-js browsers or old such that IntersectionObserver doesn't work #}
-                        {# -10 is sentinel to not load anything if there's no current_index for some reason #}
-                        {% if (playlist.get('current_index', -10) - loop.index0)|abs is lt(5)  %}
-                            {{ common_elements.item(info, include_badges=false, lazy_load=false) }}
-                        {% else %}
-                            {{ common_elements.item(info, include_badges=false, lazy_load=true) }}
-                        {% endif %}
-                    {% endfor %}
-                </nav>
-            </div>
-        {% elif settings.related_videos_mode != 0 %}
-            <div class="autoplay-toggle-container"><label for="autoplay-toggle">Autoplay: </label><input type="checkbox" id="autoplay-toggle"></div>
-        {% endif %}
+    <div class="side-and-comments-container">
+      <div class="side-videos">
+          {% if playlist %}
+              <div class="playlist">
+                  <div class="playlist-header">
+                      <a href="{{ playlist['url'] }}" title="{{ playlist['title'] }}"><h3>{{ playlist['title'] }}</h3></a>
+                      <ul class="playlist-metadata">
+                          <li>Autoplay: <input type="checkbox" id="autoplay-toggle"></li>
+                          {% if playlist['current_index'] is none %}
+                              <li>[Error!]/{{ playlist['video_count'] }}</li>
+                          {% else %}
+                              <li>{{ playlist['current_index']+1 }}/{{ playlist['video_count'] }}</li>
+                          {% endif %}
+                          <li><a href="{{ playlist['author_url'] }}" title="{{ playlist['author'] }}">{{ playlist['author'] }}</a></li>
+                      </ul>
+                  </div>
+                  <nav class="playlist-videos">
+                      {% for info in playlist['items'] %}
+                          {# non-lazy load for 5 videos surrounding current video #}
+                          {# for non-js browsers or old such that IntersectionObserver doesn't work #}
+                          {# -10 is sentinel to not load anything if there's no current_index for some reason #}
+                          {% if (playlist.get('current_index', -10) - loop.index0)|abs is lt(5)  %}
+                              {{ common_elements.item(info, include_badges=false, lazy_load=false) }}
+                          {% else %}
+                              {{ common_elements.item(info, include_badges=false, lazy_load=true) }}
+                          {% endif %}
+                      {% endfor %}
+                  </nav>
+              </div>
+          {% elif settings.related_videos_mode != 0 %}
+              <div class="autoplay-toggle-container"><label for="autoplay-toggle">Autoplay: </label><input type="checkbox" id="autoplay-toggle"></div>
+          {% endif %}
 
 
-        {% if subtitle_sources %}
-            <details id="transcript-details">
-                <summary>Transcript</summary>
-                <div id="transcript-div">
-                    <select id="select-tt">
-                        {% for source in subtitle_sources %}
-                            <option>{{ source['label'] }}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="transcript-use-table">Table view</label>
-                    <input type="checkbox" id="transcript-use-table">
-                    <table id="transcript-table"></table>
-                </div>
-            </details>
-        {% endif %}
+          {% if subtitle_sources %}
+              <details id="transcript-details">
+                  <summary>Transcript</summary>
+                  <div id="transcript-div">
+                      <select id="select-tt">
+                          {% for source in subtitle_sources %}
+                              <option>{{ source['label'] }}</option>
+                          {% endfor %}
+                      </select>
+                      <label for="transcript-use-table">Table view</label>
+                      <input type="checkbox" id="transcript-use-table">
+                      <table id="transcript-table"></table>
+                  </div>
+              </details>
+          {% endif %}
 
-        {% if settings.related_videos_mode != 0 %}
-            <details class="related-videos-outer" {{'open' if settings.related_videos_mode == 1 else ''}}>
-                <summary>Related Videos</summary>
-                <nav class="related-videos-inner">
-                    {% for info in related %}
-                        {{ common_elements.item(info, include_badges=false) }}
-                    {% endfor %}
-                </nav>
-            </details>
-        {% endif %}
+          {% if settings.related_videos_mode != 0 %}
+              <details class="related-videos-outer" {{'open' if settings.related_videos_mode == 1 else ''}}>
+                  <summary>Related Videos</summary>
+                  <nav class="related-videos-inner">
+                      {% for info in related %}
+                          {{ common_elements.item(info, include_badges=false) }}
+                      {% endfor %}
+                  </nav>
+              </details>
+          {% endif %}
+      </div>
+
+      {% if settings.comments_mode != 0 %}
+          {% if comments_disabled %}
+              <div class="comments-area-outer comments-disabled">Comments disabled</div>
+          {% else %}
+              <details class="comments-area-outer" {{'open' if settings.comments_mode == 1 else ''}}>
+                  <summary>{{ comment_count|commatize }} comment{{'s' if comment_count != '1' else ''}}</summary>
+                  <section class="comments-area-inner comments-area">
+                      {% if comments_info %}
+                          {{ comments.video_comments(comments_info) }}
+                      {% endif %}
+                  </section>
+              </details>
+          {% endif %}
+      {% endif %}
+
     </div>
-
-    {% if settings.comments_mode != 0 %}
-        {% if comments_disabled %}
-            <div class="comments-area-outer comments-disabled">Comments disabled</div>
-        {% else %}
-            <details class="comments-area-outer" {{'open' if settings.comments_mode == 1 else ''}}>
-                <summary>{{ comment_count|commatize }} comment{{'s' if comment_count != '1' else ''}}</summary>
-                <section class="comments-area-inner comments-area">
-                    {% if comments_info %}
-                        {{ comments.video_comments(comments_info) }}
-                    {% endif %}
-                </section>
-            </details>
-        {% endif %}
-    {% endif %}
 
     <script src="/youtube.com/static/js/av-merge.js"></script>
     <script src="/youtube.com/static/js/watch.js"></script>
@@ -780,8 +806,9 @@ Reload without invidious (for usage of new identity button).</a>
                     videoPlayer.playbackRate = parsedSpeed;
                 }
             }
-            // Set initial value of the input to the current playback rate
+            // Set initial value of the input to the current
             speedControlInput.value = videoPlayer.playbackRate.toFixed(2);
         });
     </script>
 {% endblock main %}
+

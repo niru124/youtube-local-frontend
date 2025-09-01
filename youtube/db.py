@@ -203,3 +203,69 @@ def get_monthly_summary(year, month):
         return None
     finally:
         conn.close()
+
+def create_watch_later_table():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        CREATE TABLE IF NOT EXISTS watch_later_videos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            video_id TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            link TEXT NOT NULL,
+            category TEXT,
+            comment TEXT,
+            thumbnail_path TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def add_watch_later_video(video_id, title, link, category=None, comment=None, thumbnail_path=None):
+    create_watch_later_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO watch_later_videos
+            (video_id, title, link, category, comment, thumbnail_path)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (video_id, title, link, category, comment, thumbnail_path))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        print(f"Video with ID {video_id} already exists in watch later.")
+        return False
+    finally:
+        conn.close()
+
+def get_watch_later_videos(category=None):
+    create_watch_later_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if category:
+        cursor.execute("SELECT * FROM watch_later_videos WHERE category = ? ORDER BY timestamp DESC", (category,))
+    else:
+        cursor.execute("SELECT * FROM watch_later_videos ORDER BY timestamp DESC")
+    videos = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in videos]
+
+def remove_watch_later_video(video_id):
+    create_watch_later_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM watch_later_videos WHERE video_id = ?", (video_id,))
+    conn.commit()
+    conn.close()
+
+def get_watch_later_categories():
+    create_watch_later_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT category FROM watch_later_videos WHERE category IS NOT NULL AND category != '' ORDER BY category")
+    categories = cursor.fetchall()
+    conn.close()
+    return [row['category'] for row in categories]
+

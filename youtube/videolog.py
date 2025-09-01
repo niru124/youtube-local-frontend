@@ -40,14 +40,18 @@ def get_video_details(video_id):
     try:
         info = watch.extract_info(video_id, use_invidious=False)
         if info and not info.get('error'):
-            return {
+            video_details = {
                 'id': video_id,
                 'title': info.get('title', 'Unknown Title'),
-                'thumbnail': util.prefix_url(info.get('thumbnail', '')),
                 'url': util.URL_ORIGIN + '/watch?v=' + video_id,
                 'channel_name': info.get('author', 'Unknown Channel'),
                 'channel_link': info.get('author_url', '')
             }
+            if settings.download_thumbnails_for_videolog:
+                video_details['thumbnail'] = util.prefix_url(info.get('thumbnail', ''))
+            else:
+                video_details['thumbnail'] = ''
+            return video_details
     except Exception as e:
         print(f"Error fetching details for video {video_id}: {e}")
     return {
@@ -115,15 +119,19 @@ def load_video_urls(date_obj):
         video_urls_by_date[date_obj] = []
         for entry in daily_history:
             print(f"[DEBUG] Processing history entry: video_id={entry.get('video_id')}, title={entry.get('title')}, channel_name_db={entry.get('channel_name')}, watched_time_db={entry.get('watched_time')}, watch_percentage_db={entry.get('watch_time_percentage')}")
-            video_details = get_video_details(entry['video_id'])
+            thumbnail = ''
+            if settings.download_thumbnails_for_videolog:
+                video_details = get_video_details(entry['video_id'])
+                thumbnail = video_details.get('thumbnail', '')
+
             video_urls_by_date[date_obj].append({
                 'id': entry['video_id'],
                 'title': entry['title'],
-                'thumbnail': video_details.get('thumbnail', ''),
+                'thumbnail': thumbnail,
                 'url': entry['link'],
                 'watched_time': entry['watched_time'],
                 'watch_time_percentage': entry['watch_time_percentage'],
-                'channel_name': entry.get('channel_name', video_details.get('channel_name', '')),
+                'channel_name': entry.get('channel_name', 'Unknown Channel'),
                 'channel_link': entry.get('channel_link', '').replace('https://www.youtube.com', '')
             })
 

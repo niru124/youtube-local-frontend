@@ -1,6 +1,7 @@
 import base64
 from youtube import (util, yt_data_extract, local_playlist, subscriptions,
                      playlist)
+from youtube.util import _duration_to_seconds
 from youtube import yt_app
 import settings
 
@@ -524,6 +525,14 @@ def get_channel_page_general_url(base_url, tab, request, channel_id=None):
 
     if info['error'] is not None:
         return flask.render_template('error.html', error_message=info['error'])
+
+    if settings.show_only_long_videos and tab in ('videos', 'shorts', 'streams', 'search'):
+        filtered_items = []
+        for item in info['items']:
+            # Assuming 'duration' is in a format like "MM:SS" or "H:MM:SS"
+            if _duration_to_seconds(item.get('duration', '0:00')) >= 60:
+                filtered_items.append(item)
+        info['items'] = filtered_items
 
     if channel_id:
         info['channel_url'] = 'https://www.youtube.com/channel/' + channel_id

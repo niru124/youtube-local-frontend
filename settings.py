@@ -285,11 +285,27 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'category': 'interface',
     }),
 
+    ('download_thumbnails_for_videolog', {
+        'type': bool,
+        'default': True,
+        'label': 'Download thumbnails for videolog',
+        'comment': 'If enabled, thumbnails will be downloaded for video log entries.',
+        'category': 'interface',
+    }),
+
     ('embed_page_mode', {
         'type': bool,
         'label': 'Enable embed page',
         'default': True,
         'comment': '',
+        'category': 'interface',
+    }),
+
+    ('show_only_long_videos', {
+        'type': bool,
+        'label': 'Show only videos >= 1 minute',
+        'default': False,
+        'comment': 'If enabled, only videos with a duration of 1 minute or longer will be shown in search results and other video listings.',
         'category': 'interface',
     }),
 

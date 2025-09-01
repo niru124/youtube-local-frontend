@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+{% set page_title = "Watch Later" %}
+
+{% block style %}
+{% endblock style %}
+
+    <style>
+        /* Catppuccin (Mocha) Palette */
+        :root {
+            --cat-rosewater: #f5e0dc;
+            --cat-flamingo: #f2cdcd;
+            --cat-pink: #f5c2e7;
+            --cat-mauve: #cba6f7;
+            --cat-red: #f38ba8;
+            --cat-maroon: #eba0ac;
+            --cat-peach: #fab387;
+            --cat-yellow: #f9e2af;
+            --cat-green: #a6e3a1;
+            --cat-teal: #94e2d5;
+            --cat-sky: #89dceb;
+            --cat-sapphire: #74c7ec;
+            --cat-blue: #89b4fa;
+            --cat-lavender: #b4befe;
+            --cat-text: #cdd6f4;
+            --cat-subtext1: #bac2de;
+            --cat-subtext0: #a6adc8;
+            --cat-overlay2: #9399b2;
+            --cat-overlay1: #7f849c;
+            --cat-overlay0: #6c7086;
+            --cat-surface2: #585b70;
+            --cat-surface1: #45475a;
+            --cat-surface0: #313244;
+            --cat-base: #1e1e2e;
+            --cat-mantle: #181825;
+            --cat-crust: #11111b;
+
+            /* Custom theme variables */
+            --background-color: var(--cat-crust);
+            --text-color: var(--cat-text);
+            --primary-button-bg: var(--cat-blue);
+            --primary-button-text: var(--cat-crust);
+            --secondary-button-bg: var(--cat-surface1);
+            --secondary-button-text: var(--cat-text);
+            --card-background: var(--cat-mantle);
+            --input-background: var(--cat-surface0);
+            --input-border: var(--cat-surface2);
+            --hover-color: var(--cat-surface1);
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--cat-base);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2 {
+            color: var(--cat-lavender);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-section, .filter-section, .video-list {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--cat-subtext1);
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background-color: var(--input-background);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px; /* Big round buttons */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-button-bg);
+            color: var(--primary-button-text);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--cat-sapphire);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-button-bg);
+            color: var(--secondary-button-text);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background-color: var(--cat-surface0);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-card-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-card h3 {
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--cat-flamingo);
+            line-height: 1.3;
+        }
+
+        .video-card p {
+            font-size: 0.9em;
+            color: var(--cat-subtext0);
+            margin-bottom: 8px;
+            flex-grow: 1;
+        }
+
+        .video-card .category {
+            font-size: 0.8em;
+            color: var(--cat-teal);
+            background-color: var(--cat-surface1);
+            padding: 4px 8px;
+            border-radius: 5px;
+            align-self: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .video-card .actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-card .actions a {
+            color: var(--cat-blue);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .video-card .actions button {
+            background-color: var(--cat-red);
+            color: var(--cat-crust);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            transition: background-color 0.3s ease;
+        }
+
+        .video-card .actions button:hover {
+            background-color: var(--cat-maroon);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--cat-overlay1);
+            padding: 40px;
+            font-size: 1.1em;
+        }
+    </style>
+{% block main %}
+    {% set placeholder_thumbnail_url = url_for('static', filename='placeholder.jpg') %}
+    <div class="container">
+        <h1>Your Watch Later List</h1>
+
+        <div class="form-section">
+            <h2>Add New Video</h2>
+            <form id="add-video-form">
+                <div class="form-group">
+                    <label for="video_url">YouTube Video URL:</label>
+                    <input type="text" id="video_url" name="video_url" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
+                </div>
+                <div id="video-details" style="display: none; margin-bottom: 20px; background-color: var(--cat-mantle); padding: 15px; border-radius: 10px; align-items: center;">
+                    <img id="fetched-thumbnail" src="" alt="Video Thumbnail" style="width: 120px; height: 90px; object-fit: cover; margin-right: 15px; border-radius: 5px;">
+                    <h3 id="fetched-title" style="margin: 0; color: var(--cat-flamingo);"></h3>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category (Optional):</label>
+                    <input type="text" id="category" name="category" placeholder="e.g., Tutorials, Music, Documentaries">
+                </div>
+                <div class="form-group">
+                    <label for="comment">Notes (Optional):</label>
+                    <textarea id="comment" name="comment" placeholder="Add your notes or thoughts about this video..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add to Watch Later</button>
+            </form>
+        </div>
+
+        <div class="filter-section">
+            <h2>Filter by Category</h2>
+            <div class="form-group">
+                <label for="category-filter">Select Category:</label>
+                <select id="category-filter" class="btn-secondary">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="video-list">
+            <h2>Saved Videos</h2>
+            <div id="videos-container" class="video-grid">
+                {% if videos %}
+                {% for video in videos %}
+                <div class="video-card" data-video-id="{{ video.video_id }}">
+                    {% if video.thumbnail_path %}
+                    <img src="{{ video.thumbnail_path }}" alt="{{ video.title }} thumbnail">
+                    {% else %}
+                    <img src="{{ placeholder_thumbnail_url }}" alt="No thumbnail available">
+                    {% endif %}
+                    <div class="video-card-content">
+                        {% if video.category %}<span class="category">{{ video.category }}</span>{% endif %}
+                        <h3><a href="{{ video.link }}" target="_blank">{{ video.title }}</a></h3>
+                        {% if video.comment %}<p>{{ video.comment }}</p>{% endif %}
+                        <div class="actions">
+                            <a href="{{ video.link }}" target="_blank" class="btn btn-secondary btn-small">Watch Now</a>
+                            <button class="btn btn-red remove-btn" data-video-id="{{ video.video_id }}">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="empty-state">No videos saved yet. Add some above!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addVideoForm = document.getElementById('add-video-form');
+            const categoryFilter = document.getElementById('category-filter');
+            const videosContainer = document.getElementById('videos-container');
+
+            // Pass the placeholder URL from Jinja2 to JavaScript
+            const placeholderThumbnailUrlJs = "{{ placeholder_thumbnail_url }}";
+
+            // Function to fetch and display videos
+            async function fetchVideos(category = '') {
+                const response = await fetch(`/watch_later/videos?category=${category}`);
+                const videos = await response.json();
+                renderVideos(videos);
+            }
+
+            // Function to render videos in the grid
+            function renderVideos(videos) {
+                videosContainer.innerHTML = ''; // Clear existing videos
+                if (videos.length === 0) {
+                    videosContainer.innerHTML = '<p class="empty-state">No videos found for this category.</p>';
+                    return;
+                };
+
+                videos.forEach(video => {
+                    const videoCard = document.createElement('div');
+                    videoCard.className = 'video-card';
+                    videoCard.setAttribute('data-video-id', video.video_id);
+
+                    const thumbnailUrl = video.thumbnail_path || placeholderThumbnailUrlJs;
+
+                    videoCard.innerHTML = `
+                        <img src="${thumbnailUrl}" alt="${video.title} thumbnail">
+                        <div class="video-card-content">
+                            ${video.category ? `<span class="category">${video.category}</span>` : ''}
+                            <h3><a href="${video.link}" target="_blank">${video.title}</a></h3>
+                            ${video.comment ? `<p>${video.comment}</p>` : ''}
+                            <div class="actions">
+                                <a href="${video.link}" target="_blank" class="btn btn-secondary btn-small">Watch Now</a>
+                                <button class="btn btn-red remove-btn" data-video-id="${video.video_id}">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                    videosContainer.appendChild(videoCard);
+                });
+
+                // Re-attach event listeners for remove buttons
+                attachRemoveListeners();
+            }
+
+            // Function to attach event listeners to remove buttons
+            function attachRemoveListeners() {
+                document.querySelectorAll('.remove-btn').forEach(button => {
+                    button.onclick = async function() {
+                        const videoId = this.dataset.videoId;
+                        const confirmRemove = confirm('Are you sure you want to remove this video from your Watch Later list?');
+                        if (confirmRemove) {
+                            const response = await fetch('/watch_later/remove', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: `video_id=${videoId}`
+                            });
+                            const result = await response.json();
+                            if (result.status === 'success') {
+                                alert(result.message);
+                                fetchVideos(categoryFilter.value); // Refresh list
+                                fetchCategories(); // Refresh categories in filter
+                            } else {
+                                alert('Error: ' + result.message);
+                            }
+                        }
+                    };
+                });
+            }
+
+            // Function to fetch and update categories in the filter dropdown
+            async function fetchCategories() {
+                const response = await fetch('/watch_later/categories');
+                const categories = await response.json();
+                const currentSelectedCategory = categoryFilter.value;
+
+                categoryFilter.innerHTML = '<option value="">All Categories</option>';
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    if (cat === currentSelectedCategory) {
+                        option.selected = true;
+                    }
+                    categoryFilter.appendChild(option);
+                });
+            }
+
+            // Event listener for adding a video
+            addVideoForm.onsubmit = async function(event) {
+                event.preventDefault();
+                const videoUrlInput = document.getElementById('video_url');
+                const categoryInput = document.getElementById('category');
+                const commentTextarea = document.getElementById('comment');
+                const videoDetailsDiv = document.getElementById('video-details');
+                const fetchedThumbnail = document.getElementById('fetched-thumbnail');
+                const fetchedTitle = document.getElementById('fetched-title');
+
+                const videoUrl = videoUrlInput.value.trim();
+                const category = categoryInput.value.trim();
+                const comment = commentTextarea.value.trim();
+
+                if (!videoUrl) {
+                    alert('Please enter a YouTube video URL.');
+                    return;
+                }
+
+                // Clean the videoUrl if it contains the local server prefix
+                let cleanedVideoUrl = videoUrl;
+                const localPrefix = "http://localhost:8080/"; // Adjust if your local server runs on a different port/address
+                if (videoUrl.startsWith(localPrefix)) {
+                    cleanedVideoUrl = videoUrl.substring(localPrefix.length);
+                }
+
+                // Fetch video details first
+                try {
+                    const detailsResponse = await fetch(`/watch_later/fetch_details?url=${encodeURIComponent(cleanedVideoUrl)}`);
+                    const detailsResult = await detailsResponse.json();
+
+                    if (detailsResult.status === 'success') {
+                        fetchedThumbnail.src = detailsResult.thumbnail_url;
+                        fetchedTitle.textContent = detailsResult.title;
+                        videoDetailsDiv.style.display = 'flex'; // Show the details section
+
+                        // Prepare data for the final save to /watch_later/add
+                        const finalFormData = new URLSearchParams();
+                        finalFormData.append('video_url', videoUrl);
+                        finalFormData.append('category', category);
+                        finalFormData.append('comment', comment);
+
+                        const saveResponse = await fetch('/watch_later/add', {
+                            method: 'POST',
+                            body: finalFormData
+                        });
+                        const saveResult = await saveResponse.json();
+
+                        if (saveResult.status === 'success') {
+                            alert(saveResult.message);
+                            addVideoForm.reset();
+                            videoDetailsDiv.style.display = 'none'; // Hide details after saving
+                            fetchVideos(categoryFilter.value); // Refresh list
+                            fetchCategories(); // Refresh categories in filter
+                        } else {
+                            alert('Error saving video: ' + saveResult.message);
+                        }
+                    } else {
+                        alert('Error fetching video details: ' + detailsResult.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An unexpected error occurred.');
+                }
+            };
+
+            // Event listener for category filter change
+            categoryFilter.onchange = function() {
+                fetchVideos(this.value);
+            };
+
+            // Initial load
+            fetchVideos(categoryFilter.value);
+            fetchCategories();
+        });
+    </script>
+{% endblock main %}

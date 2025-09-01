@@ -1,4 +1,5 @@
 from youtube import util, yt_data_extract, proto, local_playlist
+from youtube.util import _duration_to_seconds
 from youtube import yt_app
 import settings
 
@@ -79,6 +80,15 @@ def get_search_page():
     search_info = yt_data_extract.extract_search_info(polymer_json)
     if search_info['error']:
         return flask.render_template('error.html', error_message = search_info['error'])
+
+    filtered_results = []
+    for item in search_info['items']:
+        if settings.show_only_long_videos:
+            if _duration_to_seconds(item.get('duration', '0:00')) >= 60:
+                filtered_results.append(item)
+        else:
+            filtered_results.append(item)
+    search_info['items'] = filtered_results
 
     for extract_item_info in search_info['items']:
         util.prefix_urls(extract_item_info)

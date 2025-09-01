@@ -1,4 +1,5 @@
 from youtube import util, yt_data_extract
+from youtube.util import _duration_to_seconds
 from youtube import yt_app
 import settings
 
@@ -85,6 +86,14 @@ def read_playlist(name):
 
 def get_local_playlist_videos(name, offset=0, amount=50):
     videos = read_playlist(name)
+
+    if settings.show_only_long_videos:
+        filtered_videos = []
+        for video in videos:
+            if _duration_to_seconds(video.get('duration', '0:00')) >= 60:
+                filtered_videos.append(video)
+        videos = filtered_videos
+
     add_extra_info_to_videos(videos, name)
     return videos[offset:offset+amount], len(videos)
 

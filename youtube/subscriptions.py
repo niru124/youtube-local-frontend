@@ -1,4 +1,5 @@
 from youtube import util, yt_data_extract, channel, local_playlist, playlist
+from youtube.util import _duration_to_seconds
 from youtube import yt_app
 import settings
 
@@ -993,6 +994,14 @@ def get_subscriptions_page():
         with connection as cursor:
             tag = request.args.get('tag', None)
             videos, number_of_videos_in_db = _get_videos(cursor, 60, (page - 1)*60, tag)
+
+            if settings.show_only_long_videos:
+                filtered_videos = []
+                for video in videos:
+                    if _duration_to_seconds(video.get('duration', '0:00')) >= 60:
+                        filtered_videos.append(video)
+                videos = filtered_videos
+
             for video in videos:
                 video['thumbnail'] = util.URL_ORIGIN + '/data/subscription_thumbnails/' + video['id'] + '.jpg'
                 video['type'] = 'video'

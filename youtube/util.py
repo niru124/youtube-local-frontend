@@ -506,6 +506,15 @@ def video_id(url):
 def get_thumbnail_url(video_id):
     return settings.img_prefix + "https://i.ytimg.com/vi/" + video_id + "/mqdefault.jpg"
 
+def _duration_to_seconds(duration_str):
+    if not duration_str:
+        return 0
+    parts = duration_str.split(':')
+    seconds = 0
+    for i, part in enumerate(reversed(parts)):
+        seconds += int(part) * (60 ** i)
+    return seconds
+
 def seconds_to_timestamp(seconds):
     seconds = int(seconds)
     hours, seconds = divmod(seconds,3600)

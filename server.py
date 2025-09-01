@@ -7,7 +7,7 @@ from youtube import yt_app
 from youtube import util
 
 # these are just so the files get run - they import yt_app and add routes to it
-from youtube import watch, search, playlist, channel, local_playlist, comments, subscriptions, videolog
+from youtube import watch, search, playlist, channel, local_playlist, comments, subscriptions, videolog, watch_later
 
 import settings
 
@@ -22,7 +22,8 @@ import sys
 import time
 
 
-
+# Register blueprints
+yt_app.register_blueprint(watch_later.watch_later_bp)
 
 def youtu_be(env, start_response):
     id = env['PATH_INFO'][1:]
@@ -231,6 +232,11 @@ def site_dispatch(env, start_response):
         elif path == '/log_watch_time':
             env['SERVER_NAME'] = 'youtube.com' # Dummy server name for yt_app
             env['PATH_INFO'] = '/log_watch_time'
+            yield from yt_app(env, start_response)
+            return
+        elif path.startswith('/watch_later'):
+            env['SERVER_NAME'] = 'youtube.com' # Dummy server name for yt_app
+            env['PATH_INFO'] = '/watch_later'
             yield from yt_app(env, start_response)
             return
 

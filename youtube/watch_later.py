@@ -67,9 +67,9 @@ def remove_from_watch_later():
     db.remove_watch_later_video(video_id)
     return jsonify({"status": "success", "message": "Video removed from Watch Later."})
 
-@watch_later_bp.route('/watch_later/fetch_details')
+@watch_later_bp.route('/watch_later/fetch_details', methods=['POST'])
 def fetch_video_details():
-    video_url = request.args.get('url')
+    video_url = request.form.get('url')
 
     if not video_url:
         return jsonify({"status": "error", "message": "Video URL is required."}), 400

@@ -17,6 +17,11 @@
 {% block style %}
 {{ style }}
 {% endblock %}
+
+/* Make search box wider */
+.search-box {
+    width: 400px !important; /* Adjust width as needed */
+}
         </style>
 
         {% if js_data %}
@@ -35,7 +40,6 @@
                         <input type="search" name="search_query" class="search-box" value="{{ search_box_value }}"
                             {{ "autofocus" if (request.path in ("/", "/results") or error_message) else "" }} placeholder="Type to search...">
                     </div>
-                    <button type="submit" value="Search" class="material-button search-button">Search</button>
                     <label for="filter-dropdown-toggle-cbox" class="filter-dropdown-toggle-button material-button">Filter</label>
                     <input id="filter-dropdown-toggle-cbox" type="checkbox" hidden>
                     <div class="filter-dropdown-content">
@@ -232,6 +236,21 @@
                 if (event.shiftKey && event.key === 'L') {
                     event.preventDefault();
                     window.history.forward();
+                }
+            });
+
+            // Make search box submit on Enter
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchBox = document.querySelector('.search-box');
+                const searchForm = document.getElementById('site-search');
+
+                if (searchBox && searchForm) {
+                    searchBox.addEventListener('keydown', function(event) {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            searchForm.submit();
+                        }
+                    });
                 }
             });
         </script>

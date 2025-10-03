@@ -447,6 +447,64 @@
 
                     }
 
+    .chapters-above-comments {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: var(--ctp-surface0);
+        border-radius: 8px;
+        border: 1px solid var(--ctp-surface2);
+    }
+
+    .chapters-above-comments h3 {
+        margin: 0 0 15px 0;
+        color: var(--ctp-lavender);
+        font-size: 1.1em;
+    }
+
+    .chapters-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .chapter-checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        background-color: var(--ctp-surface1);
+    }
+
+    .chapter-checkbox-item:hover {
+        background-color: var(--ctp-surface2);
+    }
+
+    .chapter-checkbox {
+        margin-right: 12px;
+        accent-color: var(--ctp-blue);
+    }
+
+    .chapter-time {
+        font-family: monospace;
+        color: var(--ctp-blue);
+        margin-right: 12px;
+        min-width: 60px;
+        font-size: 0.9em;
+    }
+
+    .chapter-title {
+        flex: 1;
+        color: var(--ctp-text);
+        cursor: pointer;
+    }
+
+    .chapter-title:hover {
+        color: var(--ctp-blue);
+        text-decoration: underline;
+    }
+
     /* Put related vids below videos when window is too small */
     /* 1100px instead of 1080 because W3C is full of idiots who include scrollbar width */
     @media (max-width:1100px){
@@ -639,6 +697,8 @@ Reload without invidious (for usage of new identity button).</a>
             <summary>Description</summary>
             <span class="description">{{ common_elements.text_runs(description)|escape|urlize|timestamps|safe }}</span>
         </details>
+
+
         <div class="music-list">
             {% if music_list.__len__() != 0 %}
                 <hr>
@@ -743,10 +803,25 @@ Reload without invidious (for usage of new identity button).</a>
           {% endif %}
       </div>
 
-      {% if settings.comments_mode != 0 %}
-          {% if comments_disabled %}
-              <div class="comments-area-outer comments-disabled">Comments disabled</div>
-          {% else %}
+       {% if chapters and chapters|length > 0 %}
+       <div class="chapters-above-comments">
+           <h3>Chapters</h3>
+           <div class="chapters-checkbox-list">
+               {% for chapter in chapters %}
+               <label class="chapter-checkbox-item">
+                   <input type="checkbox" class="chapter-checkbox">
+                   <span class="chapter-time" id="chapter-time-{{ loop.index }}">{{ chapter.start_time | int }}</span>
+                   <span class="chapter-title" data-time="{{ chapter.start_time }}">{{ chapter.title }}</span>
+               </label>
+               {% endfor %}
+           </div>
+       </div>
+       {% endif %}
+
+       {% if settings.comments_mode != 0 %}
+           {% if comments_disabled %}
+               <div class="comments-area-outer comments-disabled">Comments disabled</div>
+           {% else %}
               <details class="comments-area-outer" {{'open' if settings.comments_mode == 1 else ''}}>
                   <summary>{{ comment_count|commatize }} comment{{'s' if comment_count != '1' else ''}}</summary>
                   <section class="comments-area-inner comments-area">
@@ -808,6 +883,37 @@ Reload without invidious (for usage of new identity button).</a>
             }
             // Set initial value of the input to the current
             speedControlInput.value = videoPlayer.playbackRate.toFixed(2);
+
+            // Format chapter timestamps
+            function formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = Math.floor(seconds % 60);
+
+                if (hours > 0) {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                } else {
+                    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+                }
+            }
+
+            // Format all chapter times
+            document.querySelectorAll('[id^="chapter-time-"]').forEach(el => {
+                const seconds = parseInt(el.textContent);
+                el.textContent = formatTime(seconds);
+            });
+
+            // Handle chapter title clicks
+            const chapterTitles = document.querySelectorAll('.chapter-title');
+            chapterTitles.forEach(title => {
+                title.addEventListener('click', function() {
+                    const time = parseFloat(this.dataset.time);
+                    if (videoPlayer) {
+                        videoPlayer.currentTime = time;
+                        videoPlayer.play();
+                    }
+                });
+            });
         });
     </script>
 {% endblock main %}

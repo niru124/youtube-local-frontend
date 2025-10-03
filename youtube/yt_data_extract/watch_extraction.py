@@ -721,6 +721,16 @@ def extract_watch_info(polymer_json):
     conservative_update(info, 'unlisted', not vd.get('isCrawlable', True))  #isCrawlable is false on limited state videos even if they aren't unlisted
     liberal_update(info, 'tags',        vd.get('keywords', []))
 
+    # chapters
+    chapters = []
+    for chapter in vd.get('chapters', []):
+        chapters.append({
+            'title': chapter.get('title', {}).get('simpleText', ''),
+            'start_time': chapter.get('timeRangeStartMillis', 0) / 1000,
+            'end_time': chapter.get('timeRangeEndMillis', 0) / 1000,
+        })
+    info['chapters'] = chapters
+
     # fallback stuff from microformat
     mf = deep_get(top_level, 'playerResponse', 'microformat', 'playerMicroformatRenderer', default={})
     conservative_update(info, 'title',      extract_str(mf.get('title')))

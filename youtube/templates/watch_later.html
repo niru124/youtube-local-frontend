@@ -236,26 +236,34 @@
 
         <div class="form-section">
             <h2>Add New Video</h2>
-            <form id="add-video-form">
+            <div id="add-video-form">
                 <div class="form-group">
                     <label for="video_url">YouTube Video URL:</label>
-                    <input type="text" id="video_url" name="video_url" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ" required>
+                    <input type="text" id="video_url" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ">
                 </div>
-                <div id="video-details" style="display: none; margin-bottom: 20px; background-color: var(--cat-mantle); padding: 15px; border-radius: 10px; align-items: center;">
-                    <img id="fetched-thumbnail" src="" alt="Video Thumbnail" style="width: 120px; height: 90px; object-fit: cover; margin-right: 15px; border-radius: 5px;">
-                    <h3 id="fetched-title" style="margin: 0; color: var(--cat-flamingo);"></h3>
+                <button id="add-url-btn" class="btn btn-primary">Add URL</button>
+
+                <div id="video-preview" style="display: none; margin-top: 20px; background-color: var(--cat-mantle); padding: 15px; border-radius: 10px; align-items: center;">
+                    <img id="preview-thumbnail" src="" alt="Video Thumbnail" style="width: 120px; height: 90px; object-fit: cover; margin-right: 15px; border-radius: 5px;">
+                    <div>
+                        <h3 id="preview-title" style="margin: 0; color: var(--cat-flamingo);"></h3>
+                        <p id="preview-url" style="margin: 5px 0; color: var(--cat-subtext0); font-size: 0.9em;"></p>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="category">Category (Optional):</label>
-                    <input type="text" id="category" name="category" placeholder="e.g., Tutorials, Music, Documentaries">
+                <div id="additional-fields" style="display: none; margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="category">Category (Optional):</label>
+                        <input type="text" id="category" placeholder="e.g., Tutorials, Music, Documentaries">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Notes (Optional):</label>
+                        <textarea id="comment" placeholder="Add your notes or thoughts about this video..."></textarea>
+                    </div>
+                    <button id="save-video-btn" class="btn btn-primary">Save to Watch Later</button>
+                    <button id="cancel-btn" class="btn btn-secondary" style="margin-left: 10px;">Cancel</button>
                 </div>
-                <div class="form-group">
-                    <label for="comment">Notes (Optional):</label>
-                    <textarea id="comment" name="comment" placeholder="Add your notes or thoughts about this video..."></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Add to Watch Later</button>
-            </form>
+            </div>
         </div>
 
         <div class="filter-section">
@@ -302,7 +310,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const addVideoForm = document.getElementById('add-video-form');
+            const addUrlBtn = document.getElementById('add-url-btn');
+            const saveVideoBtn = document.getElementById('save-video-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
             const categoryFilter = document.getElementById('category-filter');
             const videosContainer = document.getElementById('videos-container');
 
@@ -395,19 +405,10 @@
                 });
             }
 
-            // Event listener for adding a video
-            addVideoForm.onsubmit = async function(event) {
-                event.preventDefault();
+            // Event listener for Add URL button
+            addUrlBtn.onclick = async function() {
                 const videoUrlInput = document.getElementById('video_url');
-                const categoryInput = document.getElementById('category');
-                const commentTextarea = document.getElementById('comment');
-                const videoDetailsDiv = document.getElementById('video-details');
-                const fetchedThumbnail = document.getElementById('fetched-thumbnail');
-                const fetchedTitle = document.getElementById('fetched-title');
-
                 const videoUrl = videoUrlInput.value.trim();
-                const category = categoryInput.value.trim();
-                const comment = commentTextarea.value.trim();
 
                 if (!videoUrl) {
                     alert('Please enter a YouTube video URL.');
@@ -421,37 +422,22 @@
                     cleanedVideoUrl = videoUrl.substring(localPrefix.length);
                 }
 
-                // Fetch video details first
                 try {
-                    const detailsResponse = await fetch(`/watch_later/fetch_details?url=${encodeURIComponent(cleanedVideoUrl)}`);
+                    const formData = new FormData();
+                    formData.append('url', cleanedVideoUrl);
+                    const detailsResponse = await fetch('/watch_later/fetch_details', {
+                        method: 'POST',
+                        body: formData
+                    });
                     const detailsResult = await detailsResponse.json();
 
                     if (detailsResult.status === 'success') {
-                        fetchedThumbnail.src = detailsResult.thumbnail_url;
-                        fetchedTitle.textContent = detailsResult.title;
-                        videoDetailsDiv.style.display = 'flex'; // Show the details section
-
-                        // Prepare data for the final save to /watch_later/add
-                        const finalFormData = new URLSearchParams();
-                        finalFormData.append('video_url', videoUrl);
-                        finalFormData.append('category', category);
-                        finalFormData.append('comment', comment);
-
-                        const saveResponse = await fetch('/watch_later/add', {
-                            method: 'POST',
-                            body: finalFormData
-                        });
-                        const saveResult = await saveResponse.json();
-
-                        if (saveResult.status === 'success') {
-                            alert(saveResult.message);
-                            addVideoForm.reset();
-                            videoDetailsDiv.style.display = 'none'; // Hide details after saving
-                            fetchVideos(categoryFilter.value); // Refresh list
-                            fetchCategories(); // Refresh categories in filter
-                        } else {
-                            alert('Error saving video: ' + saveResult.message);
-                        }
+                        document.getElementById('preview-thumbnail').src = detailsResult.thumbnail_url;
+                        document.getElementById('preview-title').textContent = detailsResult.title;
+                        document.getElementById('preview-url').textContent = videoUrl;
+                        document.getElementById('video-preview').style.display = 'flex';
+                        document.getElementById('additional-fields').style.display = 'block';
+                        addUrlBtn.style.display = 'none';
                     } else {
                         alert('Error fetching video details: ' + detailsResult.message);
                     }
@@ -460,6 +446,53 @@
                     alert('An unexpected error occurred.');
                 }
             };
+
+            // Event listener for Save button
+            saveVideoBtn.onclick = async function() {
+                const videoUrl = document.getElementById('video_url').value.trim();
+                const category = document.getElementById('category').value.trim();
+                const comment = document.getElementById('comment').value.trim();
+
+                const finalFormData = new URLSearchParams();
+                finalFormData.append('video_url', videoUrl);
+                finalFormData.append('category', category);
+                finalFormData.append('comment', comment);
+
+                try {
+                    const saveResponse = await fetch('/watch_later/add', {
+                        method: 'POST',
+                        body: finalFormData
+                    });
+                    const saveResult = await saveResponse.json();
+
+                    if (saveResult.status === 'success') {
+                        alert(saveResult.message);
+                        resetForm();
+                        fetchVideos(categoryFilter.value);
+                        fetchCategories();
+                    } else {
+                        alert('Error saving video: ' + saveResult.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An unexpected error occurred.');
+                }
+            };
+
+            // Event listener for Cancel button
+            cancelBtn.onclick = function() {
+                resetForm();
+            };
+
+            // Function to reset the form
+            function resetForm() {
+                document.getElementById('video_url').value = '';
+                document.getElementById('category').value = '';
+                document.getElementById('comment').value = '';
+                document.getElementById('video-preview').style.display = 'none';
+                document.getElementById('additional-fields').style.display = 'none';
+                document.getElementById('add-url-btn').style.display = 'inline-block';
+            }
 
             // Event listener for category filter change
             categoryFilter.onchange = function() {

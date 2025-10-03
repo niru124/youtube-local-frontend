@@ -29,25 +29,27 @@
     .video-list {
         list-style: none;
         padding: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
     }
 
     .video-list li {
         margin-bottom: 15px;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
         background-color: var(--ctp-surface1);
         padding: 12px;
         border-radius: 6px;
     }
 
     .video-list li a {
-        display: flex;
-        align-items: center;
+        display: block;
         color: var(--ctp-text);
         text-decoration: none;
         font-weight: bold;
-        flex: 1;
-        min-width: 0;
+        margin-bottom: 10px;
     }
 
     .video-list li a:hover {
@@ -58,16 +60,13 @@
         width: 180px;
         height: 100px;
         border-radius: 4px;
-        margin-right: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        flex-shrink: 0;
     }
 
     .video-list li .video-title {
         flex-grow: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        word-wrap: break-word;
+        white-space: normal;
     }
 
     .video-info {
@@ -121,6 +120,36 @@
     .export-button:hover {
         background-color: var(--ctp-teal);
     }
+
+    details {
+        margin-top: 10px;
+    }
+
+    details summary {
+        padding: 8px 12px;
+        background-color: var(--ctp-surface0);
+        border-radius: 5px;
+        border: 1px solid var(--ctp-surface2);
+    }
+
+    details summary:hover {
+        background-color: var(--ctp-surface1);
+    }
+
+    details ul {
+        list-style-type: none;
+        padding-left: 20px;
+        margin: 10px 0;
+    }
+
+    details li {
+        padding: 4px 0;
+        border-bottom: 1px solid var(--ctp-surface2);
+    }
+
+    details li:last-child {
+        border-bottom: none;
+    }
 {% endblock style %}
 
 {% block main %}
@@ -131,15 +160,47 @@
             {% set prev_day = selected_date - timedelta(days=1) %}
             {% set next_day = selected_date + timedelta(days=1) %}
             <a href="/videolog?date={{ prev_day.strftime('%d-%m-%Y') }}" class="nav-link">&lt; Previous Day</a>
-            <h2 style="margin: 0;">History for {{ selected_date.strftime('%Y-%m-%d') }}</h2>
+            <div style="text-align: center;">
+                <h2 style="margin: 0;">History for {{ selected_date.strftime('%Y-%m-%d') }}</h2>
+                <form method="GET" action="/videolog" style="margin-top: 10px;">
+                    <input type="date" id="date-picker" name="date" value="{{ selected_date.strftime('%Y-%m-%d') }}">
+                    <button type="submit" style="margin-left: 10px; padding: 5px 10px; background-color: var(--ctp-blue); color: white; border: none; border-radius: 3px; cursor: pointer;">Go</button>
+                </form>
+            </div>
             <a href="/videolog?date={{ next_day.strftime('%d-%m-%Y') }}" class="nav-link">Next Day &gt;</a>
+        </div>
+
+        <div class="daily-summary-container" style="background-color: var(--ctp-surface1); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);">
+            <h2>Daily Summary</h2>
+            <p><strong>Hours Watched Today:</strong> {{ daily_summary.total_hours_watched | round(2) }}</p>
+            {% if daily_summary.top_channels %}
+                <details>
+                    <summary style="cursor: pointer; font-weight: bold;">Top Channels Today ({{ daily_summary.top_channels[0].channel if daily_summary.top_channels else 'N/A' }})</summary>
+                    <ul style="margin-top: 10px;">
+                        {% for channel in daily_summary.top_channels %}
+                            <li>{{ channel.channel }} ({{ channel.count }} videos)</li>
+                        {% endfor %}
+                    </ul>
+                </details>
+            {% endif %}
         </div>
 
         <div class="monthly-summary-container">
             <h2>Monthly Summary</h2>
             {% if monthly_summary %}
                 <p><strong>Total Hours Watched this Month:</strong> {{ monthly_summary.total_hours_watched | round(2) }}</p>
-                <p><strong>Most Watched Channel:</strong> {{ monthly_summary.most_watched_channel }}</p>
+                {% if monthly_summary.top_channels %}
+                    <details>
+                        <summary style="cursor: pointer; font-weight: bold;">Top Channels This Month ({{ monthly_summary.most_watched_channel }})</summary>
+                        <ul style="margin-top: 10px;">
+                            {% for channel in monthly_summary.top_channels %}
+                                <li>{{ channel.channel }} ({{ channel.count }} videos)</li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                {% else %}
+                    <p><strong>Most Watched Channel:</strong> {{ monthly_summary.most_watched_channel }}</p>
+                {% endif %}
                 <p><strong>Most Watched Date:</strong> {{ monthly_summary.most_watched_date }} ({{ (monthly_summary.most_watched_date_time / 3600) | round(2) }} hours)</p>
             {% else %}
                 <p>No monthly summary available yet.</p>
@@ -152,8 +213,10 @@
                     <h2 class="date-header">{{ date.strftime('%Y-%m-%d') }}</h2>
                     <ul class="video-list">
                         {% for video in urls %}
-                            <li>
-                                <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+                            <li data-video-id="{{ video.id }}">
+                                <a href="{{ video.url }}?t={{ video.watched_time | int }}" target="_blank">
+                                    <img src="{{ video.thumbnail }}" alt="{{ video.title }}">
+                                </a>
                                 <div class="video-info">
                                     <span class="video-title"><a href="{{ video.url }}" target="_blank">{{ video.title }}</a></span>
                                     <span class="video-channel-name"><a href="{{ util.URL_ORIGIN }}{{ video.channel_link }}" target="_blank">{{ video.channel_name }}</a></span>
@@ -169,5 +232,7 @@
             <p>No videos logged yet.</p>
         {% endif %}
     </div>
+
+
 {% endblock main %}
 

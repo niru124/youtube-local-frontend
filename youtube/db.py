@@ -45,6 +45,7 @@ def create_monthly_table(month_year_str):
             most_watched_channel TEXT,
             most_watched_date TEXT,
             most_watched_date_time REAL,
+            top_channels TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -142,8 +143,14 @@ def update_monthly_summary(year, month):
     total_hours_watched = total_watched_time_seconds / 3600.0
 
     most_watched_channel = "N/A"
+    top_channels = []
     if channel_watch_times:
         most_watched_channel = max(channel_watch_times, key=channel_watch_times.get)
+        # Get top 10 channels sorted by video count
+        top_channels = sorted(channel_watch_times.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    # Convert top_channels to a JSON-serializable format
+    top_channels_list = [{"channel": channel, "count": count} for channel, count in top_channels]
 
     most_watched_date = "N/A"
     most_watched_date_time = 0
@@ -155,21 +162,47 @@ def update_monthly_summary(year, month):
     cursor.execute(f"SELECT * FROM {monthly_table_name}")
     existing_summary = cursor.fetchone()
 
+    import json
+    top_channels_json = json.dumps(top_channels_list)
+
+    # Check if top_channels column exists
+    cursor.execute(f"PRAGMA table_info({monthly_table_name})")
+    columns = cursor.fetchall()
+    has_top_channels = any(col['name'] == 'top_channels' for col in columns)
+
     if existing_summary:
-        cursor.execute(f"""
-            UPDATE {monthly_table_name}
-            SET total_hours_watched = ?,
-                most_watched_channel = ?,
-                most_watched_date = ?,
-                most_watched_date_time = ?
-            WHERE id = ?
-        """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time, existing_summary['id']))
+        if has_top_channels:
+            cursor.execute(f"""
+                UPDATE {monthly_table_name}
+                SET total_hours_watched = ?,
+                    most_watched_channel = ?,
+                    most_watched_date = ?,
+                    most_watched_date_time = ?,
+                    top_channels = ?
+                WHERE id = ?
+            """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time, top_channels_json, existing_summary['id']))
+        else:
+            cursor.execute(f"""
+                UPDATE {monthly_table_name}
+                SET total_hours_watched = ?,
+                    most_watched_channel = ?,
+                    most_watched_date = ?,
+                    most_watched_date_time = ?
+                WHERE id = ?
+            """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time, existing_summary['id']))
     else:
-        cursor.execute(f"""
-            INSERT INTO {monthly_table_name}
-            (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time)
-            VALUES (?, ?, ?, ?)
-        """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time))
+        if has_top_channels:
+            cursor.execute(f"""
+                INSERT INTO {monthly_table_name}
+                (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time, top_channels)
+                VALUES (?, ?, ?, ?, ?)
+            """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time, top_channels_json))
+        else:
+            cursor.execute(f"""
+                INSERT INTO {monthly_table_name}
+                (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time)
+                VALUES (?, ?, ?, ?)
+            """, (total_hours_watched, most_watched_channel, most_watched_date, most_watched_date_time))
 
     conn.commit()
     conn.close()
@@ -198,9 +231,45 @@ def get_monthly_summary(year, month):
     try:
         cursor.execute(f"SELECT * FROM {table_name}")
         summary = cursor.fetchone()
-        return dict(summary) if summary else None
+        if summary:
+            summary_dict = dict(summary)
+            # Parse top_channels JSON if it exists and has data
+            if 'top_channels' in summary_dict and summary_dict['top_channels']:
+                import json
+                try:
+                    summary_dict['top_channels'] = json.loads(summary_dict['top_channels'])
+                except:
+                    summary_dict['top_channels'] = []
+            else:
+                summary_dict['top_channels'] = []
+            return summary_dict
+        return None
     except sqlite3.OperationalError:
         return None
+    finally:
+        conn.close()
+
+def get_daily_summary(date_obj):
+    table_name = date_obj.strftime("daily_%d_%m_%Y")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Get total watched time for the day
+        cursor.execute(f"SELECT SUM(watched_time) FROM {table_name}")
+        total_seconds = cursor.fetchone()[0] or 0
+        total_hours = total_seconds / 3600.0
+
+        # Get top channels for the day
+        cursor.execute(f"SELECT channel_name, COUNT(*) as video_count FROM {table_name} WHERE channel_name IS NOT NULL AND channel_name != '' GROUP BY channel_name ORDER BY video_count DESC LIMIT 10")
+        top_channels = cursor.fetchall()
+        top_channels_list = [{"channel": row['channel_name'], "count": row['video_count']} for row in top_channels]
+
+        return {
+            'total_hours_watched': total_hours,
+            'top_channels': top_channels_list
+        }
+    except sqlite3.OperationalError:
+        return {'total_hours_watched': 0, 'top_channels': []}
     finally:
         conn.close()
 

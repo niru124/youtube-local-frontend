@@ -236,7 +236,8 @@ def site_dispatch(env, start_response):
             return
         elif path.startswith('/watch_later'):
             env['SERVER_NAME'] = 'youtube.com' # Dummy server name for yt_app
-            env['PATH_INFO'] = '/watch_later'
+            # Preserve the full path for watch_later routes
+            env['PATH_INFO'] = path
             yield from yt_app(env, start_response)
             return
 

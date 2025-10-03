@@ -758,6 +758,7 @@ def get_watch_page(video_id=None):
         comments_info           = comments_info,
         comment_count           = info['comment_count'],
         comments_disabled       = info['comments_disabled'],
+        chapters                = info.get('chapters', []),
 
         video_height            = video_height,
         video_width             = video_width,

@@ -1,5 +1,5 @@
 from youtube import yt_app, util, yt_data_extract, watch, db
-from flask import request, render_template
+from flask import request, render_template, jsonify
 import datetime
 import os
 import re
@@ -47,10 +47,7 @@ def get_video_details(video_id):
                 'channel_name': info.get('author', 'Unknown Channel'),
                 'channel_link': info.get('author_url', '')
             }
-            if settings.download_thumbnails_for_videolog:
-                video_details['thumbnail'] = util.prefix_url(info.get('thumbnail', ''))
-            else:
-                video_details['thumbnail'] = ''
+            video_details['thumbnail'] = util.get_thumbnail_url(video_id)
             return video_details
     except Exception as e:
         print(f"Error fetching details for video {video_id}: {e}")
@@ -62,14 +59,16 @@ def get_video_details(video_id):
     }
 
 
+
+
 @yt_app.route('/videolog', methods=['GET', 'POST'])
 def videolog_page():
     today = datetime.date.today()
     selected_date_str = request.args.get('date')
-    
+
     if selected_date_str:
         try:
-            selected_date = datetime.datetime.strptime(selected_date_str, '%d-%m-%Y').date()
+            selected_date = datetime.datetime.strptime(selected_date_str, '%Y-%m-%d').date()
         except ValueError:
             selected_date = today # Fallback to today if date format is invalid
     else:
@@ -84,7 +83,8 @@ def videolog_page():
     else:
         video_urls_by_date = load_video_urls(selected_date)
         monthly_summary = db.get_monthly_summary(selected_date.year, selected_date.month)
-        return render_template('videolog.html', video_urls_by_date=video_urls_by_date, monthly_summary=monthly_summary, util=util, selected_date=selected_date, timedelta=datetime.timedelta)
+        daily_summary = db.get_daily_summary(selected_date)
+        return render_template('videolog.html', video_urls_by_date=video_urls_by_date, monthly_summary=monthly_summary, daily_summary=daily_summary, util=util, selected_date=selected_date, timedelta=datetime.timedelta)
 
 
 
@@ -112,17 +112,36 @@ def load_video_urls(date_obj):
 
     video_urls_by_date = {}
     print(f"[DEBUG] load_video_urls called for date: {date_obj}")
-    
+
     daily_history = db.get_daily_watch_history(date_obj)
     print(f"[DEBUG] db.get_daily_watch_history returned {len(daily_history)} entries.")
     if daily_history:
         video_urls_by_date[date_obj] = []
+        video_ids = [entry['video_id'] for entry in daily_history]
+        thumbnails = {}
+
+        if settings.download_thumbnails_for_videolog:
+            def fetch_thumb(vid):
+                try:
+                    info = watch.extract_info(vid, use_invidious=False)
+                    if info and not info.get('error'):
+                        thumbnails[vid] = util.get_thumbnail_url(vid)
+                    else:
+                        thumbnails[vid] = ''
+                except Exception as e:
+                    print(f"Error fetching thumbnail for {vid}: {e}")
+                    thumbnails[vid] = ''
+
+            jobs = [gevent.spawn(fetch_thumb, vid) for vid in video_ids]
+            gevent.joinall(jobs)
+        else:
+            for vid in video_ids:
+                thumbnails[vid] = ''
+
         for entry in daily_history:
             print(f"[DEBUG] Processing history entry: video_id={entry.get('video_id')}, title={entry.get('title')}, channel_name_db={entry.get('channel_name')}, watched_time_db={entry.get('watched_time')}, watch_percentage_db={entry.get('watch_time_percentage')}")
-            thumbnail = ''
-            if settings.download_thumbnails_for_videolog:
-                video_details = get_video_details(entry['video_id'])
-                thumbnail = video_details.get('thumbnail', '')
+
+            thumbnail = thumbnails.get(entry['video_id'], '')
 
             video_urls_by_date[date_obj].append({
                 'id': entry['video_id'],

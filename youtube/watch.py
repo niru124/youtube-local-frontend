@@ -209,6 +209,24 @@ def equiv_lang_in(lang, sequence):
             return l
     return None
 
+def make_caption_src(info, lang, auto=False, trans_lang=None):
+    url = '/youtube.com/api/timedtext?lang=' + lang + '&v=' + info['id']
+    if auto:
+        url += '&kind=asr'
+    if trans_lang:
+        url += '&tlang=' + trans_lang
+    label = lang
+    if trans_lang:
+        label += ' -> ' + trans_lang
+    if auto:
+        label += ' (Auto)'
+    return {
+        'label': label,
+        'srclang': lang,
+        'url': url,
+        'on': False
+    }
+
 def get_subtitle_sources(info):
     '''Returns these sources, ordered from least to most intelligible:
     native_video_lang (Automatic)
@@ -871,4 +889,31 @@ def get_transcript(caption_path):
         mimetype='text/plain;charset=UTF-8')
 
 
+@yt_app.route('/api/<path:dummy>')
+def get_captions_api(dummy):
+    url = 'https://www.youtube.com/api/' + dummy
+    xml_content = util.fetch_url(url)
+    xml_content = xml_content.replace(b"align:start position:0%", b"")
 
+    # Parse XML and convert to VTT
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(xml_content.decode('utf-8'))
+
+    vtt_lines = ['WEBVTT\n\n']
+
+    for body in root.findall('.//body'):
+        for p in body.findall('.//p'):
+            start = p.get('t', '0')
+            dur = p.get('d', '0')
+            start_sec = int(start) / 1000.0
+            end_sec = start_sec + int(dur) / 1000.0
+
+            start_time = f"{int(start_sec // 3600):02d}:{int((start_sec % 3600) // 60):02d}:{start_sec % 60:06.3f}"
+            end_time = f"{int(end_sec // 3600):02d}:{int((end_sec % 3600) // 60):02d}:{end_sec % 60:06.3f}"
+
+            text = ''.join(p.itertext()).strip()
+            if text:
+                vtt_lines.append(f"{start_time} --> {end_time}\n{text}\n\n")
+
+    vtt_content = ''.join(vtt_lines)
+    return flask.Response(vtt_content.encode('utf-8'), mimetype='text/vtt; charset=utf-8')

@@ -83,6 +83,18 @@ def get_search_page():
 
     filtered_results = []
     for item in search_info['items']:
+        # Filter by type
+        if filters['type'] == 1 and item.get('type') != 'video':
+            continue
+        elif filters['type'] == 2 and item.get('type') != 'channel':
+            continue
+        elif filters['type'] == 3 and item.get('type') != 'playlist':
+            continue
+        elif filters['type'] == 4 and item.get('type') != 'movie':
+            continue
+        elif filters['type'] == 5 and item.get('type') != 'show':
+            continue
+
         if settings.show_only_long_videos:
             if _duration_to_seconds(item.get('duration', '0:00')) >= 60:
                 filtered_results.append(item)

@@ -32,9 +32,9 @@ body {
     --ctp-sapphire: #74C7CE;
     --ctp-blue: #89B4FA;
     --ctp-lavender: #B4BEFE;
-    --ctp-text: #CDD6F4;
-    --ctp-subtext1: #BAC2DE;
-    --ctp-subtext0: #A6ADC8;
+    --ctp-text: #ffffff;
+    --ctp-subtext1: #ffffff;
+    --ctp-subtext0: #ffffff;
     --ctp-overlay2: #9399B2;
     --ctp-overlay1: #7F849C;
     --ctp-overlay0: #6C7086;
@@ -49,8 +49,8 @@ body {
     --ctp-blue-rgb: 137, 180, 250;
 
     /* Mapped to existing variables for easier integration */
-    --text-color: var(--ctp-text);
-    --background-color: var(--ctp-crust);
+    --text-color: #ffffff;
+    --background-color: #000000;
     --interface-color: var(--ctp-surface0);
     --interface-border-color: var(--ctp-overlay0);
     --interface-color-darker: var(--ctp-surface1);

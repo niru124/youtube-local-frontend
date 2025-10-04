@@ -329,6 +329,14 @@ def remove_watch_later_video(video_id):
     conn.commit()
     conn.close()
 
+def update_watch_later_comment(video_id, comment):
+    create_watch_later_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE watch_later_videos SET comment = ? WHERE video_id = ?", (comment, video_id))
+    conn.commit()
+    conn.close()
+
 def get_watch_later_categories():
     create_watch_later_table()
     conn = get_db_connection()

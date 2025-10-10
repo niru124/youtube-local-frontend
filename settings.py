@@ -325,6 +325,14 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'comment': '',
     }),
 
+    ('include_shorts_in_search', {
+        'type': bool,
+        'default': False,
+        'label': 'Include shorts in search',
+        'comment': 'If enabled, videos shorter than 1 minute will be included in search results.',
+        'category': 'interface',
+    }),
+
     ('enable_history_logging', {
         'type': bool,
         'default': True,

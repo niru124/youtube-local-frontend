@@ -95,11 +95,13 @@ def get_search_page():
         elif filters['type'] == 5 and item.get('type') != 'show':
             continue
 
-        if settings.show_only_long_videos:
-            if _duration_to_seconds(item.get('duration', '0:00')) >= 60:
-                filtered_results.append(item)
-        else:
-            filtered_results.append(item)
+        # Filter out shorts if the setting is disabled
+        if not settings.include_shorts_in_search and item.get('type') == 'video':
+            duration_seconds = _duration_to_seconds(item.get('duration', '0:00'))
+            if duration_seconds < 60:
+                continue
+
+        filtered_results.append(item)
     search_info['items'] = filtered_results
 
     for extract_item_info in search_info['items']:

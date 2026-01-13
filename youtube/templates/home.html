@@ -52,11 +52,14 @@
                                                
     </pre>
     <div class="home-links-container">
+        {% if settings.enable_homepage %}
+        <a href="/homepage" class="home-link-button material-button">Homepage</a>
+        {% endif %}
         <a href="/youtube.com/playlists" class="home-link-button material-button">Local playlists</a>
         <a href="/youtube.com/subscriptions" class="home-link-button material-button">Subscriptions</a>
         <a href="/youtube.com/subscription_manager" class="home-link-button material-button">Subscription Manager</a>
         <a href="/youtube.com/settings" class="home-link-button material-button">Settings</a>
         <a href="/videolog" class="home-link-button material-button">Video Log</a>
-        
+
     </div>
 {% endblock main %}

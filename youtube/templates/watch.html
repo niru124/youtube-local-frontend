@@ -152,25 +152,25 @@
                 grid-area: v-uploader;
                 justify-self: start;
                 font-size: 1.1rem;
-                color: var(--ctp-subtext1);
+                color: var(--ctp-text);
             }
             .video-info > .views{
                 grid-area: v-views;
                 justify-self:end;
                 font-size: 1.1rem;
-                color: var(--ctp-subtext1);
+                color: var(--ctp-text);
             }
             .video-info > time{
                 grid-area: v-date;
                 justify-self:start;
                 font-size: 1.1rem;
-                color: var(--ctp-subtext1);
+                color: var(--ctp-text);
             }
             .video-info > .likes-dislikes{
                 grid-area: v-likes-dislikes;
                 justify-self:end;
                 font-size: 1.1rem;
-                color: var(--ctp-subtext1);
+                color: var(--ctp-text);
             }
             .video-info > .external-player-controls{
                 grid-area: external-player-controls;
@@ -320,7 +320,7 @@
                         padding: 0px;
                         margin: 5px 0px 0px 0px;
                         font-size: 0.9rem;
-                        color: var(--ctp-subtext0);
+                        color: var(--ctp-overlay2);
                     }
                         .playlist-metadata li{
                             display: inline;
@@ -386,15 +386,90 @@
             }
 
             .related-videos-inner{
-                padding-top: 15px;
+                padding-top: 20px;
                 display: grid;
-                grid-auto-rows: 90px;
-                grid-row-gap: 20px;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 20px;
             }
-                .thumbnail-box{     /* overides rule in shared.css */
-                    height: 90px !important;
-                    width: 170px !important;
-                }
+            .item-box.video-item-box.horizontal-item-box.no-description {
+                background-color: #1A1110 !important;
+                border: 1px solid #3A2A2A !important;
+                border-radius: 12px !important;
+                padding: 0 !important;
+                transition: all 0.3s ease-in-out;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description:hover {
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+                transform: translateY(-4px);
+                border-color: #4A3A3A;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .item {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .item.video-item {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .thumbnail-box {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 16/9 !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                overflow: hidden;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .thumbnail-img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                border-radius: 0 !important;
+                transition: transform 0.3s ease-in-out;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description:hover .thumbnail-img {
+                transform: scale(1.05);
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .item-metadata {
+                padding: 14px 16px !important;
+                width: 100%;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .item .title {
+                font-size: 1rem !important;
+                font-weight: 600 !important;
+                margin-bottom: 8px !important;
+                line-height: 1.4 !important;
+                max-height: 2.8em !important;
+                overflow: hidden;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description address {
+                font-size: 0.9rem !important;
+                margin-bottom: 8px !important;
+                color: var(--ctp-overlay2) !important;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .stats {
+                font-size: 0.85rem !important;
+                color: var(--ctp-overlay2) !important;
+                list-style: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats {
+                display: flex !important;
+                gap: 12px !important;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats li {
+                display: inline !important;
+            }
+            .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats li::after {
+                content: "" !important;
+            }
 
     .download-dropdown-content{
         padding: 10px;
@@ -415,7 +490,7 @@
                 background-color: var(--ctp-surface2);
             }
             .download-link:visited{
-                color: var(--ctp-subtext0); /* Adjust visited link color */
+                color: var(--ctp-overlay2);
             }
                 .format-attributes{
                     list-style: none;
@@ -429,7 +504,7 @@
                     .format-attributes li{
                         white-space: nowrap;
                         max-height: 1.2em;
-                        color: var(--ctp-subtext1); /* Subtext color for attributes */
+                        color: var(--ctp-text); /* Subtext color for attributes */
                     }
                     .format-ext{
                         width: 60px;

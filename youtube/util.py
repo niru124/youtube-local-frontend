@@ -512,6 +512,8 @@ def _duration_to_seconds(duration_str):
     parts = duration_str.split(':')
     seconds = 0
     for i, part in enumerate(reversed(parts)):
+        if not part.isdigit():
+            return 0  # invalid duration, like 'Upcoming'
         seconds += int(part) * (60 ** i)
     return seconds
 

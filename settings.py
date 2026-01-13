@@ -341,6 +341,14 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'category': 'other',
     }),
 
+    ('enable_homepage', {
+        'type': bool,
+        'default': True,
+        'label': 'Enable Homepage Route',
+        'comment': 'If enabled, the /homepage route will be available.',
+        'category': 'interface',
+    }),
+
     ('debugging_save_responses', {
         'type': bool,
         'default': False,

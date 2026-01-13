@@ -1,6 +1,6 @@
 body{
     --plyr-control-spacing: calc(var(--plyr-control-spacing-num)*1px);
-	--plyr-video-controls-background: rgba(30,30,46,0.8); /* ctp-base with transparency */
+	--plyr-video-controls-background: rgba(26, 17, 16, 0.95);
 }
 
 /* Scale captions with video height, not page width. Scale down to a minimum
@@ -48,12 +48,24 @@ e.g. Firefox playback speed options */
 
 
 /* For menus without a button above them - make them scroll if
-   they are too high for the player*/
+   they are too high for player*/
 .plyr div[role="menu"]{
     overflow-y: scroll;
     max-height: calc(var(--video_height)*1px - 10px - 40px);
-    background-color: var(--ctp-surface0); /* Catppuccin surface color */
-    border-radius: 8px; /* Rounded menus */
+    background-color: #1A1110;
+    border: 1px solid #3A2A2A;
+    border-radius: 8px;
+}
+
+/* For menus with a button above them */
+.plyr button + div[role="menu"]{
+    overflow-y: scroll;
+    /* Subtract margin between controls and menu, and controls height,
+       and height of top menu button*/
+    max-height: calc(var(--video_height)*1px - 10px - 40px - 42px*var(--plyr-control-spacing-num)/10);
+    background-color: #1A1110;
+    border: 1px solid #3A2A2A;
+    border-radius: 8px;
 }
 
 /* For menus with a button above them */

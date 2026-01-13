@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 import os
 
-from youtube import settings
+import settings
 
 DATABASE_FILE = os.path.join(settings.data_dir, 'youtube_history.db')
 print(f"[DEBUG] Database file path: {DATABASE_FILE}")
@@ -345,4 +345,37 @@ def get_watch_later_categories():
     categories = cursor.fetchall()
     conn.close()
     return [row['category'] for row in categories]
+
+def get_recent_videos(limit=20):
+    import datetime
+    recent_videos = []
+    today = datetime.date.today()
+    for days_back in range(30):  # last 30 days
+        date = today - datetime.timedelta(days=days_back)
+        table_name = date.strftime("daily_%d_%m_%Y")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(f"SELECT * FROM {table_name} ORDER BY timestamp DESC")
+            rows = cursor.fetchall()
+            recent_videos.extend([dict(row) for row in rows])
+        except sqlite3.OperationalError:
+            pass  # table doesn't exist
+        finally:
+            conn.close()
+        if len(recent_videos) >= limit:
+            break
+    return recent_videos[:limit]
+
+def delete_video_from_history(video_id, date_obj):
+    table_name = date_obj.strftime("daily_%d_%m_%Y")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"DELETE FROM {table_name} WHERE video_id = ?", (video_id,))
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass  # table doesn't exist
+    finally:
+        conn.close()
 

@@ -1,0 +1,307 @@
+{% set page_title = title %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block head %}
+<script src="/youtube.com/static/js/common.js"></script>
+<script>
+function switchLayout(newLayout) {
+    const container = document.querySelector('.homepage-videos');
+    if (newLayout === 'grid') {
+        container.classList.remove('list-view');
+        container.classList.add('grid-view');
+    } else {
+        container.classList.remove('grid-view');
+        container.classList.add('list-view');
+    }
+    // Update buttons
+    document.querySelectorAll('.layout-switcher button').forEach(btn => btn.classList.remove('active'));
+    if (newLayout === 'grid') {
+        document.querySelector('.layout-switcher button:nth-child(2)').classList.add('active');
+    } else {
+        document.querySelector('.layout-switcher button:nth-child(1)').classList.add('active');
+    }
+    // Update URL without reload
+    const url = new URL(window.location);
+    url.searchParams.set('layout', newLayout);
+    window.history.pushState({}, '', url);
+}
+</script>
+{% endblock %}
+{% block style %}
+    .homepage-videos.list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        padding: 30px;
+    }
+    .list-view .homepage-video {
+        border: 1px solid #3A2A2A;
+        border-radius: 16px;
+        padding: 24px;
+        background-color: #1A1110;
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease-in-out;
+    }
+    .list-view .homepage-video:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        transform: translateY(-4px);
+        border-color: #4A3A3A;
+    }
+    .list-view .homepage-video-thumbnail {
+        flex-shrink: 0;
+    }
+    .list-view .homepage-video-thumbnail img {
+        width: 480px;
+        height: 270px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .list-view .homepage-video-content {
+        flex: 1;
+    }
+    .list-view .homepage-video h3 {
+        margin: 0 0 12px 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--ctp-text);
+    }
+    .list-view .homepage-video h3 a {
+        color: var(--ctp-text);
+        transition: color 0.2s ease-in-out;
+    }
+    .list-view .homepage-video h3 a:hover {
+        color: var(--ctp-blue);
+    }
+    .list-view .homepage-video p {
+        margin: 0 0 15px 0;
+        color: var(--ctp-overlay2);
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .homepage-videos.grid-view {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        padding: 30px;
+    }
+    .grid-view .homepage-video {
+        border: 1px solid #3A2A2A;
+        border-radius: 16px;
+        padding: 24px;
+        background-color: #1A1110;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease-in-out;
+    }
+    .grid-view .homepage-video:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        transform: translateY(-4px);
+        border-color: #4A3A3A;
+    }
+    .grid-view .homepage-video-thumbnail {
+        margin-bottom: 16px;
+    }
+    .grid-view .homepage-video-thumbnail img {
+        width: 100%;
+        max-width: 480px;
+        height: 270px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .grid-view .homepage-video-content {
+        flex: 1;
+        width: 100%;
+    }
+    .grid-view .homepage-video h3 {
+        margin: 0 0 12px 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--ctp-text);
+    }
+    .grid-view .homepage-video h3 a {
+        color: var(--ctp-text);
+        transition: color 0.2s ease-in-out;
+    }
+    .grid-view .homepage-video h3 a:hover {
+        color: var(--ctp-blue);
+    }
+    .grid-view .homepage-video p {
+        margin: 0 0 20px 0;
+        color: var(--ctp-overlay2);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .related-videos-inner {
+        padding-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description {
+        background-color: #1A1110 !important;
+        border: 1px solid #3A2A2A !important;
+        border-radius: 12px !important;
+        padding: 0 !important;
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        transform: translateY(-4px);
+        border-color: #4A3A3A;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .item {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .item.video-item {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .thumbnail-box {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16/9 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        overflow: hidden;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .thumbnail-img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 0 !important;
+        transition: transform 0.3s ease-in-out;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description:hover .thumbnail-img {
+        transform: scale(1.05);
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .item-metadata {
+        padding: 14px 16px !important;
+        width: 100%;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .item .title {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+        line-height: 1.4 !important;
+        max-height: 2.8em !important;
+        overflow: hidden;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description address {
+        font-size: 0.9rem !important;
+        margin-bottom: 8px !important;
+        color: var(--ctp-subtext1) !important;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .stats {
+        font-size: 0.85rem !important;
+        color: var(--ctp-subtext0) !important;
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats {
+        display: flex !important;
+        gap: 12px !important;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats li {
+        display: inline !important;
+    }
+    .item-box.video-item-box.horizontal-item-box.no-description .horizontal-stats li::after {
+        content: "" !important;
+    }
+    .controls {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        background-color: #1A1110;
+        border: 1px solid #3A2A2A;
+        border-radius: 12px;
+        flex-wrap: wrap;
+    }
+    .layout-switcher button {
+        margin: 0 10px;
+    }
+    .layout-switcher button.active {
+        background-color: var(--ctp-blue) !important;
+        color: var(--ctp-base) !important;
+        border-color: var(--ctp-blue) !important;
+    }
+    form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    label {
+        color: var(--ctp-text);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+{% endblock style %}
+{% block main %}
+<div class="controls">
+    <form method="get" style="display: inline-block; margin-bottom: 10px;">
+        <label for="video_url">Video URL:</label>
+        <input type="text" name="video_url" id="video_url" placeholder="Enter YouTube video URL" value="{{ request.args.get('video_url', '') }}">
+        <input type="hidden" name="layout" value="{{ layout }}">
+        <input type="hidden" name="num" value="{{ num }}">
+        <button type="submit" class="material-button">Search Related</button>
+    </form>
+    <form method="get" style="display: inline-block;">
+        <label for="num">Number of videos:</label>
+        <select name="num" id="num">
+            <option value="10" {{ 'selected' if request.args.get('num') == '10' }}>10</option>
+            <option value="20" {{ 'selected' if request.args.get('num') == '20' or not request.args.get('num') }}>20</option>
+            <option value="30" {{ 'selected' if request.args.get('num') == '30' }}>30</option>
+            <option value="50" {{ 'selected' if request.args.get('num') == '50' }}>50</option>
+        </select>
+        <input type="hidden" name="layout" value="{{ layout }}">
+        <button type="submit" class="material-button">Update</button>
+    </form>
+    <div class="layout-switcher">
+        <button onclick="switchLayout('list')" class="material-button {{ 'active' if layout == 'list' else '' }}">List View</button>
+        <button onclick="switchLayout('grid')" class="material-button {{ 'active' if layout == 'grid' else '' }}">Grid View</button>
+    </div>
+</div>
+<div class="homepage-videos {{ 'grid-view' if layout == 'grid' else 'list-view' }}">
+{% for item in videos_with_related %}
+<div class="homepage-video">
+<div class="homepage-video-thumbnail">
+<a href="{{ host_url }}youtube.com/watch?v={{ item.video.video_id }}" title="{{ item.video.title }}">
+<img src="{{ item.video.thumbnail }}" alt="Video thumbnail">
+</a>
+</div>
+<div class="homepage-video-content">
+<h3><a href="{{ host_url }}youtube.com/watch?v={{ item.video.video_id }}">{{ item.video.title }}</a></h3>
+<p>By {{ item.video.channel_name }}</p>
+<nav class="related-videos-inner">
+{% for rel in item.related %}
+{% do rel.update({'url': host_url + 'youtube.com/watch?v=' + rel['id']}) %}
+{{ common_elements.item(rel, include_badges=false, lazy_load=false) }}
+{% endfor %}
+</nav>
+</div>
+</div>
+{% endfor %}
+</div>
+{% endblock main %}

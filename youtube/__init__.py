@@ -1,4 +1,4 @@
-from youtube import util
+from youtube import util, db
 import flask
 from flask import request
 import jinja2
@@ -19,6 +19,67 @@ yt_app.add_url_rule('/settings', 'settings_page', settings.settings_page, method
 @yt_app.route('/')
 def homepage():
     return flask.render_template('home.html', title="Youtube local")
+
+@yt_app.route('/homepage')
+def homepage_route():
+    if not settings.enable_homepage:
+        flask.abort(404)
+    import gevent
+    from youtube import watch
+    import re
+    layout = request.args.get('layout', 'list')  # default to list
+    num = int(request.args.get('num', 20))
+    if num > 50:  # limit to 50
+        num = 50
+    video_url = request.args.get('video_url')
+    searched_related = None
+    if video_url:
+        match = re.search(r'v=([a-zA-Z0-9_-]{11})', video_url)
+        if match:
+            video_id = match.group(1)
+            try:
+                info = watch.extract_info(video_id, use_invidious=False)
+                related = info.get('related_videos', [])
+                for rel in related:
+                    rel['url'] = f'/youtube.com/watch?v={rel["id"]}'
+                    rel['thumbnail'] = util.get_thumbnail_url(rel['id'])
+                    if rel.get('author_url'):
+                        rel['author_url'] = rel['author_url'].replace('https://www.youtube.com', '/youtube.com')
+                searched_related = related
+            except Exception as e:
+                print(f"Error fetching related for {video_id}: {e}")
+                searched_related = []
+    recent_videos = db.get_recent_videos(num)
+    videos_with_related = []
+
+    def fetch_related(vid):
+        vid['thumbnail'] = util.get_thumbnail_url(vid['video_id'])
+        try:
+            info = watch.extract_info(vid['video_id'], use_invidious=False)
+            related = info.get('related_videos', [])
+            for rel in related:
+                rel['url'] = f'/youtube.com/watch?v={rel["id"]}'
+                rel['thumbnail'] = util.get_thumbnail_url(rel['id'])
+                if rel.get('author_url'):
+                    rel['author_url'] = rel['author_url'].replace('https://www.youtube.com', '/youtube.com')
+            return {
+                'video': vid,
+                'related': related
+            }
+        except Exception as e:
+            print(f"Error fetching related for {vid['video_id']}: {e}")
+            return {
+                'video': vid,
+                'related': []
+            }
+
+    if searched_related is not None:
+        videos_with_related = [{'video': {'title': 'Searched Video Related', 'video_id': '', 'channel_name': ''}, 'related': searched_related}]
+    else:
+        jobs = [gevent.spawn(fetch_related, vid) for vid in recent_videos]
+        gevent.joinall(jobs)
+        videos_with_related = [job.value for job in jobs]
+    return flask.render_template('homepage.html', videos_with_related=videos_with_related, layout=layout, num=num, host_url=request.host_url, searched=searched_related is not None, title="Homepage")
 
 
 theme_names = {

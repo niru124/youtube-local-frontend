@@ -75,6 +75,13 @@ def videolog_page():
         selected_date = today
 
     if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'delete':
+            video_id = request.form.get('video_id')
+            if video_id:
+                db.delete_video_from_history(video_id, selected_date)
+                return {"status": "success", "message": "Video deleted from history."}
+            return {"status": "error", "message": "No video ID provided."}, 400
         video_url = request.form.get('video_url')
         if video_url:
             save_video_url(video_url)

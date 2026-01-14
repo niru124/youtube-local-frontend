@@ -1,0 +1,332 @@
+{% set page_title = title|string + ' - Page ' + parameters_dictionary.get('page', '1') %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block style %}
+    main {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .playlist-header {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: var(--ctp-surface0);
+        border-radius: 12px;
+        border: 1px solid var(--ctp-surface1);
+    }
+
+    .playlist-header-thumbnail {
+        flex-shrink: 0;
+        width: 220px;
+        height: 124px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .playlist-header-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .playlist-header-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .playlist-header-info h1 {
+        margin: 0 0 10px 0;
+        font-size: 1.5rem;
+        color: var(--ctp-text);
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .playlist-header-info .author {
+        color: var(--ctp-blue);
+        font-size: 1rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .playlist-header-info .stats {
+        display: flex;
+        gap: 15px;
+        color: var(--ctp-overlay2);
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+
+    .playlist-header-info .stats span {
+        background-color: var(--ctp-surface1);
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    .playlist-header-info .description {
+        color: var(--ctp-overlay1);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .playlist-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .playlist-toolbar .view-toggle {
+        display: flex;
+        gap: 5px;
+        background-color: var(--ctp-surface0);
+        padding: 4px;
+        border-radius: 8px;
+    }
+
+    .playlist-toolbar .view-toggle a {
+        padding: 8px 16px;
+        border-radius: 6px;
+        color: var(--ctp-overlay2);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .playlist-toolbar .view-toggle a:hover {
+        color: var(--ctp-text);
+    }
+
+    .playlist-toolbar .view-toggle a.active {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .video-card {
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .video-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border-color: var(--ctp-overlay0);
+    }
+
+    .video-card .thumbnail-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/9;
+        overflow: hidden;
+    }
+
+    .video-card .thumbnail-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .video-card:hover .thumbnail-wrapper img {
+        transform: scale(1.05);
+    }
+
+    .video-card .thumbnail-wrapper .index-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: var(--ctp-text);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .video-card .thumbnail-wrapper .duration {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: var(--ctp-text);
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .video-card .card-content {
+        padding: 12px;
+    }
+
+    .video-card .video-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ctp-text);
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .video-card .video-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .video-card .video-title a:hover {
+        color: var(--ctp-blue);
+    }
+
+    .video-card .channel-name {
+        font-size: 0.85rem;
+        color: var(--ctp-overlay2);
+        margin-bottom: 8px;
+    }
+
+    .video-card .channel-name a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .video-card .channel-name a:hover {
+        color: var(--ctp-blue);
+    }
+
+    .video-card .stats {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: var(--ctp-overlay1);
+        margin-top: 8px;
+    }
+
+    .video-card .stats span {
+        background-color: var(--ctp-surface1);
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .playlist-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .playlist-header-thumbnail {
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+
+        .playlist-header-info .stats {
+            justify-content: center;
+        }
+
+        .playlist-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .playlist-toolbar .view-toggle {
+            justify-content: center;
+        }
+
+        .video-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+{% endblock style %}
+
+{% block main %}
+    <div class="playlist-header">
+        <div class="playlist-header-thumbnail">
+            <img src="{{ thumbnail }}" alt="{{ title }}">
+        </div>
+        <div class="playlist-header-info">
+            <h1>{{ title }}</h1>
+            <a class="author" href="{{ author_url }}">{{ author }}</a>
+            <div class="stats">
+                <span>{{ video_count|commatize }} videos</span>
+                <span>{{ view_count|commatize }} views</span>
+                <span>Updated {{ time_published }}</span>
+            </div>
+            <div class="description">{{ common_elements.text_runs(description) }}</div>
+        </div>
+    </div>
+
+    <div class="playlist-toolbar">
+        <div></div>
+        <div class="view-toggle">
+            <a href="?view=list" class="{{ 'active' if request.args.get('view') == 'list' else '' }}">List</a>
+            <a href="?view=grid" class="{{ 'active' if request.args.get('view') != 'list' else '' }}">Grid</a>
+        </div>
+    </div>
+
+    <div class="video-grid">
+        {% for info in video_list %}
+        <div class="video-card">
+            <div class="thumbnail-wrapper">
+                <img src="{{ info.thumbnail }}" alt="{{ info.title }}" loading="lazy">
+                {% if info.index %}
+                <span class="index-badge">{{ info.index }}</span>
+                {% endif %}
+                {% if info.duration %}
+                <span class="duration">{{ info.duration }}</span>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                <h3 class="video-title">
+                    <a href="{{ info.url }}" title="{{ info.title }}">{{ info.title }}</a>
+                </h3>
+                {% if info.author %}
+                <div class="channel-name">
+                    <a href="{{ info.author_url }}" title="{{ info.author }}">{{ info.author }}</a>
+                </div>
+                {% endif %}
+                <div class="stats">
+                    {% if info.approx_view_count %}
+                    <span>{{ info.approx_view_count }} views</span>
+                    {% endif %}
+                    {% if info.time_published %}
+                    <span>{{ info.time_published }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <nav class="page-button-row">
+        {{ common_elements.page_buttons(num_pages, '/https://www.youtube.com/playlist', parameters_dictionary) }}
+    </nav>
+{% endblock main %}

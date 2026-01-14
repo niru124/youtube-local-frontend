@@ -79,6 +79,7 @@ def get_playlist_page():
 
     playlist_id = request.args.get('list')
     page = request.args.get('page', '1')
+    view = request.args.get('view', 'grid')
 
     if page == '1':
         first_page_json = playlist_first_page(playlist_id)
@@ -107,7 +108,7 @@ def get_playlist_page():
         util.prefix_urls(item)
         util.add_extra_html_info(item)
         if 'id' in item:
-            item['thumbnail'] = settings.img_prefix + 'https://i.ytimg.com/vi/' + item['id'] + '/default.jpg'
+            item['thumbnail'] = settings.img_prefix + 'https://i.ytimg.com/vi/' + item['id'] + '/mqdefault.jpg'
 
         item['url'] += '&list=' + playlist_id
         if item['index']:
@@ -117,7 +118,9 @@ def get_playlist_page():
     if video_count is None:
         video_count = 1000
 
-    return flask.render_template('playlist.html',
+    template = 'playlist_grid.html' if view == 'grid' else 'playlist.html'
+
+    return flask.render_template(template,
         header_playlist_names = local_playlist.get_playlist_names(),
         video_list = info.get('items', []),
         num_pages = math.ceil(video_count/100),

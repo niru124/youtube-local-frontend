@@ -30,6 +30,37 @@
             white-space: pre-line;
         }
 
+    .playlist-header-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .view-toggle {
+        display: flex;
+        gap: 5px;
+    }
+
+    .view-toggle a {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background-color: var(--ctp-surface0);
+        color: var(--ctp-text);
+        border: 1px solid var(--ctp-surface1);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .view-toggle a:hover {
+        background-color: var(--ctp-surface1);
+    }
+
+    .view-toggle a.active {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+        border-color: var(--ctp-blue);
+    }
+
     #results{
         margin-top:10px;
 
@@ -69,6 +100,13 @@
         <div class="playlist-description">{{ common_elements.text_runs(description) }}</div>
     </div>
 
+    <div class="playlist-header-actions">
+        <div class="view-toggle">
+            <a href="{{ request.args.update({'view': 'list'}) or '?view=list' }}" class="{{ 'active' if request.args.get('view') != 'grid' else '' }}">List</a>
+            <a href="{{ request.args.update({'view': 'grid'}) or '?view=grid' }}" class="{{ 'active' if request.args.get('view') == 'grid' else '' }}">Grid</a>
+        </div>
+    </div>
+
     <div id="results">
         {% for info in video_list %}
             {{ common_elements.item(info) }}
@@ -78,7 +116,6 @@
         {{ common_elements.page_buttons(num_pages, '/https://www.youtube.com/playlist', parameters_dictionary) }}
     </nav>
 {% endblock main %}
-
 
 
 

@@ -300,40 +300,105 @@
                     padding: 16px; /* Consistent padding */
                 }
             .playlist{
-                border: 1px solid var(--ctp-surface1); /* Consistent border */
-                border-radius: 8px; /* Consistent border-radius */
-                margin-bottom: 15px;
-                background-color: var(--ctp-surface0); /* Consistent background */
+                border: 1px solid var(--ctp-surface1);
+                border-radius: 12px;
+                margin-bottom: 20px;
+                background-color: var(--ctp-surface0);
+                overflow: hidden;
             }
                 .playlist-header{
-                    padding: 12px 16px; /* Increased padding */
-                    border-bottom: 1px solid var(--ctp-surface1); /* Consistent border */
-                    border-radius: 8px 8px 0 0; /* Rounded top corners */
+                    padding: 16px 20px;
+                    border-bottom: 1px solid var(--ctp-surface1);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 10px;
                 }
                     .playlist-header h3{
                         margin: 0;
-                        font-size: 1.3rem;
+                        font-size: 1.2rem;
                         color: var(--ctp-text);
+                    }
+                    .playlist-header h3 a {
+                        color: inherit;
+                        text-decoration: none;
+                    }
+                    .playlist-header h3 a:hover {
+                        color: var(--ctp-blue);
                     }
                     .playlist-metadata{
                         list-style: none;
-                        padding: 0px;
-                        margin: 5px 0px 0px 0px;
-                        font-size: 0.9rem;
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.85rem;
                         color: var(--ctp-overlay2);
+                        display: flex;
+                        gap: 15px;
+                        flex-wrap: wrap;
                     }
                         .playlist-metadata li{
-                            display: inline;
-                            margin-right: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                        }
+                        .playlist-metadata a {
+                            color: var(--ctp-blue);
+                            text-decoration: none;
+                        }
+                        .playlist-metadata a:hover {
+                            text-decoration: underline;
                         }
                 .playlist-videos{
-                    height: 500px;
-                    overflow-y: auto; /* Changed to auto for scrollbar only when needed */
                     display: grid;
-                    grid-auto-rows: 90px;
-                    grid-row-gap: 10px;
-                    padding: 10px 16px; /* Consistent padding */
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 15px;
+                    padding: 15px 20px;
                 }
+                    .playlist-videos .item-box {
+                        margin: 0;
+                    }
+                    .playlist-videos .thumbnail-box {
+                        width: 100% !important;
+                        height: 160px !important;
+                    }
+                    .playlist-videos .thumbnail-img {
+                        width: 100% !important;
+                        height: 100% !important;
+                        object-fit: cover;
+                    }
+                    .playlist-videos .item {
+                        display: block !important;
+                        width: 100% !important;
+                    }
+                    .playlist-videos .item-metadata {
+                        padding: 10px;
+                    }
+                    .playlist-videos .item .title {
+                        font-size: 0.95rem;
+                    }
+                    .playlist-videos .currently-playing {
+                        border: 2px solid var(--ctp-blue);
+                        border-radius: 12px;
+                        background-color: rgba(137, 180, 250, 0.1);
+                    }
+                    .playlist-videos .currently-playing .thumbnail-box::after {
+                        content: '▶ Now Playing';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background-color: rgba(137, 180, 250, 0.95);
+                        color: var(--ctp-crust);
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        font-size: 0.8rem;
+                        z-index: 1;
+                    }
+                    .playlist-videos .currently-playing .thumbnail-wrapper {
+                        opacity: 0.6;
+                    }
             .autoplay-toggle-container{
                 margin-bottom: 15px;
                 display: flex;
@@ -829,27 +894,61 @@ Reload without invidious (for usage of new identity button).</a>
           {% if playlist %}
               <div class="playlist">
                   <div class="playlist-header">
-                      <a href="{{ playlist['url'] }}" title="{{ playlist['title'] }}"><h3>{{ playlist['title'] }}</h3></a>
-                      <ul class="playlist-metadata">
-                          <li>Autoplay: <input type="checkbox" id="autoplay-toggle"></li>
-                          {% if playlist['current_index'] is none %}
-                              <li>[Error!]/{{ playlist['video_count'] }}</li>
-                          {% else %}
-                              <li>{{ playlist['current_index']+1 }}/{{ playlist['video_count'] }}</li>
-                          {% endif %}
-                          <li><a href="{{ playlist['author_url'] }}" title="{{ playlist['author'] }}">{{ playlist['author'] }}</a></li>
-                      </ul>
+                      <div>
+                          <a href="{{ playlist['url'] }}" title="{{ playlist['title'] }}"><h3>{{ playlist['title'] }}</h3></a>
+                          <ul class="playlist-metadata">
+                              {% if playlist['current_index'] is none %}
+                                  <li>[Error!]/{{ playlist['video_count'] }}</li>
+                              {% else %}
+                                  <li>{{ playlist['current_index']+1 }}/{{ playlist['video_count'] }}</li>
+                              {% endif %}
+                              <li><a href="{{ playlist['author_url'] }}" title="{{ playlist['author'] }}">{{ playlist['author'] }}</a></li>
+                          </ul>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                          <label for="autoplay-toggle">Autoplay</label>
+                          <input type="checkbox" id="autoplay-toggle">
+                      </div>
                   </div>
                   <nav class="playlist-videos">
                       {% for info in playlist['items'] %}
-                          {# non-lazy load for 5 videos surrounding current video #}
-                          {# for non-js browsers or old such that IntersectionObserver doesn't work #}
-                          {# -10 is sentinel to not load anything if there's no current_index for some reason #}
-                          {% if (playlist.get('current_index', -10) - loop.index0)|abs is lt(5)  %}
-                              {{ common_elements.item(info, include_badges=false, lazy_load=false) }}
-                          {% else %}
-                              {{ common_elements.item(info, include_badges=false, lazy_load=true) }}
-                          {% endif %}
+                          {% set is_current = loop.index0 == playlist.get('current_index', -1) %}
+                          <div class="item-box video-item-box no-description {{ 'currently-playing' if is_current else '' }}">
+                              <div class="item video-item" style="display: flex; flex-direction: row; gap: 12px;">
+                                  <a class="thumbnail-box" href="{{ info['url'] }}" title="{{ info['title'] }}" style="width: 120px; height: 68px; flex-shrink: 0;">
+                                      {% if loop.index0 == 0 or (playlist.get('current_index', -10) - loop.index0)|abs is lt(5) %}
+                                          <img class="thumbnail-img" src="{{ info['thumbnail'] }}">
+                                      {% else %}
+                                          <img class="thumbnail-img lazy" data-src="{{ info['thumbnail'] }}">
+                                      {% endif %}
+                                      {% if info['duration'] %}
+                                          <div class="thumbnail-info">
+                                              <span>{{ info['duration'] }}</span>
+                                          </div>
+                                      {% endif %}
+                                  </a>
+                                  <div class="item-metadata" style="padding: 0; flex: 1; min-width: 0;">
+                                      <div class="title" style="margin-bottom: 4px;">
+                                          <a class="title" href="{{ info['url'] }}" title="{{ info['title'] }}" style="font-size: 0.9rem;">{{ info['title'] }}</a>
+                                      </div>
+                                      {% if info['author'] %}
+                                          <address title="{{ info['author'] }}" style="font-size: 0.8rem; color: var(--ctp-overlay2);">
+                                              <a href="{{ info['author_url'] }}" style="color: inherit;">{{ info['author'] }}</a>
+                                          </address>
+                                      {% endif %}
+                                      {% if info.get('approx_view_count') or info.get('time_published') %}
+                                          <ul class="stats horizontal-stats" style="font-size: 0.75rem; margin-top: 4px;">
+                                              {% if info.get('approx_view_count') %}
+                                                  <li><span class="views">{{ info['approx_view_count'] }} views</span></li>
+                                              {% endif %}
+                                              {% if info.get('time_published') %}
+                                                  <li><time>{{ info['time_published'] }}</time></li>
+                                              {% endif %}
+                                          </ul>
+                                      {% endif %}
+                                  </div>
+                              </div>
+                          </div>
                       {% endfor %}
                   </nav>
               </div>

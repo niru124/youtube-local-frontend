@@ -1,202 +1,162 @@
 {% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
 {% set page_title = "Watch Later" %}
 
 {% block style %}
-{% endblock style %}
-
-<style>
-    /* Watch Later Page Styles */
-    body {
-        background-color: #0C0705;
+    main {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
     }
 
-    .container {
-        max-width: 1600px;
-        margin: 30px auto;
-        padding: 30px 20px;
+    .watch-later-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
     }
 
-    h1 {
+    .watch-later-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
         color: var(--ctp-text);
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 2rem;
-        font-weight: 700;
     }
 
-    .form-section,
-    .filter-section,
-    .video-list {
-        background-color: #1A1110;
-        border: 2px solid var(--ctp-mauve);
-        padding: 24px;
-        border-radius: 16px;
-        margin-bottom: 30px;
-        transition: all 0.3s ease-in-out;
-    }
-
-    .form-section:hover,
-    .filter-section:hover,
-    .video-list:hover {
-        box-shadow: 0 8px 16px rgba(203, 166, 247, 0.2);
-        border-color: var(--ctp-pink);
-    }
-
-    h2 {
-        color: var(--ctp-mauve);
-        margin-top: 0;
-        margin-bottom: 20px;
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
+    .watch-later-stats {
+        display: flex;
+        gap: 20px;
         color: var(--ctp-overlay2);
         font-size: 0.95rem;
-        font-weight: 500;
     }
 
-    .form-group input[type="text"],
-    .form-group textarea,
-    .form-group select {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid var(--ctp-mauve);
+    .watch-later-stats span {
+        background-color: var(--ctp-surface0);
+        padding: 6px 12px;
         border-radius: 8px;
-        background-color: #0C0705;
-        color: var(--ctp-text);
-        box-sizing: border-box;
-        font-size: 1rem;
-        transition: all 0.2s ease-in-out;
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
+    .add-video-section {
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .add-video-section h2 {
+        margin: 0 0 15px 0;
+        font-size: 1.2rem;
+        color: var(--ctp-text);
+    }
+
+    .add-video-form {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .add-video-form input[type="text"] {
+        flex: 1;
+        min-width: 300px;
+        padding: 12px 16px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+        font-size: 1rem;
+    }
+
+    .add-video-form input[type="text"]:focus {
         outline: none;
         border-color: var(--ctp-blue);
         box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.3);
-        background-color: #1A1110;
     }
 
-    .form-group textarea {
-        resize: vertical;
-        min-height: 100px;
+    .category-filter {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
     }
 
-    .btn {
-        display: inline-block;
-        padding: 12px 24px;
-        border: 2px solid var(--ctp-mauve);
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.2s ease-in-out;
-        margin-right: 10px;
-        background-color: #1A1110;
-        color: var(--ctp-text);
-    }
-
-    .btn-primary {
-        background-color: var(--ctp-blue);
-        color: var(--ctp-crust);
-        border-color: var(--ctp-blue);
-    }
-
-    .btn-primary:hover {
-        background-color: #89B4FA;
-        border-color: #B4BEFE;
-        box-shadow: 0 6px 12px rgba(137, 180, 250, 0.3);
-        transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-        background-color: #1A1110;
-        color: var(--ctp-text);
-    }
-
-    .btn-secondary:hover {
-        background-color: rgba(203, 166, 247, 0.1);
-        border-color: var(--ctp-pink);
-        box-shadow: 0 4px 8px rgba(203, 166, 247, 0.2);
-        transform: translateY(-2px);
-    }
-
-    .btn-red {
-        background-color: var(--ctp-red);
-        color: var(--ctp-crust);
-        border-color: var(--ctp-red);
-    }
-
-    .btn-red:hover {
-        background-color: var(--ctp-maroon);
-        border-color: var(--ctp-maroon);
-        box-shadow: 0 4px 8px rgba(243, 139, 168, 0.3);
-    }
-
-    .btn-small {
-        padding: 8px 16px;
+    .category-filter label {
+        color: var(--ctp-overlay2);
         font-size: 0.9rem;
+    }
+
+    .category-filter select {
+        padding: 8px 12px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-surface0);
+        color: var(--ctp-text);
+        font-size: 0.9rem;
+        cursor: pointer;
     }
 
     .video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
     }
 
     .video-card {
-        background-color: #1A1110;
-        border: 2px solid var(--ctp-mauve);
-        border-radius: 16px;
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 12px;
         overflow: hidden;
         transition: all 0.3s ease-in-out;
-        display: flex;
-        flex-direction: column;
     }
 
     .video-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 24px rgba(203, 166, 247, 0.3);
-        border-color: var(--ctp-pink);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        border-color: var(--ctp-overlay0);
     }
 
-    .video-card img {
+    .video-card .thumbnail-wrapper {
+        position: relative;
         width: 100%;
-        height: auto;
         aspect-ratio: 16/9;
+        overflow: hidden;
+    }
+
+    .video-card .thumbnail-wrapper img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        display: block;
         transition: transform 0.3s ease-in-out;
     }
 
-    .video-card:hover img {
+    .video-card:hover .thumbnail-wrapper img {
         transform: scale(1.05);
     }
 
-    .video-card-content {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
+    .video-card .video-duration {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: var(--ctp-text);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 
-    .video-card h3 {
-        font-size: 1.1rem;
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: var(--ctp-flamingo);
-        line-height: 1.4;
+    .video-card .card-content {
+        padding: 12px;
+    }
+
+    .video-card .video-title {
+        font-size: 1rem;
         font-weight: 600;
+        color: var(--ctp-text);
+        margin: 0 0 8px 0;
+        line-height: 1.4;
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
@@ -204,557 +164,208 @@
         -webkit-box-orient: vertical;
     }
 
-    .video-card h3 a {
-        color: var(--ctp-flamingo);
+    .video-card .video-title a {
+        color: inherit;
         text-decoration: none;
         transition: color 0.2s ease-in-out;
     }
 
-    .video-card h3 a:hover {
-        color: var(--ctp-pink);
+    .video-card .video-title a:hover {
+        color: var(--ctp-blue);
     }
 
-    .video-card p {
-        font-size: 0.9rem;
-        color: var(--ctp-overlay2);
-        margin-bottom: 12px;
-        line-height: 1.5;
-        flex-grow: 1;
-    }
-
-    .video-card .category {
-        font-size: 0.85rem;
-        color: var(--ctp-teal);
-        background-color: rgba(148, 226, 213, 0.1);
-        padding: 4px 10px;
-        border-radius: 6px;
-        align-self: flex-start;
+    .video-card .video-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
         margin-bottom: 10px;
+    }
+
+    .video-card .category-tag {
+        background-color: rgba(166, 227, 189, 0.15);
+        color: var(--ctp-green);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
         font-weight: 500;
     }
 
-    .video-card .actions {
-        margin-top: auto;
+    .video-card .card-actions {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
-        align-items: center;
     }
 
-    .video-card .actions a {
-        color: var(--ctp-blue);
-        text-decoration: none;
-        font-weight: 600;
-        padding: 8px 16px;
+    .video-card .card-actions a,
+    .video-card .card-actions button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
         border-radius: 6px;
-        background-color: rgba(137, 180, 250, 0.1);
+        cursor: pointer;
+        text-decoration: none;
         transition: all 0.2s ease-in-out;
+        border: none;
     }
 
-    .video-card .actions a:hover {
-        background-color: rgba(137, 180, 250, 0.2);
-        box-shadow: 0 2px 4px rgba(137, 180, 250, 0.2);
+    .video-card .card-actions .watch-btn {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .video-card .card-actions .watch-btn:hover {
+        background-color: var(--ctp-sapphire);
+    }
+
+    .video-card .card-actions .edit-btn {
+        background-color: var(--ctp-surface1);
+        color: var(--ctp-text);
+    }
+
+    .video-card .card-actions .edit-btn:hover {
+        background-color: var(--ctp-surface2);
+    }
+
+    .video-card .card-actions .remove-btn {
+        background-color: rgba(243, 139, 168, 0.15);
+        color: var(--ctp-red);
+    }
+
+    .video-card .card-actions .remove-btn:hover {
+        background-color: rgba(243, 139, 168, 0.3);
     }
 
     .empty-state {
         text-align: center;
-        color: var(--ctp-overlay2);
         padding: 60px 20px;
-        font-size: 1.1rem;
-        background-color: #1A1110;
-        border: 2px solid var(--ctp-mauve);
-        border-radius: 16px;
-    }
-
-    #video-preview {
-        display: none;
-        background-color: #1A1110;
-        padding: 20px;
-        border-radius: 12px;
-        border: 2px solid var(--ctp-blue);
-        align-items: center;
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    #video-preview.visible {
-        display: flex;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    #video-preview img {
-        width: 320px;
-        height: 180px;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-
-    #video-preview .preview-content {
-        flex: 1;
-    }
-
-    #preview-title {
-        font-size: 1.3rem;
-        color: var(--ctp-flamingo);
-        margin-bottom: 8px;
-        font-weight: 700;
-    }
-
-    #preview-url {
         color: var(--ctp-overlay2);
-        font-size: 0.9rem;
-        word-break: break-all;
-        margin-top: 4px;
+        background-color: var(--ctp-surface0);
+        border-radius: 12px;
+        grid-column: 1 / -1;
     }
 
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(4px);
-    }
-
-    .modal.visible {
-        display: flex;
-        animation: fadeIn 0.3s ease-in-out;
-    }
-
-    .modal-content {
-        background-color: #1A1110;
-        padding: 30px;
-        border: 2px solid var(--ctp-mauve);
-        border-radius: 16px;
-        width: 90%;
-        max-width: 600px;
-        color: var(--ctp-text);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-content h3 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: var(--ctp-mauve);
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-
-    .modal-content textarea {
-        width: 100%;
-        min-height: 120px;
-        padding: 14px 16px;
-        border: 2px solid var(--ctp-mauve);
-        border-radius: 8px;
-        background-color: #0C0705;
-        color: var(--ctp-text);
-        box-sizing: border-box;
-        resize: vertical;
-        transition: all 0.2s ease-in-out;
-    }
-
-    .modal-content textarea:focus {
-        outline: none;
-        border-color: var(--ctp-blue);
-        box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.3);
-        background-color: #1A1110;
-    }
-
-    .modal-buttons {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 20px;
-        gap: 10px;
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
     }
 
     @media (max-width: 768px) {
-        .container {
-            padding: 20px 15px;
-            margin: 20px auto;
+        .watch-later-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .add-video-form {
+            flex-direction: column;
+        }
+
+        .add-video-form input[type="text"] {
+            min-width: 100%;
         }
 
         .video-grid {
             grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .video-card h3 {
-            font-size: 1rem;
-        }
-
-        .video-card .actions {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .video-card .actions button,
-        .video-card .actions a {
-            width: 100%;
-            justify-content: center;
-        }
-
-        #video-preview {
-            flex-direction: column;
-        }
-
-        #video-preview img {
-            width: 100%;
-            max-width: 320px;
         }
     }
-</style>
+{% endblock style %}
 
 {% block main %}
-    {% set placeholder_thumbnail_url = url_for('static', filename='placeholder.jpg') %}
-
-    <div class="container">
-        <h1>📺 Watch Later List</h1>
-
-        <div class="form-section">
-            <h2>Add New Video</h2>
-            <div id="add-video-form">
-                <div class="form-group">
-                    <label for="video_url">YouTube Video URL</label>
-                    <input type="text" id="video_url" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-                </div>
-                <button id="add-url-btn" class="btn btn-primary">Add URL</button>
-
-                <div id="video-preview">
-                    <img id="preview-thumbnail" src="" alt="Video Thumbnail">
-                    <div class="preview-content">
-                        <h3 id="preview-title"></h3>
-                        <p id="preview-url"></p>
-                    </div>
-                </div>
-
-                <div id="additional-fields">
-                    <div class="form-group">
-                        <label for="category">Category (Optional)</label>
-                        <input type="text" id="category" placeholder="Tutorials, Music, Documentaries...">
-                    </div>
-                    <div class="form-group">
-                        <label for="comment">Notes (Optional)</label>
-                        <textarea id="comment" placeholder="Add your notes or thoughts about this video..."></textarea>
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="save-video-btn" class="btn btn-primary">Save to Watch Later</button>
-                        <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <h2>Filter by Category</h2>
-            <div class="form-group">
-                <label for="category-filter">Select Category</label>
-                <select id="category-filter" class="btn btn-secondary">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-
-        <div class="video-list">
-            <h2>Saved Videos</h2>
-            <div id="videos-container" class="video-grid">
-                {% if videos %}
-                    {% for video in videos %}
-                    <div class="video-card" data-video-id="{{ video.video_id }}">
-                        {% if video.thumbnail_path %}
-                        <img src="{{ video.thumbnail_path }}" alt="{{ video.title }} thumbnail">
-                        {% else %}
-                        <img src="{{ placeholder_thumbnail_url }}" alt="No thumbnail available">
-                        {% endif %}
-                        <div class="video-card-content">
-                            {% if video.category %}<span class="category">{{ video.category }}</span>{% endif %}
-                            <h3><a href="{{ video.link }}" target="_blank" title="{{ video.title }}">{{ video.title }}</a></h3>
-                            {% if video.comment %}<p>{{ video.comment }}</p>{% endif %}
-                            <div class="actions">
-                                <a href="{{ video.link }}" target="_blank" class="btn btn-small">Watch Now</a>
-                                <button class="btn btn-primary btn-small edit-btn" data-video-id="{{ video.video_id }}" data-comment="{{ video.comment or '' }}">Edit</button>
-                                <button class="btn btn-red btn-small remove-btn" data-video-id="{{ video.video_id }}">Remove</button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="empty-state">No videos saved yet. Add some above!</p>
-                {% endif %}
-            </div>
+    <div class="watch-later-header">
+        <h1>Watch Later</h1>
+        <div class="watch-later-stats">
+            <span>{{ videos|length }} videos</span>
+            {% if categories %}
+            <span>{{ categories|length }} categories</span>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Edit Comment Modal -->
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <h3>Edit Notes</h3>
-            <textarea id="edit-comment" placeholder="Add your notes or thoughts about this video..."></textarea>
-            <div class="modal-buttons">
-                <button id="save-edit-btn" class="btn btn-primary">Save</button>
-                <button id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
+    <div class="add-video-section">
+        <h2>Add New Video</h2>
+        <form class="add-video-form" action="/watch_later/add" method="POST">
+            <input type="text" name="video_url" placeholder="Paste YouTube URL here..." required>
+            <input type="text" name="category" placeholder="Category (optional)">
+            <button type="submit" class="material-button">Add Video</button>
+        </form>
+    </div>
+
+    <div class="category-filter">
+        <label for="category-select">Filter:</label>
+        <select id="category-select" onchange="window.location.href='/watch_later' + (this.value ? '?category=' + encodeURIComponent(this.value) : '')">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="video-grid">
+        {% if videos %}
+            {% for video in videos %}
+            <div class="video-card">
+                <div class="thumbnail-wrapper">
+                    {% if video.thumbnail_path %}
+                    <img src="{{ video.thumbnail_path }}" alt="{{ video.title }}" loading="lazy">
+                    {% else %}
+                    <img src="https://i.ytimg.com/vi/{{ video.video_id }}/default.jpg" alt="{{ video.title }}" loading="lazy">
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3 class="video-title">
+                        <a href="{{ video.link }}" target="_blank" title="{{ video.title }}">{{ video.title }}</a>
+                    </h3>
+                    <div class="video-meta">
+                        {% if video.category %}
+                        <span class="category-tag">{{ video.category }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-actions">
+                        <a href="{{ video.link }}" target="_blank" class="watch-btn">Watch</a>
+                        <button class="edit-btn" onclick="editVideo('{{ video.video_id }}')">Edit</button>
+                        <button class="remove-btn" onclick="removeVideo('{{ video.video_id }}')">Remove</button>
+                    </div>
+                </div>
             </div>
-        </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>No videos in your Watch Later list yet.</p>
+                <p>Add some videos above to get started!</p>
+            </div>
+        {% endif %}
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const addUrlBtn = document.getElementById('add-url-btn');
-            const saveVideoBtn = document.getElementById('save-video-btn');
-            const cancelBtn = document.getElementById('cancel-btn');
-            const categoryFilter = document.getElementById('category-filter');
-            const videosContainer = document.getElementById('videos-container');
-            const editModal = document.getElementById('edit-modal');
-            const editCommentTextarea = document.getElementById('edit-comment');
-            const saveEditBtn = document.getElementById('save-edit-btn');
-            const cancelEditBtn = document.getElementById('cancel-edit-btn');
-            const additionalFields = document.getElementById('additional-fields');
-            const videoPreview = document.getElementById('video-preview');
-            let currentEditingVideoId = null;
-
-            const placeholderThumbnailUrlJs = "{{ placeholder_thumbnail_url }}";
-
-            async function fetchVideos(category = '') {
-                const response = await fetch(`/watch_later/videos?category=${category}`);
-                const videos = await response.json();
-                renderVideos(videos);
-            }
-
-            function renderVideos(videos) {
-                videosContainer.innerHTML = '';
-                if (videos.length === 0) {
-                    videosContainer.innerHTML = '<p class="empty-state">No videos found for this category.</p>';
-                    return;
-                };
-
-                videos.forEach(video => {
-                    const videoCard = document.createElement('div');
-                    videoCard.className = 'video-card';
-                    videoCard.setAttribute('data-video-id', video.video_id);
-
-                    const thumbnailUrl = video.thumbnail_path || placeholderThumbnailUrlJs;
-
-                    videoCard.innerHTML = `
-                        <img src="${thumbnailUrl}" alt="${video.title} thumbnail">
-                        <div class="video-card-content">
-                            ${video.category ? `<span class="category">${video.category}</span>` : ''}
-                            <h3><a href="${video.link}" target="_blank" title="${video.title}">${video.title}</a></h3>
-                            ${video.comment ? `<p>${video.comment}</p>` : ''}
-                            <div class="actions">
-                                <a href="${video.link}" target="_blank" class="btn btn-small">Watch Now</a>
-                                <button class="btn btn-primary btn-small edit-btn" data-video-id="${video.video_id}" data-comment="${video.comment || ''}">Edit</button>
-                                <button class="btn btn-red btn-small remove-btn" data-video-id="${video.video_id}">Remove</button>
-                            </div>
-                        </div>
-                    `;
-                    videosContainer.appendChild(videoCard);
-                });
-
-                attachRemoveListeners();
-                attachEditListeners();
-            }
-
-            function attachRemoveListeners() {
-                document.querySelectorAll('.remove-btn').forEach(button => {
-                    button.onclick = async function() {
-                        const videoId = this.dataset.videoId;
-                        const confirmRemove = confirm('Are you sure you want to remove this video from your Watch Later list?');
-                        if (confirmRemove) {
-                            try {
-                                const response = await fetch('/watch_later/remove', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: `video_id=${videoId}`
-                                });
-                                const result = await response.json();
-                                if (result.status === 'success') {
-                                    alert(result.message);
-                                    fetchVideos(categoryFilter.value);
-                                    fetchCategories();
-                                } else {
-                                    alert('Error: ' + result.message);
-                                }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                alert('An unexpected error occurred.');
-                            }
-                        }
-                    };
-                });
-            }
-
-            function attachEditListeners() {
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.onclick = function() {
-                        currentEditingVideoId = this.dataset.videoId;
-                        editCommentTextarea.value = this.dataset.comment;
-                        editModal.classList.add('visible');
-                    };
-                });
-            }
-
-            async function fetchCategories() {
-                const response = await fetch('/watch_later/categories');
-                const categories = await response.json();
-                const currentSelectedCategory = categoryFilter.value;
-
-                categoryFilter.innerHTML = '<option value="">All Categories</option>';
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat;
-                    if (cat === currentSelectedCategory) {
-                        option.selected = true;
-                    }
-                    categoryFilter.appendChild(option);
-                });
-            }
-
-            addUrlBtn.onclick = async function() {
-                const videoUrlInput = document.getElementById('video_url');
-                const videoUrl = videoUrlInput.value.trim();
-
-                if (!videoUrl) {
-                    alert('Please enter a YouTube video URL.');
-                    return;
-                }
-
-                let cleanedVideoUrl = videoUrl;
-                const localPrefix = "http://localhost:8080/";
-                if (videoUrl.startsWith(localPrefix)) {
-                    cleanedVideoUrl = videoUrl.substring(localPrefix.length);
-                }
-
-                try {
-                    const formData = new FormData();
-                    formData.append('url', cleanedVideoUrl);
-                    const detailsResponse = await fetch('/watch_later/fetch_details', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const detailsResult = await detailsResponse.json();
-
-                    if (detailsResult.status === 'success') {
-                        document.getElementById('preview-thumbnail').src = detailsResult.thumbnail_url;
-                        document.getElementById('preview-title').textContent = detailsResult.title;
-                        document.getElementById('preview-url').textContent = videoUrl;
-                        videoPreview.classList.add('visible');
-                        additionalFields.style.display = 'block';
-                        addUrlBtn.style.display = 'none';
-                    } else {
-                        alert('Error fetching video details: ' + detailsResult.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An unexpected error occurred.');
-                }
-            };
-
-            saveVideoBtn.onclick = async function() {
-                const videoUrl = document.getElementById('video_url').value.trim();
-                const category = document.getElementById('category').value.trim();
-                const comment = document.getElementById('comment').value.trim();
-
-                const finalFormData = new URLSearchParams();
-                finalFormData.append('video_url', videoUrl);
-                finalFormData.append('category', category);
-                finalFormData.append('comment', comment);
-
-                try {
-                    const saveResponse = await fetch('/watch_later/add', {
-                        method: 'POST',
-                        body: finalFormData
-                    });
-                    const saveResult = await saveResponse.json();
-
-                    if (saveResult.status === 'success') {
-                        alert(saveResult.message);
-                        resetForm();
-                        fetchVideos(categoryFilter.value);
-                        fetchCategories();
-                    } else {
-                        alert('Error saving video: ' + saveResult.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An unexpected error occurred.');
-                }
-            };
-
-            cancelBtn.onclick = function() {
-                resetForm();
-            };
-
-            function resetForm() {
-                document.getElementById('video_url').value = '';
-                document.getElementById('category').value = '';
-                document.getElementById('comment').value = '';
-                videoPreview.classList.remove('visible');
-                additionalFields.style.display = 'none';
-                addUrlBtn.style.display = 'inline-block';
-            }
-
-            categoryFilter.onchange = function() {
-                fetchVideos(this.value);
-            };
-
-            saveEditBtn.onclick = async function() {
-                const newComment = editCommentTextarea.value.trim();
-                const formData = new URLSearchParams();
-                formData.append('video_id', currentEditingVideoId);
-                formData.append('comment', newComment);
-
-                try {
-                    const response = await fetch('/watch_later/update_comment', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const result = await response.json();
+        function removeVideo(videoId) {
+            if (confirm('Remove this video from Watch Later?')) {
+                fetch('/watch_later/remove', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'video_id=' + videoId
+                }).then(response => response.json()).then(result => {
                     if (result.status === 'success') {
-                        alert(result.message);
-                        editModal.classList.remove('visible');
-                        fetchVideos(categoryFilter.value);
+                        location.reload();
                     } else {
-                        alert('Error: ' + result.message);
+                        alert(result.message);
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An unexpected error occurred.');
-                }
-            };
+                });
+            }
+        }
 
-            cancelEditBtn.onclick = function() {
-                editModal.classList.remove('visible');
-            };
-
-            window.onclick = function(event) {
-                if (event.target === editModal) {
-                    editModal.classList.remove('visible');
-                }
-            };
-
-            fetchVideos(categoryFilter.value);
-            fetchCategories();
-        });
+        function editVideo(videoId) {
+            const newComment = prompt('Edit notes for this video:');
+            if (newComment !== null) {
+                fetch('/watch_later/update_comment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'video_id=' + videoId + '&comment=' + encodeURIComponent(newComment)
+                }).then(response => response.json()).then(result => {
+                    if (result.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                });
+            }
+        }
     </script>
 {% endblock main %}

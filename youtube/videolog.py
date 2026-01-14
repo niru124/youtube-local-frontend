@@ -24,10 +24,10 @@ def log_watch_time():
 
     # Fetch video details to get title, link, channel name
     video_details = get_video_details(video_id)
-    title = video_details.get('title', 'Unknown Title')
+    title = video_details.get('title') or 'Unknown Title'
     link = video_details.get('url', f'{util.URL_ORIGIN}/watch?v={video_id}')
-    channel_name = video_details.get('channel_name', 'Unknown Channel')
-    channel_link = video_details.get('channel_link', '')
+    channel_name = video_details.get('channel_name') or 'Unknown Channel'
+    channel_link = video_details.get('channel_link') or ''
 
     try:
         db.log_video_watch_time(video_id, title, link, watched_time, total_duration, channel_name, channel_link)
@@ -105,10 +105,10 @@ def save_video_url(url):
         if match:
             video_id = match.group(1)
             video_details = get_video_details(video_id)
-            title = video_details.get('title', 'Unknown Title')
+            title = video_details.get('title') or 'Unknown Title'
             link = video_details.get('url', f'{util.URL_ORIGIN}/watch?v={video_id}')
-            channel_name = video_details.get('channel_name', 'Unknown Channel')
-            channel_link = video_details.get('channel_link', '')
+            channel_name = video_details.get('channel_name') or 'Unknown Channel'
+            channel_link = video_details.get('channel_link') or ''
             
             # When a video is manually saved, we don't have actual watch time, so log with 0
             db.log_video_watch_time(video_id, title, link, 0, 0, channel_name, channel_link)

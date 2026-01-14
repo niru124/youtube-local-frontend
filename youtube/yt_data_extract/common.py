@@ -226,6 +226,106 @@ def check_missing_keys(object, *key_sequences):
 
     return None
 
+def extract_lockup_view_model_info(lockup, additional_info={}):
+    """Extract info from YouTube's new lockupViewModel format used in search results."""
+    info = {'error': None}
+
+    content_type = lockup.get('contentType', '')
+    content_id = lockup.get('contentId', '')
+
+    # Determine type based on content type
+    if content_type == 'LOCKUP_CONTENT_TYPE_VIDEO':
+        info['type'] = 'video'
+    elif content_type == 'LOCKUP_CONTENT_TYPE_PLAYLIST':
+        info['type'] = 'playlist'
+        info['playlist_type'] = 'playlist'
+    elif content_type == 'LOCKUP_CONTENT_TYPE_CHANNEL':
+        info['type'] = 'channel'
+    else:
+        info['type'] = 'unsupported'
+        return info
+
+    # Extract ID
+    info['id'] = content_id
+
+    # Extract title
+    metadata = lockup.get('metadata', {})
+    lockup_metadata = metadata.get('lockupMetadataViewModel', {})
+    title_content = lockup_metadata.get('title', {})
+    if isinstance(title_content, dict):
+        info['title'] = title_content.get('content', '')
+    elif isinstance(title_content, str):
+        info['title'] = title_content
+    else:
+        info['title'] = ''
+
+    # Extract subtitle (usually author for playlists/channels)
+    subtitle = lockup_metadata.get('subtitle', {})
+    if isinstance(subtitle, dict):
+        info['author'] = subtitle.get('content', '')
+    elif isinstance(subtitle, str):
+        info['author'] = subtitle
+    else:
+        info['author'] = ''
+
+    # Extract thumbnail
+    content_image = lockup.get('contentImage', {})
+    if content_type == 'LOCKUP_CONTENT_TYPE_PLAYLIST':
+        collection_thumb = content_image.get('collectionThumbnailViewModel', {})
+        primary_thumb = collection_thumb.get('primaryThumbnail', {})
+        thumb_view_model = primary_thumb.get('thumbnailViewModel', {})
+        image = thumb_view_model.get('image', {})
+        sources = image.get('sources', [])
+        if sources:
+            info['thumbnail'] = normalize_url(sources[0].get('url', ''))
+    else:
+        thumbnails = content_image.get('thumbnails', [])
+        if thumbnails:
+            info['thumbnail'] = normalize_url(thumbnails[0].get('url', ''))
+
+    # For playlists, extract video count from title if available
+    if info['type'] == 'playlist':
+        info['video_count'] = extract_int(lockup_metadata.get('additionalMetadata', {}).get('videoCountText', ''))
+        if not info.get('video_count'):
+            # Try to extract from subtitle
+            subtitle = lockup_metadata.get('subtitle', {})
+            if isinstance(subtitle, dict):
+                runs = subtitle.get('runs', [])
+                for run in runs:
+                    if 'videos' in run.get('text', ''):
+                        import re
+                        match = re.search(r'(\d+)\s*videos', run.get('text', ''))
+                        if match:
+                            info['video_count'] = int(match.group(1))
+                            break
+        
+        # Also try to extract from thumbnail overlay badge
+        if not info.get('video_count'):
+            primary_thumb = content_image.get('collectionThumbnailViewModel', {}).get('primaryThumbnail', {})
+            thumb_view_model = primary_thumb.get('thumbnailViewModel', {})
+            overlays = thumb_view_model.get('overlays', [])
+            for overlay in overlays:
+                badge = overlay.get('thumbnailOverlayBadgeViewModel', {})
+                badge_data = badge.get('thumbnailBadges', [{}])[0].get('thumbnailBadgeViewModel', {})
+                badge_text = badge_data.get('text', '')
+                if badge_text:
+                    import re
+                    match = re.search(r'(\d+)', badge_text)
+                    if match:
+                        info['video_count'] = int(match.group(1))
+                        break
+
+    # Set URL
+    if info['type'] == 'video':
+        info['url'] = ('https://www.youtube.com/watch?v=' + info['id']) if info.get('id') else None
+    elif info['type'] == 'playlist':
+        info['url'] = 'https://www.youtube.com/playlist?list=' + info['id']
+    elif info['type'] == 'channel':
+        info['url'] = 'https://www.youtube.com/channel/' + info['id']
+
+    info.update(additional_info)
+    return info
+
 def extract_item_info(item, additional_info={}):
     if not item:
         return {'error': 'No item given'}
@@ -242,6 +342,10 @@ def extract_item_info(item, additional_info={}):
     if type in ('movieRenderer', 'clarificationRenderer'):
         info['type'] = 'unsupported'
         return info
+
+    # Handle new lockupViewModel format from YouTube search results
+    if type == 'lockupViewModel':
+        return extract_lockup_view_model_info(item, additional_info)
 
     # type looks like e.g. 'compactVideoRenderer' or 'gridVideoRenderer'
     # camelCase split, https://stackoverflow.com/a/37697078
@@ -437,10 +541,7 @@ _item_types = {
     'compactShowRenderer',
     'gridShowRenderer',
 
-
-    'channelRenderer',
-    'compactChannelRenderer',
-    'gridChannelRenderer',
+    'lockupViewModel',
 }
 
 def _traverse_browse_renderer(renderer):

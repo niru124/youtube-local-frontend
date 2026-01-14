@@ -185,6 +185,12 @@ def extract_search_info(polymer_json):
     for renderer in results:
         type = list(renderer.keys())[0]
         if type == 'shelfRenderer':
+            # Extract items from shelfRenderer (playlists can appear here)
+            shelf_contents = deep_get(renderer, 'shelfRenderer', 'content', 'horizontalListRenderer', 'items', default=[])
+            for shelf_item in shelf_contents:
+                item_info = extract_item_info(shelf_item)
+                if item_info.get('type') != 'unsupported':
+                    info['items'].append(item_info)
             continue
         if type == 'didYouMeanRenderer':
             renderer = renderer[type]

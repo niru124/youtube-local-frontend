@@ -1075,7 +1075,7 @@ def serve_subscription_thumbnail(thumbnail):
             f.close()
             return flask.Response(image, mimetype='image/jpeg')
 
-    url = "https://i.ytimg.com/vi/" + video_id + "/mqdefault.jpg"
+    url = "https://i.ytimg.com/vi/" + video_id + "/hqdefault.jpg"
     try:
         image = util.fetch_url(url, report_text="Saved thumbnail: " + video_id)
     except urllib.error.HTTPError as e:

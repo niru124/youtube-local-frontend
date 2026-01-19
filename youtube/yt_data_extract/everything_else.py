@@ -235,7 +235,7 @@ def extract_playlist_metadata(polymer_json):
     if metadata['first_video_id'] is None:
         metadata['thumbnail'] = None
     else:
-        metadata['thumbnail'] = 'https://i.ytimg.com/vi/' + metadata['first_video_id'] + '/mqdefault.jpg'
+        metadata['thumbnail'] = 'https://i.ytimg.com/vi/' + metadata['first_video_id'] + '/hqdefault.jpg'
 
     metadata['video_count'] = extract_int(header.get('numVideosText'))
     metadata['description'] = extract_str(header.get('descriptionText'), default='')

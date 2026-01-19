@@ -460,7 +460,7 @@ class RateLimitedQueue(gevent.queue.Queue):
 
 
 def download_thumbnail(save_directory, video_id):
-    url = "https://i.ytimg.com/vi/" + video_id + "/mqdefault.jpg"
+    url = "https://i.ytimg.com/vi/" + video_id + "/hqdefault.jpg"
     save_location = os.path.join(save_directory, video_id + ".jpg")
     try:
         thumbnail = fetch_url(url, report_text="Saved thumbnail: " + video_id)
@@ -504,7 +504,7 @@ def video_id(url):
 
 # default, sddefault, mqdefault, hqdefault, hq720
 def get_thumbnail_url(video_id):
-    return settings.img_prefix + "https://i.ytimg.com/vi/" + video_id + "/mqdefault.jpg"
+    return settings.img_prefix + "https://i.ytimg.com/vi/" + video_id + "/hqdefault.jpg"
 
 def _duration_to_seconds(duration_str):
     if not duration_str:

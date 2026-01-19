@@ -299,7 +299,7 @@
                 div#transcript-div {
                     padding: 16px; /* Consistent padding */
                 }
-            .playlist{
+                .playlist{
                 border: 1px solid var(--ctp-surface1);
                 border-radius: 12px;
                 margin-bottom: 20px;
@@ -314,6 +314,7 @@
                     align-items: center;
                     flex-wrap: wrap;
                     gap: 10px;
+                    background-color: var(--ctp-surface1);
                 }
                     .playlist-header h3{
                         margin: 0;
@@ -349,6 +350,46 @@
                         .playlist-metadata a:hover {
                             text-decoration: underline;
                         }
+                .playlist-videos-container {
+                    max-height: 280px; /* Show approximately 3 cards */
+                    overflow-y: hidden;
+                    transition: max-height 0.4s ease-in-out;
+                    position: relative;
+                }
+                .playlist-videos-container::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 40px;
+                    background: linear-gradient(to bottom, transparent, var(--ctp-surface0));
+                    pointer-events: none;
+                    opacity: 1;
+                    transition: opacity 0.3s ease;
+                }
+                .playlist-videos-container.scrolled::after,
+                .playlist:hover .playlist-videos-container::after {
+                    opacity: 0;
+                }
+                .playlist:hover .playlist-videos-container {
+                    max-height: 600px; /* Expand on hover */
+                    overflow-y: auto;
+                }
+                /* Custom scrollbar for playlist */
+                .playlist-videos-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .playlist-videos-container::-webkit-scrollbar-track {
+                    background: var(--ctp-surface1);
+                }
+                .playlist-videos-container::-webkit-scrollbar-thumb {
+                    background: var(--ctp-overlay0);
+                    border-radius: 4px;
+                }
+                .playlist-videos-container::-webkit-scrollbar-thumb:hover {
+                    background: var(--ctp-overlay1);
+                }
                 .playlist-videos{
                     display: grid;
                     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -399,6 +440,17 @@
                     .playlist-videos .currently-playing .thumbnail-wrapper {
                         opacity: 0.6;
                     }
+                .playlist-expand-hint {
+                    text-align: center;
+                    padding: 8px;
+                    color: var(--ctp-overlay2);
+                    font-size: 0.85rem;
+                    cursor: pointer;
+                    user-select: none;
+                }
+                .playlist:hover .playlist-expand-hint {
+                    display: none;
+                }
             .autoplay-toggle-container{
                 margin-bottom: 15px;
                 display: flex;
@@ -910,47 +962,50 @@ Reload without invidious (for usage of new identity button).</a>
                           <input type="checkbox" id="autoplay-toggle">
                       </div>
                   </div>
-                  <nav class="playlist-videos">
-                      {% for info in playlist['items'] %}
-                          {% set is_current = loop.index0 == playlist.get('current_index', -1) %}
-                          <div class="item-box video-item-box no-description {{ 'currently-playing' if is_current else '' }}">
-                              <div class="item video-item" style="display: flex; flex-direction: row; gap: 12px;">
-                                  <a class="thumbnail-box" href="{{ info['url'] }}" title="{{ info['title'] }}" style="width: 120px; height: 68px; flex-shrink: 0;">
-                                      {% if loop.index0 == 0 or (playlist.get('current_index', -10) - loop.index0)|abs is lt(5) %}
-                                          <img class="thumbnail-img" src="{{ info['thumbnail'] }}">
-                                      {% else %}
-                                          <img class="thumbnail-img lazy" data-src="{{ info['thumbnail'] }}">
-                                      {% endif %}
-                                      {% if info['duration'] %}
-                                          <div class="thumbnail-info">
-                                              <span>{{ info['duration'] }}</span>
+                  <div class="playlist-videos-container" id="playlist-videos-container">
+                      <nav class="playlist-videos">
+                          {% for info in playlist['items'] %}
+                              {% set is_current = loop.index0 == playlist.get('current_index', -1) %}
+                              <div class="item-box video-item-box no-description {{ 'currently-playing' if is_current else '' }}">
+                                  <div class="item video-item" style="display: flex; flex-direction: row; gap: 12px;">
+                                      <a class="thumbnail-box" href="{{ info['url'] }}" title="{{ info['title'] }}" style="width: 120px; height: 68px; flex-shrink: 0;">
+                                          {% if loop.index0 == 0 or (playlist.get('current_index', -10) - loop.index0)|abs is lt(5) %}
+                                              <img class="thumbnail-img" src="{{ info['thumbnail'] }}">
+                                          {% else %}
+                                              <img class="thumbnail-img lazy" data-src="{{ info['thumbnail'] }}">
+                                          {% endif %}
+                                          {% if info['duration'] %}
+                                              <div class="thumbnail-info">
+                                                  <span>{{ info['duration'] }}</span>
+                                              </div>
+                                          {% endif %}
+                                      </a>
+                                      <div class="item-metadata" style="padding: 0; flex: 1; min-width: 0;">
+                                          <div class="title" style="margin-bottom: 4px;">
+                                              <a class="title" href="{{ info['url'] }}" title="{{ info['title'] }}" style="font-size: 0.9rem;">{{ info['title'] }}</a>
                                           </div>
-                                      {% endif %}
-                                  </a>
-                                  <div class="item-metadata" style="padding: 0; flex: 1; min-width: 0;">
-                                      <div class="title" style="margin-bottom: 4px;">
-                                          <a class="title" href="{{ info['url'] }}" title="{{ info['title'] }}" style="font-size: 0.9rem;">{{ info['title'] }}</a>
+                                          {% if info['author'] %}
+                                              <address title="{{ info['author'] }}" style="font-size: 0.8rem; color: var(--ctp-overlay2);">
+                                                  <a href="{{ info['author_url'] }}" style="color: inherit;">{{ info['author'] }}</a>
+                                              </address>
+                                          {% endif %}
+                                          {% if info.get('approx_view_count') or info.get('time_published') %}
+                                              <ul class="stats horizontal-stats" style="font-size: 0.75rem; margin-top: 4px;">
+                                                  {% if info.get('approx_view_count') %}
+                                                      <li><span class="views">{{ info['approx_view_count'] }} views</span></li>
+                                                  {% endif %}
+                                                  {% if info.get('time_published') %}
+                                                      <li><time>{{ info['time_published'] }}</time></li>
+                                                  {% endif %}
+                                              </ul>
+                                          {% endif %}
                                       </div>
-                                      {% if info['author'] %}
-                                          <address title="{{ info['author'] }}" style="font-size: 0.8rem; color: var(--ctp-overlay2);">
-                                              <a href="{{ info['author_url'] }}" style="color: inherit;">{{ info['author'] }}</a>
-                                          </address>
-                                      {% endif %}
-                                      {% if info.get('approx_view_count') or info.get('time_published') %}
-                                          <ul class="stats horizontal-stats" style="font-size: 0.75rem; margin-top: 4px;">
-                                              {% if info.get('approx_view_count') %}
-                                                  <li><span class="views">{{ info['approx_view_count'] }} views</span></li>
-                                              {% endif %}
-                                              {% if info.get('time_published') %}
-                                                  <li><time>{{ info['time_published'] }}</time></li>
-                                              {% endif %}
-                                          </ul>
-                                      {% endif %}
                                   </div>
                               </div>
-                          </div>
-                      {% endfor %}
-                  </nav>
+                          {% endfor %}
+                      </nav>
+                  </div>
+                  <div class="playlist-expand-hint">Hover to see all videos</div>
               </div>
           {% elif settings.related_videos_mode != 0 %}
               <div class="autoplay-toggle-container"><label for="autoplay-toggle">Autoplay: </label><input type="checkbox" id="autoplay-toggle"></div>
@@ -1096,6 +1151,31 @@ Reload without invidious (for usage of new identity button).</a>
                     }
                 });
             });
+
+            // Handle playlist scroll indicator
+            const playlistContainer = document.getElementById('playlist-videos-container');
+            if (playlistContainer) {
+                playlistContainer.addEventListener('scroll', function() {
+                    if (this.scrollTop > 10) {
+                        this.classList.add('scrolled');
+                    } else {
+                        this.classList.remove('scrolled');
+                    }
+                });
+
+                // Scroll to currently playing video
+                const currentVideo = playlistContainer.querySelector('.currently-playing');
+                if (currentVideo) {
+                    const containerRect = playlistContainer.getBoundingClientRect();
+                    const videoRect = currentVideo.getBoundingClientRect();
+                    const scrollTop = playlistContainer.scrollTop;
+                    const offset = videoRect.top - containerRect.top + scrollTop - 20; // 20px buffer
+                    playlistContainer.scrollTo({
+                        top: offset,
+                        behavior: 'smooth'
+                    });
+                }
+            }
         });
     </script>
 {% endblock main %}

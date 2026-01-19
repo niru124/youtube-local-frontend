@@ -108,7 +108,7 @@ def get_playlist_page():
         util.prefix_urls(item)
         util.add_extra_html_info(item)
         if 'id' in item:
-            item['thumbnail'] = settings.img_prefix + 'https://i.ytimg.com/vi/' + item['id'] + '/mqdefault.jpg'
+            item['thumbnail'] = settings.img_prefix + 'https://i.ytimg.com/vi/' + item['id'] + '/hqdefault.jpg'
 
         item['url'] += '&list=' + playlist_id
         if item['index']:

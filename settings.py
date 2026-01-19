@@ -474,10 +474,13 @@ else:
         current_settings_dict = {}
         attributes = {
             ast.Constant: 'value',
-            ast.NameConstant: 'value',
-            ast.Num: 'n',
-            ast.Str: 's',
         }
+        if hasattr(ast, 'NameConstant'):
+            attributes[ast.NameConstant] = 'value'
+        if hasattr(ast, 'Num'):
+            attributes[ast.Num] = 'n'
+        if hasattr(ast, 'Str'):
+            attributes[ast.Str] = 's'
         module_node = ast.parse(settings_text)
         for node in module_node.body:
             if type(node) != ast.Assign:

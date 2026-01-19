@@ -146,7 +146,7 @@ def post_process_comments_info(comments_info):
     comments_info['video_url'] = concat_or_none(util.URL_ORIGIN,
         '/watch?v=', comments_info['video_id'])
     comments_info['video_thumbnail'] = concat_or_none(settings.img_prefix, 'https://i.ytimg.com/vi/',
-        comments_info['video_id'], '/mqdefault.jpg')
+        comments_info['video_id'], '/hqdefault.jpg')
 
 
 def video_comments(video_id, sort=0, offset=0, lc='', secret_key=''):

@@ -451,6 +451,109 @@
                 .playlist:hover .playlist-expand-hint {
                     display: none;
                 }
+
+                .chapters-sidebar {
+                    border: 1px solid var(--ctp-surface1);
+                    border-radius: 12px;
+                    margin-bottom: 20px;
+                    background-color: var(--ctp-surface0);
+                    overflow: hidden;
+                }
+                .chapters-header {
+                    padding: 16px 20px;
+                    border-bottom: 1px solid var(--ctp-surface1);
+                    background-color: var(--ctp-surface1);
+                }
+                .chapters-header h3 {
+                    margin: 0;
+                    font-size: 1.2rem;
+                    color: var(--ctp-text);
+                }
+                .chapters-container {
+                    max-height: 280px; /* Show approximately 3 chapters */
+                    overflow-y: hidden;
+                    transition: max-height 0.4s ease-in-out;
+                    position: relative;
+                }
+                .chapters-container::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 40px;
+                    background: linear-gradient(to bottom, transparent, var(--ctp-surface0));
+                    pointer-events: none;
+                    opacity: 1;
+                    transition: opacity 0.3s ease;
+                }
+                .chapters-sidebar:hover .chapters-container::after {
+                    opacity: 0;
+                }
+                .chapters-sidebar:hover .chapters-container {
+                    max-height: 600px; /* Expand on hover */
+                    overflow-y: auto;
+                }
+                /* Custom scrollbar for chapters */
+                .chapters-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .chapters-container::-webkit-scrollbar-track {
+                    background: var(--ctp-surface1);
+                }
+                .chapters-container::-webkit-scrollbar-thumb {
+                    background: var(--ctp-overlay0);
+                    border-radius: 4px;
+                }
+                .chapters-container::-webkit-scrollbar-thumb:hover {
+                    background: var(--ctp-overlay1);
+                }
+                .chapters-list {
+                    padding: 15px 20px;
+                }
+                .chapter-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 0;
+                    border-bottom: 1px solid var(--ctp-surface1);
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                }
+                .chapter-item:hover {
+                    background-color: var(--ctp-surface1);
+                }
+                .chapter-item:last-child {
+                    border-bottom: none;
+                }
+                .chapter-time {
+                    font-family: monospace;
+                    color: var(--ctp-blue);
+                    margin-right: 12px;
+                    min-width: 60px;
+                    font-size: 0.9em;
+                }
+                .chapter-title {
+                    flex: 1;
+                    color: var(--ctp-text);
+                    cursor: pointer;
+                }
+                .chapter-title:hover {
+                    color: var(--ctp-blue);
+                    text-decoration: underline;
+                }
+                .chapters-expand-hint {
+                    text-align: center;
+                    padding: 8px;
+                    color: var(--ctp-overlay2);
+                    font-size: 0.85rem;
+                    cursor: pointer;
+                    user-select: none;
+                }
+                .chapters-sidebar:hover .chapters-expand-hint {
+                    display: none;
+                }
+
+
             .autoplay-toggle-container{
                 margin-bottom: 15px;
                 display: flex;
@@ -941,6 +1044,8 @@ Reload without invidious (for usage of new identity button).</a>
         </details>
     </div>
 
+
+
     <div class="side-and-comments-container">
       <div class="side-videos">
           {% if playlist %}
@@ -1006,13 +1111,35 @@ Reload without invidious (for usage of new identity button).</a>
                       </nav>
                   </div>
                   <div class="playlist-expand-hint">Hover to see all videos</div>
-              </div>
-          {% elif settings.related_videos_mode != 0 %}
-              <div class="autoplay-toggle-container"><label for="autoplay-toggle">Autoplay: </label><input type="checkbox" id="autoplay-toggle"></div>
-          {% endif %}
+               </div>
+            {% elif settings.related_videos_mode != 0 %}
+                <div class="autoplay-toggle-container"><label for="autoplay-toggle">Autoplay: </label><input type="checkbox" id="autoplay-toggle"></div>
+            {% endif %}
 
+           <div class="chapters-sidebar">
+               <div class="chapters-header">
+                   <h3>Chapters</h3>
+               </div>
+               {% if chapters and chapters|length > 0 %}
+               <div class="chapters-container">
+                   <nav class="chapters-list">
+                       {% for chapter in chapters %}
+                       <div class="chapter-item">
+                           <span class="chapter-time">{{ chapter.start_time | int }}</span>
+                           <span class="chapter-title" data-time="{{ chapter.start_time }}">{{ chapter.title }}</span>
+                       </div>
+                       {% endfor %}
+                   </nav>
+               </div>
+               <div class="chapters-expand-hint">Hover to see all chapters</div>
+               {% else %}
+               <div class="chapters-container">
+                   <p style="padding: 15px 20px; color: var(--ctp-overlay2);">No chapters available for this video.</p>
+               </div>
+               {% endif %}
+           </div>
 
-          {% if subtitle_sources %}
+           {% if subtitle_sources %}
               <details id="transcript-details">
                   <summary>Transcript</summary>
                   <div id="transcript-div">
@@ -1040,20 +1167,7 @@ Reload without invidious (for usage of new identity button).</a>
           {% endif %}
       </div>
 
-       {% if chapters and chapters|length > 0 %}
-       <div class="chapters-above-comments">
-           <h3>Chapters</h3>
-           <div class="chapters-checkbox-list">
-               {% for chapter in chapters %}
-               <label class="chapter-checkbox-item">
-                   <input type="checkbox" class="chapter-checkbox">
-                   <span class="chapter-time" id="chapter-time-{{ loop.index }}">{{ chapter.start_time | int }}</span>
-                   <span class="chapter-title" data-time="{{ chapter.start_time }}">{{ chapter.title }}</span>
-               </label>
-               {% endfor %}
-           </div>
-       </div>
-       {% endif %}
+
 
        {% if settings.comments_mode != 0 %}
            {% if comments_disabled %}
@@ -1135,16 +1249,16 @@ Reload without invidious (for usage of new identity button).</a>
             }
 
             // Format all chapter times
-            document.querySelectorAll('[id^="chapter-time-"]').forEach(el => {
+            document.querySelectorAll('.chapter-time').forEach(el => {
                 const seconds = parseInt(el.textContent);
                 el.textContent = formatTime(seconds);
             });
 
-            // Handle chapter title clicks
-            const chapterTitles = document.querySelectorAll('.chapter-title');
-            chapterTitles.forEach(title => {
-                title.addEventListener('click', function() {
-                    const time = parseFloat(this.dataset.time);
+            // Handle chapter item clicks
+            const chapterItems = document.querySelectorAll('.chapter-item');
+            chapterItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const time = parseFloat(this.querySelector('.chapter-title').dataset.time);
                     if (videoPlayer) {
                         videoPlayer.currentTime = time;
                         videoPlayer.play();

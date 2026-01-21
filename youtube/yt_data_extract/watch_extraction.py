@@ -729,6 +729,31 @@ def extract_watch_info(polymer_json):
             'start_time': chapter.get('timeRangeStartMillis', 0) / 1000,
             'end_time': chapter.get('timeRangeEndMillis', 0) / 1000,
         })
+
+    # Fallback: parse chapters from description if no chapters from metadata
+    if not chapters:
+        description = vd.get('shortDescription', '') or mf.get('description', '')
+        if description:
+            lines = description.split('\n')
+            time_regex = re.compile(r'^(\d{1,2}):(\d{2})(?::(\d{2}))?')
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                match = time_regex.match(line)
+                if match:
+                    hours = int(match.group(1)) if match.group(1) else 0
+                    minutes = int(match.group(2))
+                    seconds = int(match.group(3)) if match.group(3) else 0
+                    total_seconds = hours * 3600 + minutes * 60 + seconds
+                    title = time_regex.sub('', line).strip()
+                    if title:
+                        chapters.append({
+                            'title': title,
+                            'start_time': total_seconds,
+                            'end_time': 0,  # No end time for parsed chapters
+                        })
+
     info['chapters'] = chapters
 
     # fallback stuff from microformat

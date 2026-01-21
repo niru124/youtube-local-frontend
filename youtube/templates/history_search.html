@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% set page_title = 'History Search' %}
+
+{% block style %}
+    main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .search-header {
+        margin-bottom: 30px;
+    }
+
+    .search-header h1 {
+        margin: 0 0 20px 0;
+        font-size: 1.8rem;
+        color: var(--ctp-text);
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 16px 20px;
+        padding-left: 50px;
+        font-size: 1.1rem;
+        border: 2px solid var(--ctp-surface1);
+        border-radius: 12px;
+        background-color: var(--ctp-surface0);
+        color: var(--ctp-text);
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--ctp-blue);
+        box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.3);
+    }
+
+    .search-box::before {
+        content: '🔍';
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+    }
+
+    .search-hint {
+        font-size: 0.85rem;
+        color: var(--ctp-overlay2);
+        margin-top: 10px;
+    }
+
+    .results-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ctp-surface1);
+    }
+
+    .results-info .count {
+        color: var(--ctp-overlay2);
+        font-size: 0.9rem;
+    }
+
+    .results-info .query {
+        color: var(--ctp-blue);
+        font-weight: 600;
+    }
+
+    .results-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .result-item {
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .result-item:hover {
+        border-color: var(--ctp-blue);
+        transform: translateX(5px);
+    }
+
+    .result-thumbnail {
+        flex-shrink: 0;
+        width: 120px;
+        height: 68px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .result-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .result-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .result-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ctp-text);
+        margin: 0 0 5px 0;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .result-channel {
+        font-size: 0.85rem;
+        color: var(--ctp-blue);
+        margin-bottom: 5px;
+    }
+
+    .result-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.8rem;
+        color: var(--ctp-overlay2);
+    }
+
+    .result-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--ctp-overlay2);
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .keyboard-hints {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--ctp-surface1);
+        flex-wrap: wrap;
+    }
+
+    .keyboard-hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: var(--ctp-overlay2);
+    }
+
+    .keyboard-hint kbd {
+        background-color: var(--ctp-surface1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+        .result-item {
+            flex-direction: column;
+        }
+
+        .result-thumbnail {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+        }
+    }
+{% endblock style %}
+
+{% block main %}
+    <div class="search-header">
+        <h1>Search History</h1>
+        <div class="search-box">
+            <input type="text" 
+                   id="search-input" 
+                   placeholder="Search your watch history..." 
+                   value="{{ query }}"
+                   autofocus>
+        </div>
+        <p class="search-hint">Type to search. Results update automatically. Supports fuzzy matching.</p>
+    </div>
+
+    {% if results %}
+    <div class="results-info">
+        <span class="count">Found <strong>{{ count }}</strong> results</span>
+        {% if query %}
+        <span class="query">Searching for: "{{ query }}"</span>
+        {% endif %}
+    </div>
+
+    <div class="results-list" id="results-list">
+        {% for result in results %}
+        <a href="{{ result.link }}" class="result-item" data-video-id="{{ result.video_id }}">
+            <div class="result-thumbnail">
+                <img src="https://i.ytimg.com/vi/{{ result.video_id }}/mqdefault.jpg" 
+                     alt="{{ result.title }}"
+                     loading="lazy">
+            </div>
+            <div class="result-info">
+                <h3 class="result-title">{{ result.title }}</h3>
+                {% if result.channel_name %}
+                <div class="result-channel">{{ result.channel_name }}</div>
+                {% endif %}
+                <div class="result-meta">
+                    <span>⏱ {{ result.watched_time }} min</span>
+                    {% if result.date %}
+                    <span>📅 {{ result.date }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        {% if query %}
+        <p>No results found for "{{ query }}"</p>
+        <p>Try different keywords or check for typos.</p>
+        {% else %}
+        <p>Start typing to search your watch history.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="keyboard-hints">
+        <div class="keyboard-hint"><kbd>Enter</kbd> Open video</div>
+        <div class="keyboard-hint"><kbd>↑↓</kbd> Navigate</div>
+        <div class="keyboard-hint"><kbd>Esc</kbd> Clear search</div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const resultsList = document.getElementById('results-list');
+        let selectedIndex = -1;
+        let searchTimeout = null;
+
+        // Debounced search
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(this.value);
+            }, 200);
+        });
+
+        // Keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            const items = document.querySelectorAll('.result-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateSelection(items);
+            } else if (e.key === 'Enter' && selectedIndex >= 0 && items[selectedIndex]) {
+                window.location.href = items[selectedIndex].href;
+            } else if (e.key === 'Escape') {
+                this.value = '';
+                selectedIndex = -1;
+                if (items.length > 0) {
+                    items.forEach(item => item.style.borderColor = '');
+                }
+                performSearch('');
+            }
+        });
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.style.borderColor = 'var(--ctp-blue)';
+                    item.style.transform = 'translateX(10px)';
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    item.style.borderColor = '';
+                    item.style.transform = '';
+                }
+            });
+        }
+
+        function performSearch(query) {
+            const url = '/history/search?q=' + encodeURIComponent(query);
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    // Parse the response and update results
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newResults = doc.querySelector('.results-list, .empty-state');
+                    if (newResults) {
+                        if (resultsList) {
+                            resultsList.innerHTML = newResults.innerHTML;
+                        } else {
+                            document.querySelector('.results-info').insertAdjacentElement('afterend', newResults);
+                        }
+                        selectedIndex = -1;
+                    }
+                })
+                .catch(err => console.error('Search error:', err));
+        }
+
+        // Focus search on page load
+        searchInput.focus();
+    </script>
+{% endblock main %}

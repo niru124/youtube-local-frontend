@@ -111,9 +111,8 @@ def timestamp_replacement(match):
     for part in match.group(0).split(':'):
         time_seconds = 60*time_seconds + int(part)
     return (
-        '<a href="#" onclick="document.querySelector(\'video\').currentTime='
-        + str(time_seconds)
-        + '">' + match.group(0)
+        '<a href="#" onclick="jumpToTime(\'' + match.group(0) + '\', document.querySelector(\'video\')); updateOSD(\'Jumped to ' + match.group(0) + '\'); return false;">'
+        + match.group(0)
         + '</a>'
     )
 

@@ -3,6 +3,8 @@ if(data.settings.subtitles_mode == 2)
     captionsActive = true;
 else if(data.settings.subtitles_mode == 1 && data.has_manual_captions)
     captionsActive = true;
+else if(data.subtitle_sources && data.subtitle_sources.length > 0)
+    captionsActive = true;
 else
     captionsActive = false;
 
@@ -125,6 +127,7 @@ const playerOptions = {
         enabled: storyboard_url != null,
         src: [storyboard_url],
     },
+
     settings: ['captions', 'quality', 'speed', 'loop'],
 }
 

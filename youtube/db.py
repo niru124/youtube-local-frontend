@@ -223,6 +223,31 @@ def get_daily_watch_history(date_obj):
     finally:
         conn.close()
 
+def get_all_watch_history():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    all_history = []
+    try:
+        # Get all daily tables
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'daily_%' ORDER BY name DESC")
+        tables = cursor.fetchall()
+        for (table_name,) in tables:
+            try:
+                cursor.execute(f"SELECT * FROM {table_name} ORDER BY timestamp DESC")
+                history = cursor.fetchall()
+                for row in history:
+                    row_dict = dict(row)
+                    row_dict['date_logged'] = table_name.replace('daily_', '')  # Add date info
+                    all_history.append(row_dict)
+            except sqlite3.OperationalError:
+                continue
+        return all_history
+    except Exception as e:
+        print(f"Error getting all watch history: {e}")
+        return []
+    finally:
+        conn.close()
+
 def get_monthly_summary(year, month):
     month_year_str = f"{month:02d}_{year}"
     table_name = f"monthly_{month_year_str}"

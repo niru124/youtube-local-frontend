@@ -1,6 +1,6 @@
 import youtube
 from youtube import yt_app
-from youtube import util, comments, local_playlist, yt_data_extract, videolog
+from youtube import util, comments, local_playlist, yt_data_extract, videolog, subscriptions
 import settings
 
 from flask import request
@@ -784,6 +784,8 @@ def get_watch_page(video_id=None):
 
         title       = info['title'],
         uploader    = info['author'],
+        uploader_channel_id = info['author_id'],
+        is_subscribed = subscriptions.is_subscribed(info['author_id']) if info.get('author_id') else False,
         description = info['description'],
         unlisted    = info['unlisted'],
         limited_state = info['limited_state'],

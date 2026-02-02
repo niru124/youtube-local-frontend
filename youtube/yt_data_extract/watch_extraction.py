@@ -721,6 +721,9 @@ def extract_watch_info(polymer_json):
     conservative_update(info, 'unlisted', not vd.get('isCrawlable', True))  #isCrawlable is false on limited state videos even if they aren't unlisted
     liberal_update(info, 'tags',        vd.get('keywords', []))
 
+    # fallback stuff from microformat (needed for description fallback in chapters section below)
+    mf = deep_get(top_level, 'playerResponse', 'microformat', 'playerMicroformatRenderer', default={})
+
     # chapters
     chapters = []
     for chapter in vd.get('chapters', []):
@@ -757,7 +760,6 @@ def extract_watch_info(polymer_json):
     info['chapters'] = chapters
 
     # fallback stuff from microformat
-    mf = deep_get(top_level, 'playerResponse', 'microformat', 'playerMicroformatRenderer', default={})
     conservative_update(info, 'title',      extract_str(mf.get('title')))
     conservative_update(info, 'duration', extract_int(mf.get('lengthSeconds')))
     # this gives the view count for limited state videos

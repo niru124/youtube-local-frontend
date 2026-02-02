@@ -119,6 +119,7 @@
                 "v-title                  v-title"
                 "v-labels                 v-labels"
                 "v-uploader               v-views"
+                "v-subscribe              v-subscribe"
                 "v-date                   v-likes-dislikes"
                 "external-player-controls v-checkbox"
                 "v-direct-link            v-direct-link"
@@ -153,6 +154,26 @@
                 justify-self: start;
                 font-size: 1.1rem;
                 color: var(--ctp-text);
+            }
+            .video-info > .subscribe-unsubscribe{
+                grid-area: v-subscribe;
+                justify-self: start;
+                margin-top: 8px;
+                grid-column: 1 / span 2;
+            }
+            .video-info > .subscribe-unsubscribe input[type="submit"]{
+                background-color: var(--ctp-blue);
+                color: var(--ctp-crust);
+                border: none;
+                border-radius: 18px;
+                padding: 8px 20px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+            }
+            .video-info > .subscribe-unsubscribe input[type="submit"]:hover{
+                background-color: var(--ctp-sky);
             }
             .video-info > .views{
                 grid-area: v-views;
@@ -840,6 +861,7 @@
                 "v-title                  v-title"
                 "v-labels                 v-labels"
                 "v-uploader               v-uploader"
+                "v-subscribe              v-subscribe"
                 "v-date                   v-date"
                 "v-views                  v-views"
                 "v-likes-dislikes         v-likes-dislikes"
@@ -923,6 +945,12 @@ Reload without invidious (for usage of new identity button).</a>
             {%- endif -%}
         </ul>
         <address>Uploaded by <a href="{{ uploader_channel_url }}">{{ uploader }}</a></address>
+        <form method="POST" action="/youtube.com/subscriptions" class="subscribe-unsubscribe">
+            <input type="submit" value="{{ 'Unsubscribe' if is_subscribed else 'Subscribe' }}">
+            <input type="hidden" name="channel_id" value="{{ uploader_channel_id }}">
+            <input type="hidden" name="channel_name" value="{{ uploader }}">
+            <input type="hidden" name="action" value="{{ 'unsubscribe' if is_subscribed else 'subscribe' }}">
+        </form>
         <span class="views">{{ view_count }} views</span>
 
 

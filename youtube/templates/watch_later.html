@@ -4,9 +4,9 @@
 
 {% block style %}
     main {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        padding: 20px 30px;
     }
 
     .watch-later-header {
@@ -16,6 +16,7 @@
         margin-bottom: 30px;
         flex-wrap: wrap;
         gap: 15px;
+        padding: 0 10px;
     }
 
     .watch-later-header h1 {
@@ -41,8 +42,9 @@
         background-color: var(--ctp-surface0);
         border: 1px solid var(--ctp-surface1);
         border-radius: 12px;
-        padding: 20px;
+        padding: 20px 25px;
         margin-bottom: 30px;
+        width: 100%;
     }
 
     .add-video-section h2 {
@@ -76,10 +78,12 @@
 
     .category-filter {
         display: flex;
-        gap: 10px;
+        gap: 15px;
         align-items: center;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        padding: 0 10px;
+        width: 100%;
     }
 
     .category-filter label {
@@ -99,8 +103,9 @@
 
     .video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 20px;
+        width: 100%;
     }
 
     .video-card {
@@ -249,9 +254,14 @@
     }
 
     @media (max-width: 768px) {
+        main {
+            padding: 15px 20px;
+        }
+
         .watch-later-header {
             flex-direction: column;
             align-items: flex-start;
+            padding: 0;
         }
 
         .add-video-form {
@@ -263,12 +273,100 @@
         }
 
         .video-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .video-grid {
             grid-template-columns: 1fr;
+        }
+
+        .category-filter {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toast {
+        padding: 14px 20px;
+        border-radius: 10px;
+        color: var(--ctp-crust);
+        font-size: 0.95rem;
+        font-weight: 500;
+        min-width: 280px;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .toast.success {
+        background-color: var(--ctp-green);
+    }
+
+    .toast.error {
+        background-color: var(--ctp-red);
+    }
+
+    .toast.info {
+        background-color: var(--ctp-blue);
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: var(--ctp-crust);
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.8;
+        margin-left: 15px;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
         }
     }
 {% endblock style %}
 
 {% block main %}
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="watch-later-header">
         <h1>Watch Later</h1>
         <div class="watch-later-stats">
@@ -335,6 +433,70 @@
     </div>
 
     <script>
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+
+        // Handle add video form submission
+        document.querySelector('.add-video-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Adding...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
+
+            fetch('/watch_later/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: params
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(result => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+
+                if (result.status === 'success') {
+                    showToast(result.message, 'success');
+                    form.reset();
+                    // Refresh the video list after a short delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            })
+            .catch(error => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                showToast('An error occurred: ' + error.message, 'error');
+            });
+        });
+
         function removeVideo(videoId) {
             if (confirm('Remove this video from Watch Later?')) {
                 fetch('/watch_later/remove', {
@@ -343,10 +505,13 @@
                     body: 'video_id=' + videoId
                 }).then(response => response.json()).then(result => {
                     if (result.status === 'success') {
-                        location.reload();
+                        showToast('Video removed from Watch Later', 'success');
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
+                }).catch(error => {
+                    showToast('Error removing video: ' + error.message, 'error');
                 });
             }
         }
@@ -360,10 +525,13 @@
                     body: 'video_id=' + videoId + '&comment=' + encodeURIComponent(newComment)
                 }).then(response => response.json()).then(result => {
                     if (result.status === 'success') {
-                        location.reload();
+                        showToast('Notes updated successfully', 'success');
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        alert(result.message);
+                        showToast(result.message, 'error');
                     }
+                }).catch(error => {
+                    showToast('Error updating notes: ' + error.message, 'error');
                 });
             }
         }

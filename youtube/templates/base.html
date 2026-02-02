@@ -38,7 +38,7 @@
                     <a href="/watch_later" id="watch-later-link" class="material-button">Watch Later</a>
                     <div class="search-input-container">
                         <input type="search" name="search_query" class="search-box" value="{{ search_box_value }}"
-                            {{ "autofocus" if (request.path in ("/", "/results") or error_message) else "" }} placeholder="Type to search...">
+                            placeholder="Type to search...">
                     </div>
                     <label for="filter-dropdown-toggle-cbox" class="filter-dropdown-toggle-button material-button">Filter</label>
                     <input id="filter-dropdown-toggle-cbox" type="checkbox" hidden>
@@ -226,16 +226,6 @@
                     if (searchBox) {
                         searchBox.focus();
                     }
-                }
-                // Shift+H for back
-                if (event.shiftKey && event.key === 'H') {
-                    event.preventDefault();
-                    window.history.back();
-                }
-                // Shift+L for forward
-                if (event.shiftKey && event.key === 'L') {
-                    event.preventDefault();
-                    window.history.forward();
                 }
             });
 

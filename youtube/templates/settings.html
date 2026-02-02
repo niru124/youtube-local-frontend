@@ -33,6 +33,48 @@
                 margin-bottom: 5px;
             }
     }
+
+    .history-management-form {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .history-management-form input[type="file"] {
+        padding: 8px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+    }
+
+    .history-management-form input[type="submit"] {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .history-management-form input[type="submit"][value="Export History"] {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .history-management-form input[type="submit"][value="Export History"]:hover {
+        background-color: var(--ctp-sapphire);
+    }
+
+    .history-management-form input[type="submit"][value="Import History"] {
+        background-color: var(--ctp-green);
+        color: var(--ctp-crust);
+    }
+
+    .history-management-form input[type="submit"][value="Import History"]:hover {
+        background-color: var(--ctp-teal);
+    }
 {% endblock style %}
 
 {% block main %}
@@ -79,10 +121,14 @@
     </form>
     <h2>History Management</h2>
     <div class="settings-form">
-        <form action="{{ util.URL_ORIGIN }}/videolog/export" method="GET">
+        <form class="history-management-form" action="{{ util.URL_ORIGIN }}/videolog/export" method="GET">
             <input type="submit" value="Export History">
+            <select name="format" style="padding: 8px; border-radius: 8px; background-color: var(--ctp-base); color: var(--ctp-text); border: 1px solid var(--ctp-surface1);">
+                <option value="txt">Plain Text (.txt)</option>
+                <option value="json">JSON (.json)</option>
+            </select>
         </form>
-        <form action="{{ util.URL_ORIGIN }}/videolog/import" method="POST" enctype="multipart/form-data">
+        <form class="history-management-form" action="{{ util.URL_ORIGIN }}/videolog/import" method="POST" enctype="multipart/form-data">
             <input type="file" name="history_file" accept=".txt">
             <input type="submit" value="Import History">
         </form>

@@ -3,13 +3,59 @@
 
 {% block style %}
     main {
-        max-width: 900px;
+        max-width: 100%;
         margin: 0 auto;
         padding: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #search-container {
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
     .search-header {
         margin-bottom: 30px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    .search-header h1 {
+        margin: 0 0 20px 0;
+        font-size: 2rem;
+        color: var(--ctp-text);
+    }
+
+    .search-hint {
+        font-size: 1rem;
+        color: var(--ctp-overlay2);
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .search-header h1 {
+        margin: 0 0 20px 0;
+        font-size: 2rem;
+        color: var(--ctp-text);
+    }
+
+    .search-hint {
+        font-size: 1rem;
+        color: var(--ctp-overlay2);
+        margin-top: 12px;
+        text-align: center;
     }
 
     .search-header h1 {
@@ -21,15 +67,19 @@
     .search-box {
         position: relative;
         margin-bottom: 30px;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .search-box input {
         width: 100%;
-        padding: 16px 20px;
-        padding-left: 50px;
-        font-size: 1.1rem;
+        padding: 20px 24px;
+        padding-left: 55px;
+        font-size: 1.2rem;
         border: 2px solid var(--ctp-surface1);
-        border-radius: 12px;
+        border-radius: 14px;
         background-color: var(--ctp-surface0);
         color: var(--ctp-text);
         box-sizing: border-box;
@@ -43,27 +93,144 @@
     }
 
     .search-box::before {
-        content: '🔍';
+        content: '';
         position: absolute;
-        left: 18px;
+        left: 20px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 1.2rem;
+        font-size: 1.6rem;
     }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--ctp-blue);
+        box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.3);
+    }
+
+        .search-box::before {
+            content: '';
+            font-size: 1.4rem;
+            left: 18px;
+        }
 
     .search-hint {
         font-size: 0.85rem;
         color: var(--ctp-overlay2);
         margin-top: 10px;
+        text-align: center;
     }
 
     .results-info {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
         border-bottom: 1px solid var(--ctp-surface1);
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 1rem;
+    }
+
+    .results-info .count {
+        color: var(--ctp-overlay2);
+        font-size: 1rem;
+    }
+
+    .results-info .query {
+        color: var(--ctp-blue);
+        font-weight: 600;
+    }
+
+    .pagination-info {
+        color: var(--ctp-overlay2);
+        font-size: 1rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 8px;
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        color: var(--ctp-text);
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .page-btn:hover {
+        background-color: var(--ctp-surface1);
+        border-color: var(--ctp-blue);
+    }
+
+    .page-btn.active {
+        background-color: var(--ctp-blue);
+        border-color: var(--ctp-blue);
+        color: var(--ctp-base);
+    }
+
+    .page-ellipsis {
+        color: var(--ctp-overlay2);
+        padding: 0 6px;
+        font-size: 1rem;
+    }
+
+    .page-numbers {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--ctp-overlay2);
+    }
+
+    .empty-state p {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .keyboard-hints {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        padding-top: 25px;
+        border-top: 1px solid var(--ctp-surface1);
+        flex-wrap: wrap;
+    }
+
+    .keyboard-hint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        color: var(--ctp-overlay2);
+    }
+
+    .keyboard-hint kbd {
+        background-color: var(--ctp-surface1);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.9rem;
     }
 
     .results-info .count {
@@ -76,34 +243,89 @@
         font-weight: 600;
     }
 
-    .results-list {
+    .pagination-info {
+        color: var(--ctp-overlay2);
+        font-size: 0.9rem;
+    }
+
+    .pagination {
         display: flex;
-        flex-direction: column;
-        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 6px;
+        background-color: var(--ctp-surface0);
+        border: 1px solid var(--ctp-surface1);
+        color: var(--ctp-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .page-btn:hover {
+        background-color: var(--ctp-surface1);
+        border-color: var(--ctp-blue);
+    }
+
+    .page-btn.active {
+        background-color: var(--ctp-blue);
+        border-color: var(--ctp-blue);
+        color: var(--ctp-base);
+    }
+
+    .page-ellipsis {
+        color: var(--ctp-overlay2);
+        padding: 0 4px;
+    }
+
+    .page-numbers {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .results-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+        gap: 20px;
     }
 
     .result-item {
         display: flex;
-        gap: 15px;
-        padding: 15px;
+        gap: 18px;
+        padding: 16px;
         background-color: var(--ctp-surface0);
         border: 1px solid var(--ctp-surface1);
-        border-radius: 10px;
+        border-radius: 12px;
         text-decoration: none;
         transition: all 0.2s ease;
+        flex-direction: row;
     }
 
     .result-item:hover {
         border-color: var(--ctp-blue);
-        transform: translateX(5px);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .result-thumbnail {
         flex-shrink: 0;
-        width: 120px;
-        height: 68px;
-        border-radius: 6px;
+        width: 240px;
+        height: 135px;
+        border-radius: 10px;
         overflow: hidden;
+        position: relative;
     }
 
     .result-thumbnail img {
@@ -115,14 +337,18 @@
     .result-info {
         flex: 1;
         min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
     }
 
     .result-title {
-        font-size: 1rem;
+        font-size: 1.15rem;
         font-weight: 600;
         color: var(--ctp-text);
-        margin: 0 0 5px 0;
-        line-height: 1.3;
+        margin: 0;
+        line-height: 1.35;
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
@@ -131,22 +357,46 @@
     }
 
     .result-channel {
-        font-size: 0.85rem;
+        font-size: 0.95rem;
         color: var(--ctp-blue);
-        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .result-channel a,
+    .result-title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .result-channel a:hover,
+    .result-title a:hover {
+        text-decoration: underline;
+    }
+
+    .result-channel a {
+        cursor: pointer;
+    }
+
+    .result-title a {
+        cursor: pointer;
     }
 
     .result-meta {
         display: flex;
-        gap: 15px;
-        font-size: 0.8rem;
+        gap: 18px;
+        font-size: 0.9rem;
         color: var(--ctp-overlay2);
     }
 
     .result-meta span {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
+        font-size: 1rem;
+    }
+
+    .result-meta span::before {
+        font-size: 1.1rem;
     }
 
     .empty-state {
@@ -162,8 +412,10 @@
 
     .keyboard-hints {
         display: flex;
+        justify-content: center;
         gap: 15px;
         margin-top: 30px;
+        margin-bottom: 30px;
         padding-top: 20px;
         border-top: 1px solid var(--ctp-surface1);
         flex-wrap: wrap;
@@ -185,9 +437,115 @@
         font-size: 0.8rem;
     }
 
+    @media (max-width: 1200px) {
+        .results-list {
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        main {
+            padding: 20px;
+        }
+
+        #search-container {
+            max-width: 100%;
+        }
+
+        .search-header {
+            max-width: 100%;
+        }
+
+        .search-header h1 {
+            font-size: 1.6rem;
+        }
+
+        .search-box {
+            max-width: 480px;
+        }
+
+        .search-box input {
+            padding: 18px 22px;
+            padding-left: 50px;
+            font-size: 1.15rem;
+        }
+
+        .search-box::before {
+            font-size: 1.2rem;
+            left: 18px;
+        }
+
+        .results-list {
+            grid-template-columns: 1fr;
+        }
+
+        .result-item {
+            flex-direction: row;
+            gap: 14px;
+            padding: 14px;
+        }
+
+        .result-thumbnail {
+            width: 200px;
+            height: 113px;
+        }
+
+        .result-title {
+            font-size: 1.05rem;
+        }
+
+        .result-channel {
+            font-size: 0.9rem;
+        }
+
+        .result-meta {
+            font-size: 0.85rem;
+            gap: 12px;
+        }
+
+        .result-meta span::before {
+            font-size: 1rem;
+        }
+    }
+
     @media (max-width: 600px) {
+        main {
+            padding: 15px;
+        }
+
+        .search-header h1 {
+            font-size: 1.4rem;
+        }
+
+        .search-box {
+            max-width: 100%;
+        }
+
+        .search-box input {
+            padding: 14px 18px;
+            padding-left: 45px;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+
+        .search-box::before {
+            font-size: 1.2rem;
+            left: 15px;
+        }
+
+        .search-hint {
+            font-size: 0.9rem;
+        }
+
+        .results-list {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
         .result-item {
             flex-direction: column;
+            padding: 12px;
+            gap: 10px;
         }
 
         .result-thumbnail {
@@ -195,12 +553,50 @@
             height: auto;
             aspect-ratio: 16/9;
         }
+
+        .result-title {
+            font-size: 1rem;
+        }
+
+        .result-channel {
+            font-size: 0.85rem;
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .result-meta span::before {
+            font-size: 0.95rem;
+        }
+
+        .results-info, .pagination {
+            font-size: 0.9rem;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+        }
+
+        .keyboard-hints {
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .keyboard-hint kbd {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
     }
 {% endblock style %}
 
 {% block main %}
+    <div id="search-container">
     <div class="search-header">
-        <h1>Search History</h1>
         <div class="search-box">
             <input type="text" 
                    id="search-input" 
@@ -211,35 +607,71 @@
         <p class="search-hint">Type to search. Results update automatically. Supports fuzzy matching.</p>
     </div>
 
+    <div id="results-container">
     {% if results %}
     <div class="results-info">
         <span class="count">Found <strong>{{ count }}</strong> results</span>
-        {% if query %}
-        <span class="query">Searching for: "{{ query }}"</span>
+        {% if total_pages > 1 %}
+        <span class="pagination-info">Page {{ page }} of {{ total_pages }}</span>
         {% endif %}
     </div>
 
+    {% if total_pages > 1 %}
+    <div class="pagination">
+        {% if page > 1 %}
+        <a href="/history/search?q={{ query }}&page={{ page - 1 }}" class="page-btn">← Previous</a>
+        {% endif %}
+        
+        <div class="page-numbers">
+        {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <span class="page-btn active">{{ p }}</span>
+            {% elif p <= 3 or p >= total_pages - 2 or (p >= page - 1 and p <= page + 1) %}
+            <a href="/history/search?q={{ query }}&page={{ p }}" class="page-btn">{{ p }}</a>
+            {% elif p == 4 or p == total_pages - 3 %}
+            <span class="page-ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+        </div>
+
+        {% if page < total_pages %}
+        <a href="/history/search?q={{ query }}&page={{ page + 1 }}" class="page-btn">Next →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="results-list" id="results-list">
         {% for result in results %}
-        <a href="{{ result.link }}" class="result-item" data-video-id="{{ result.video_id }}">
-            <div class="result-thumbnail">
-                <img src="https://i.ytimg.com/vi/{{ result.video_id }}/mqdefault.jpg" 
+        <div class="result-item" data-video-id="{{ result.video_id }}">
+            <a href="{{ result.link }}" class="result-thumbnail">
+                <img src="{{ util.get_thumbnail_url(result.video_id) }}" 
                      alt="{{ result.title }}"
                      loading="lazy">
-            </div>
+            </a>
             <div class="result-info">
-                <h3 class="result-title">{{ result.title }}</h3>
+                <h3 class="result-title">
+                    <a href="{{ result.link }}">{{ result.title }}</a>
+                </h3>
                 {% if result.channel_name %}
-                <div class="result-channel">{{ result.channel_name }}</div>
+                <div class="result-channel">
+                    {% if result.channel_link %}
+                    <a href="{{ result.channel_link }}">{{ result.channel_name }}</a>
+                    {% else %}
+                    <span>{{ result.channel_name }}</span>
+                    {% endif %}
+                </div>
                 {% endif %}
                 <div class="result-meta">
-                    <span>⏱ {{ result.watched_time }} min</span>
+                    <span>󰥔&nbsp;{{ result.watched_time }} min</span>
+                    {% if result.watch_time_percentage %}
+                    <span>&nbsp;{{ result.watch_time_percentage }}%</span>
+                    {% endif %}
                     {% if result.date %}
-                    <span>📅 {{ result.date }}</span>
+                    <span>&nbsp;{{ result.date }}</span>
                     {% endif %}
                 </div>
             </div>
-        </a>
+        </div>
         {% endfor %}
     </div>
     {% else %}
@@ -252,16 +684,18 @@
         {% endif %}
     </div>
     {% endif %}
+    </div>
 
     <div class="keyboard-hints">
         <div class="keyboard-hint"><kbd>Enter</kbd> Open video</div>
         <div class="keyboard-hint"><kbd>↑↓</kbd> Navigate</div>
         <div class="keyboard-hint"><kbd>Esc</kbd> Clear search</div>
     </div>
+    </div>
 
     <script>
         const searchInput = document.getElementById('search-input');
-        const resultsList = document.getElementById('results-list');
+        const resultsContainer = document.getElementById('results-container');
         let selectedIndex = -1;
         let searchTimeout = null;
 
@@ -310,28 +744,45 @@
             });
         }
 
-        function performSearch(query) {
-            const url = '/history/search?q=' + encodeURIComponent(query);
+        function performSearch(query, page) {
+            let url = '/history/search?q=' + encodeURIComponent(query);
+            if (page && page > 1) {
+                url += '&page=' + page;
+            }
             fetch(url)
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the response and update results
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    const newResults = doc.querySelector('.results-list, .empty-state');
-                    if (newResults) {
-                        if (resultsList) {
-                            resultsList.innerHTML = newResults.innerHTML;
-                        } else {
-                            document.querySelector('.results-info').insertAdjacentElement('afterend', newResults);
-                        }
+                    const newResults = doc.querySelector('#results-container');
+                    if (newResults && resultsContainer) {
+                        resultsContainer.innerHTML = newResults.innerHTML;
                         selectedIndex = -1;
+                        window.history.pushState({}, '', url);
+                        attachPaginationListeners();
                     }
                 })
                 .catch(err => console.error('Search error:', err));
         }
 
+        function attachPaginationListeners() {
+            document.querySelectorAll('.page-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.href;
+                    const params = new URLSearchParams(url.split('?')[1]);
+                    const query = params.get('q') || '';
+                    const page = params.get('page') || 1;
+                    performSearch(query, page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        // Attach pagination listeners on page load
+        attachPaginationListeners();
+
         // Focus search on page load
-        searchInput.focus();
+        if (searchInput) searchInput.focus();
     </script>
 {% endblock main %}

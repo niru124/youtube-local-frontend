@@ -248,6 +248,57 @@ def get_all_watch_history():
     finally:
         conn.close()
 
+
+def search_all_history(query, limit=50, offset=0):
+    """
+    Fuzzy search across all daily history tables.
+    Returns results sorted by relevance and recency.
+    Supports pagination with limit and offset.
+    """
+    import difflib
+
+    if not query or not query.strip():
+        return [], 0
+
+    all_history = get_all_watch_history()
+    if not all_history:
+        return [], 0
+
+    query_lower = query.lower().strip()
+    results_with_scores = []
+
+    for entry in all_history:
+        title = (entry.get('title') or '').lower()
+        channel_name = (entry.get('channel_name') or '').lower()
+
+        title_score = difflib.SequenceMatcher(None, query_lower, title).ratio()
+        channel_score = difflib.SequenceMatcher(None, query_lower, channel_name).ratio()
+
+        combined_score = max(title_score, channel_score)
+
+        if query_lower in title or query_lower in channel_name:
+            combined_score = 1.0
+        elif title_score > 0.4 or channel_score > 0.4:
+            combined_score = combined_score
+
+        if combined_score > 0.3:
+            entry_copy = dict(entry)
+            entry_copy['score'] = combined_score
+
+            try:
+                entry_copy['timestamp_dt'] = datetime.datetime.fromisoformat(entry.get('timestamp', '2000-01-01'))
+            except (ValueError, TypeError):
+                entry_copy['timestamp_dt'] = datetime.datetime(2000, 1, 1)
+
+            results_with_scores.append(entry_copy)
+
+    results_with_scores.sort(key=lambda x: (-x['score'], -x['timestamp_dt'].timestamp()))
+
+    total_count = len(results_with_scores)
+    paginated_results = results_with_scores[offset:offset + limit]
+
+    return paginated_results, total_count
+
 def get_monthly_summary(year, month):
     month_year_str = f"{month:02d}_{year}"
     table_name = f"monthly_{month_year_str}"

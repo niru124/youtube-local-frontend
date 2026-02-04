@@ -171,3 +171,69 @@ def prefix_urlize(*args, **kwargs):
     return YOUTUBE_LINK_RE.sub(r'<a href="/\1"', result)
 jinja2.filters.urlize = prefix_urlize
 
+@yt_app.route('/history/search')
+def search_history_page():
+    from youtube import db, videolog, util
+    query = request.args.get('q', '')
+    page = request.args.get('page', '1')
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except (ValueError, TypeError):
+        page = 1
+
+    limit = 24
+    offset = (page - 1) * limit
+
+    if not query or not query.strip():
+        return flask.render_template('history_search.html', results=[], count=0, query='', page=1, total_pages=0, limit=limit, util=util)
+
+    raw_results, total_count = db.search_all_history(query, limit=limit * 5, offset=0)
+
+    seen_video_ids = set()
+    processed_results = []
+
+    for result in raw_results:
+        video_id = result.get('video_id')
+        if video_id and video_id not in seen_video_ids:
+            seen_video_ids.add(video_id)
+
+            watched_time = result.get('watched_time', 0) or 0
+            watch_percentage = result.get('watch_time_percentage', 0) or 0
+
+            try:
+                date_logged = result.get('date_logged', '')
+                if date_logged:
+                    day, month, year = date_logged.split('_')
+                    formatted_date = f"{day}/{month}/{year}"
+                else:
+                    formatted_date = ''
+            except (ValueError, AttributeError):
+                formatted_date = ''
+
+            resume_link = f"{util.URL_ORIGIN}/watch?v={video_id}&t={int(watched_time)}s"
+            
+            channel_link = result.get('channel_link', '')
+            if not channel_link and result.get('channel_name'):
+                channel_link = f"{util.URL_ORIGIN}/youtube.com/@{result.get('channel_name').replace(' ', '_')}"
+
+            processed_results.append({
+                'video_id': video_id,
+                'title': result.get('title', 'Unknown Title'),
+                'link': resume_link,
+                'watched_time': round(watched_time / 60, 1),
+                'watch_time_percentage': round(watch_percentage, 1),
+                'channel_name': result.get('channel_name', ''),
+                'channel_link': channel_link,
+                'date': formatted_date,
+                'score': result.get('score', 0)
+            })
+
+    processed_results.sort(key=lambda x: (-x['score']))
+
+    paginated_results = processed_results[offset:offset + limit]
+    total_pages = (len(processed_results) + limit - 1) // limit if processed_results else 0
+
+    return flask.render_template('history_search.html', results=paginated_results, count=len(processed_results), query=query, page=page, total_pages=total_pages, limit=limit, util=util)
+

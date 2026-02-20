@@ -206,16 +206,97 @@
             margin-bottom: 30px;
         }
     }
+
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toast {
+        padding: 14px 20px;
+        border-radius: 10px;
+        color: var(--ctp-crust);
+        font-size: 0.95rem;
+        font-weight: 500;
+        min-width: 280px;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .toast.success {
+        background-color: var(--ctp-green);
+    }
+
+    .toast.error {
+        background-color: var(--ctp-red);
+    }
+
+    .toast.info {
+        background-color: var(--ctp-blue);
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: var(--ctp-crust);
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.8;
+        margin-left: 15px;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+
+    /* Subscribed button state */
+    .subscribe-unsubscribe input[type="submit"].subscribed {
+        background-color: var(--ctp-green);
+    }
 {% endblock style %}
 
 {% block main %}
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="channel-metadata">
         <img class="avatar" src="{{ avatar }}" width="200px" height="200px">
         <div class="summary">
             <h2 class="title">{{ channel_name }}</h2>
             <p class="short-description">{{ short_description }}</p>
             <form method="POST" action="/youtube.com/subscriptions" class="subscribe-unsubscribe">
-                <input type="submit" value="{{ 'Unsubscribe' if subscribed else 'Subscribe' }}">
+                <input type="submit" value="{{ 'Unsubscribe' if subscribed else 'Subscribe' }}"{{ ' class="subscribed"' if subscribed else '' }}>
                 <input type="hidden" name="channel_id" value="{{ channel_id }}">
                 <input type="hidden" name="channel_name" value="{{ channel_name }}">
                 <input type="hidden" name="action" value="{{ 'unsubscribe' if subscribed else 'subscribe' }}">
@@ -315,4 +396,75 @@
             {% endif %}
         </div>
     {% endif %}
+
+    <script>
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+
+        // Handle subscribe form submission
+        const subscribeForm = document.querySelector('.subscribe-unsubscribe');
+        if (subscribeForm) {
+            subscribeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const submitBtn = form.querySelector('input[type="submit"]');
+                const action = form.querySelector('input[name="action"]').value;
+                const channelName = form.querySelector('input[name="channel_name"]').value;
+                const originalText = submitBtn.value;
+
+                submitBtn.disabled = true;
+                submitBtn.value = action === 'subscribe' ? 'Subscribing...' : 'Unsubscribing...';
+
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData).toString();
+
+                fetch('/youtube.com/subscriptions', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: params
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json().catch(() => ({}));
+                })
+                .then(result => {
+                    if (action === 'subscribe') {
+                        submitBtn.value = 'Subscribed';
+                        submitBtn.classList.add('subscribed');
+                        form.querySelector('input[name="action"]').value = 'unsubscribe';
+                        showToast(`Subscribed to ${channelName}`, 'success');
+                    } else {
+                        submitBtn.value = 'Subscribe';
+                        submitBtn.classList.remove('subscribed');
+                        form.querySelector('input[name="action"]').value = 'subscribe';
+                        showToast(`Unsubscribed from ${channelName}`, 'info');
+                    }
+                })
+                .catch(error => {
+                    submitBtn.value = originalText;
+                    showToast('An error occurred: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+    </script>
 {% endblock main %}

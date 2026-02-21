@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # youtube-local systemd service installer
-# This script installs dependencies and creates a systemd user service for youtube-local
+# This script installs dependencies, copies files to /opt/youtube-local, and creates a systemd user service
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="/opt/youtube-local"
 SERVICE_DIR="$HOME/.config/systemd/user"
 SERVICE_FILE="$SERVICE_DIR/youtube-local.service"
 
@@ -21,38 +22,49 @@ if command -v pacman &> /dev/null; then
     
     # Install system dependencies
     echo "Installing system dependencies with pacman..."
-    sudo pacman -S --needed python python-pip python-virtualenv libtor
-    
-    # Install Python packages using pip
-    echo "Installing Python packages..."
-    pip install --user flask gevent requests pyyaml urllib3 PySocks stem beautifulsoup4 lxml html5lib cachetools defusedxml
+    sudo pacman -S --needed python python-pip python-virtualenv tor python-flask python-gevent python-requests python-pyyaml python-urllib3 python-socks python-stem python-cachetools python-defusedxml
     
     echo "Dependencies installed successfully!"
     echo ""
 else
     echo "Not an Arch Linux system. Please install dependencies manually:"
     echo "  - python3"
-    echo "  - python-pip"
     echo "  - python-flask"
     echo "  - python-gevent"
     echo "  - python-requests"
     echo "  - python-pyyaml"
     echo "  - python-urllib3"
-    echo "  - python-pysocks"
-    echo "  - stem"
-    echo "  - beautifulsoup4"
-    echo "  - lxml"
-    echo "  - html5lib"
-    echo "  - cachetools"
-    echo "  - defusedxml"
+    echo "  - python-socks"
+    echo "  - python-stem"
+    echo "  - python-cachetools"
+    echo "  - python-defusedxml"
     echo ""
 fi
 
+# Create target directory
+echo "Creating target directory: $TARGET_DIR"
+sudo mkdir -p "$TARGET_DIR"
+
+# Copy files to target directory
+echo "Copying files to $TARGET_DIR..."
+sudo cp "$SCRIPT_DIR/server.py" "$TARGET_DIR/"
+sudo cp "$SCRIPT_DIR/settings.py" "$TARGET_DIR/"
+
+# Copy youtube directory
+if [ -d "$TARGET_DIR/youtube" ]; then
+    echo "Updating youtube directory..."
+    sudo rm -rf "$TARGET_DIR/youtube"
+fi
+sudo cp -r "$SCRIPT_DIR/youtube" "$TARGET_DIR/"
+
+# Set permissions
+sudo chown -R $USER:$USER "$TARGET_DIR"
+
+echo "Files copied successfully!"
+echo ""
+
 # Create systemd user service directory if it doesn't exist
 mkdir -p "$SERVICE_DIR"
-
-# Detect python executable
-PYTHON_BIN=$(command -v python3)
 
 # Create the service file
 cat > "$SERVICE_FILE" << EOF
@@ -62,8 +74,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=$SCRIPT_DIR
-ExecStart=$PYTHON_BIN $SCRIPT_DIR/server.py
+WorkingDirectory=$TARGET_DIR
+ExecStart=/usr/bin/python3 $TARGET_DIR/server.py
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
@@ -88,6 +100,8 @@ echo ""
 echo "=========================================="
 echo "Installation complete!"
 echo "=========================================="
+echo ""
+echo "Files installed to: $TARGET_DIR"
 echo ""
 echo "To start the service:"
 echo "  systemctl --user start youtube-local"

@@ -361,9 +361,20 @@ def create_watch_later_table():
             category TEXT,
             comment TEXT,
             thumbnail_path TEXT,
+            playlist_id TEXT,
+            playlist_name TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Add playlist_id column if it doesn't exist (for existing tables)
+    try:
+        cursor.execute("ALTER TABLE watch_later_videos ADD COLUMN playlist_id TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+    try:
+        cursor.execute("ALTER TABLE watch_later_videos ADD COLUMN playlist_name TEXT")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
     conn.commit()
     conn.close()
 
@@ -384,6 +395,51 @@ def add_watch_later_video(video_id, title, link, category=None, comment=None, th
         return False
     finally:
         conn.close()
+
+def add_playlist_to_watch_later(videos, playlist_id, playlist_name):
+    """Add multiple videos from a playlist to watch later.
+    
+    Args:
+        videos: List of dicts with video_id, title, link, thumbnail_path
+        playlist_id: YouTube playlist ID or 'local:{name}' for local playlists
+        playlist_name: Display name for the playlist
+    
+    Returns:
+        tuple: (added_count, skipped_count, errors)
+    """
+    create_watch_later_table()
+    added = 0
+    skipped = 0
+    errors = []
+    
+    for video in videos:
+        video_id = video.get('video_id') or video.get('id')
+        title = video.get('title', 'Unknown Title')
+        link = video.get('link') or video.get('url') or f"https://www.youtube.com/watch?v={video_id}"
+        thumbnail_path = video.get('thumbnail_path') or video.get('thumbnail')
+        
+        if not video_id:
+            errors.append(f"Missing video ID for: {title}")
+            continue
+            
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                INSERT INTO watch_later_videos
+                (video_id, title, link, category, comment, thumbnail_path, playlist_id, playlist_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (video_id, title, link, None, None, thumbnail_path, playlist_id, playlist_name))
+            conn.commit()
+            added += 1
+        except sqlite3.IntegrityError:
+            skipped += 1
+        except Exception as e:
+            errors.append(f"Error adding {title}: {str(e)}")
+        finally:
+            conn.close()
+    
+    return added, skipped, errors
 
 def get_watch_later_videos(category=None):
     create_watch_later_table()

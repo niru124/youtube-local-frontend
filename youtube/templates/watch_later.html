@@ -53,6 +53,56 @@
         color: var(--ctp-text);
     }
 
+    .add-video-section .section-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--ctp-surface1);
+        padding-bottom: 10px;
+    }
+
+    .add-video-section .section-tabs button {
+        padding: 8px 16px;
+        background: var(--ctp-surface1);
+        border: none;
+        border-radius: 6px;
+        color: var(--ctp-text);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .add-video-section .section-tabs button.active {
+        background: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .add-video-section .tab-content {
+        display: none;
+    }
+
+    .add-video-section .tab-content.active {
+        display: block;
+    }
+
+    .add-playlist-form, .add-local-playlist-form {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .add-playlist-form select, .add-local-playlist-form select {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+        font-size: 1rem;
+    }
+
     .add-video-form {
         display: flex;
         gap: 10px;
@@ -189,6 +239,15 @@
     .video-card .category-tag {
         background-color: rgba(166, 227, 189, 0.15);
         color: var(--ctp-green);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .video-card .playlist-tag {
+        background-color: rgba(137, 180, 250, 0.15);
+        color: var(--ctp-blue);
         padding: 3px 8px;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -378,12 +437,26 @@
     </div>
 
     <div class="add-video-section">
-        <h2>Add New Video</h2>
-        <form class="add-video-form" action="/watch_later/add" method="POST">
-            <input type="text" name="video_url" placeholder="Paste YouTube URL here..." required>
-            <input type="text" name="category" placeholder="Category (optional)">
-            <button type="submit" class="material-button">Add Video</button>
-        </form>
+        <h2>Add to Watch Later</h2>
+        <div class="section-tabs">
+            <button class="tab-btn active" onclick="showTab('video')">Single Video</button>
+            <button class="tab-btn" onclick="showTab('playlist')">YouTube Playlist</button>
+        </div>
+        
+        <div id="tab-video" class="tab-content active">
+            <form class="add-video-form" action="/watch_later/add" method="POST">
+                <input type="text" name="video_url" placeholder="Paste YouTube URL here..." required>
+                <input type="text" name="category" placeholder="Category (optional)">
+                <button type="submit" class="material-button">Add Video</button>
+            </form>
+        </div>
+        
+        <div id="tab-playlist" class="tab-content">
+            <form class="add-playlist-form" onsubmit="submitPlaylistForm(event)">
+                <input type="text" name="playlist_url" placeholder="Paste YouTube playlist URL here..." required>
+                <button type="submit" class="material-button">Add Playlist</button>
+            </form>
+        </div>
     </div>
 
     <div class="category-filter">
@@ -409,15 +482,18 @@
                 </div>
                 <div class="card-content">
                     <h3 class="video-title">
-                        <a href="{{ video.link }}" target="_blank" title="{{ video.title }}">{{ video.title }}</a>
+                        <a href="{{ util.URL_ORIGIN }}/watch?v={{ video.video_id }}" title="{{ video.title }}">{{ video.title }}</a>
                     </h3>
                     <div class="video-meta">
                         {% if video.category %}
                         <span class="category-tag">{{ video.category }}</span>
                         {% endif %}
+                        {% if video.playlist_name %}
+                        <span class="playlist-tag" title="From playlist: {{ video.playlist_name }}">From: {{ video.playlist_name }}</span>
+                        {% endif %}
                     </div>
                     <div class="card-actions">
-                        <a href="{{ video.link }}" target="_blank" class="watch-btn">Watch</a>
+                        <a href="{{ util.URL_ORIGIN }}/watch?v={{ video.video_id }}" class="watch-btn">Watch</a>
                         <button class="edit-btn" onclick="editVideo('{{ video.video_id }}')">Edit</button>
                         <button class="remove-btn" onclick="removeVideo('{{ video.video_id }}')">Remove</button>
                     </div>
@@ -450,6 +526,48 @@
                     toast.remove();
                 }
             }, 4000);
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelector(`.tab-btn[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        function submitPlaylistForm(e) {
+            e.preventDefault();
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Adding...';
+            submitBtn.disabled = true;
+
+            const formData = new URLSearchParams();
+            formData.append('playlist_url', form.querySelector('input[name="playlist_url"]').value);
+
+            fetch('/watch_later/add_playlist', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: formData.toString()
+            })
+            .then(response => response.json())
+            .then(result => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+
+                if (result.status === 'success') {
+                    showToast(result.message, 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            })
+            .catch(error => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                showToast('An error occurred: ' + error.message, 'error');
+            });
         }
 
         // Handle add video form submission

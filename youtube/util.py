@@ -501,6 +501,29 @@ def video_id(url):
     url_parts = urllib.parse.urlparse(url)
     return urllib.parse.parse_qs(url_parts.query)['v'][0]
 
+def playlist_id(url):
+    url_parts = urllib.parse.urlparse(url)
+    query = urllib.parse.parse_qs(url_parts.query)
+    if 'list' in query:
+        return query['list'][0]
+    return None
+
+def normalize_youtube_url(url):
+    """Normalize a YouTube URL by removing any localhost proxy prefix.
+    Converts http://localhost:XXXX/https://youtube.com/... to https://youtube.com/...
+    """
+    if not url:
+        return url
+    
+    # Pattern to match localhost proxy URLs
+    # e.g., http://localhost:8081/https://www.youtube.com/watch?v=xxx
+    pattern = r'^https?://[^/]+/https://(www\.youtube\.com|youtu\.be|youtube\.com)/'
+    match = re.match(pattern, url)
+    if match:
+        return 'https://' + url[match.regs[2][0]:]
+    
+    return url
+
 
 # default, sddefault, mqdefault, hqdefault, hq720
 def get_thumbnail_url(video_id):

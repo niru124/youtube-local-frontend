@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
-from youtube import db, util, yt_app, watch, settings
+from youtube import db, util, yt_app, watch, settings, yt_data_extract, playlist
 import re
 
 watch_later_bp = Blueprint('watch_later', __name__)
@@ -9,7 +9,6 @@ def watch_later_page():
     categories = db.get_watch_later_categories()
     selected_category = request.args.get('category')
     videos = db.get_watch_later_videos(selected_category)
-    # Set thumbnail paths to YouTube URLs
     for video in videos:
         video['thumbnail_path'] = util.get_thumbnail_url(video['video_id'])
     return render_template('watch_later.html', videos=videos, categories=categories, selected_category=selected_category, util=util)
@@ -23,12 +22,13 @@ def add_to_watch_later():
     if not video_url:
         return jsonify({"status": "error", "message": "Video URL is required."}), 400
 
+    video_url = util.normalize_youtube_url(video_url)
+
     video_id = util.video_id(video_url)
     if not video_id:
         return jsonify({"status": "error", "message": "Invalid YouTube URL."}), 400
 
-    # Fetch video details
-    title = 'Unknown Title' # Initialize with fallback
+    title = 'Unknown Title'
 
     try:
         info = watch.extract_info(video_id, use_invidious=False)
@@ -109,3 +109,49 @@ def get_videos():
     for video in videos:
         video['thumbnail_path'] = util.get_thumbnail_url(video['video_id'])
     return jsonify(videos)
+
+@watch_later_bp.route('/watch_later/add_playlist', methods=['POST'])
+def add_playlist_to_watch_later():
+    playlist_url = request.form.get('playlist_url')
+    
+    if not playlist_url:
+        return jsonify({"status": "error", "message": "Playlist URL is required."}), 400
+    
+    playlist_url = util.normalize_youtube_url(playlist_url)
+    
+    try:
+        playlist_id = util.playlist_id(playlist_url)
+        if not playlist_id:
+            return jsonify({"status": "error", "message": "Invalid YouTube playlist URL."}), 400
+        
+        first_page = playlist.playlist_first_page(playlist_id, report_text="Fetching playlist for Watch Later")
+        info = yt_data_extract.extract_playlist_info(first_page)
+        
+        if info.get('error'):
+            return jsonify({"status": "error", "message": f"Error fetching playlist: {info['error']}"}), 500
+        
+        videos = info.get('items', [])
+        playlist_name = info.get('metadata', {}).get('title', 'Unknown Playlist')
+        
+        if not videos:
+            return jsonify({"status": "error", "message": "Playlist is empty or could not be fetched."}), 400
+        
+        video_list = []
+        for v in videos:
+            video_list.append({
+                'id': v.get('id'),
+                'title': v.get('title', 'Unknown Title'),
+                'link': v.get('url', ''),
+                'thumbnail_path': util.get_thumbnail_url(v.get('id', ''))
+            })
+        
+        added, skipped, errors = db.add_playlist_to_watch_later(video_list, playlist_id, playlist_name)
+        
+        message = f"Added {added} videos from '{playlist_name}'. "
+        if skipped > 0:
+            message += f"{skipped} videos were already in Watch Later."
+        
+        return jsonify({"status": "success", "message": message, "added": added, "skipped": skipped})
+    
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Error adding playlist: {str(e)}"}), 500

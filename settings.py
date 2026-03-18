@@ -259,6 +259,141 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'category': 'playback',
     }),
 
+    ('sponsorblock_sponsor', {
+        'label': 'SponsorBlock: Skip Sponsor segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_sponsor_color', {
+        'label': 'SponsorBlock: Sponsor color',
+        'type': str,
+        'default': '#a6d189',
+        'comment': 'Color for sponsor segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_intro', {
+        'label': 'SponsorBlock: Skip Intro segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_intro_color', {
+        'label': 'SponsorBlock: Intro color',
+        'type': str,
+        'default': '#89cff0',
+        'comment': 'Color for intro segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_outro', {
+        'label': 'SponsorBlock: Skip Outro/Credits segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_outro_color', {
+        'label': 'SponsorBlock: Outro color',
+        'type': str,
+        'default': '#f0e68c',
+        'comment': 'Color for outro segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_preview', {
+        'label': 'SponsorBlock: Skip Preview/Recap segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_preview_color', {
+        'label': 'SponsorBlock: Preview color',
+        'type': str,
+        'default': '#deb887',
+        'comment': 'Color for preview segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_selfpromo', {
+        'label': 'SponsorBlock: Skip Self-promo segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_selfpromo_color', {
+        'label': 'SponsorBlock: Self-promo color',
+        'type': str,
+        'default': '#dda0dd',
+        'comment': 'Color for self-promo segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_exclusive_access', {
+        'label': 'SponsorBlock: Skip Exclusive Access segments',
+        'type': bool,
+        'default': False,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_exclusive_access_color', {
+        'label': 'SponsorBlock: Exclusive Access color',
+        'type': str,
+        'default': '#daa520',
+        'comment': 'Color for exclusive access segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_interaction', {
+        'label': 'SponsorBlock: Skip Interaction segments',
+        'type': bool,
+        'default': True,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_interaction_color', {
+        'label': 'SponsorBlock: Interaction color',
+        'type': str,
+        'default': '#ff9966',
+        'comment': 'Color for interaction reminder segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_music_offtopic', {
+        'label': 'SponsorBlock: Skip Music Offtopic segments',
+        'type': bool,
+        'default': False,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_music_offtopic_color', {
+        'label': 'SponsorBlock: Music Offtopic color',
+        'type': str,
+        'default': '#b19cd9',
+        'comment': 'Color for music offtopic segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
+    ('sponsorblock_filler', {
+        'label': 'SponsorBlock: Skip Filler segments',
+        'type': bool,
+        'default': False,
+        'comment': '',
+        'category': 'sponsorblock',
+    }),
+    ('sponsorblock_filler_color', {
+        'label': 'SponsorBlock: Filler color',
+        'type': str,
+        'default': '#ffd1dc',
+        'comment': 'Color for filler segments on timeline',
+        'category': 'sponsorblock',
+    }),
+
     ('theme', {
         'type': int,
         'default': 0,
@@ -573,7 +708,7 @@ set_img_prefix()
 add_setting_changed_hook('proxy_images', set_img_prefix)
 
 
-categories = ['network', 'interface', 'playback', 'other']
+categories = ['network', 'interface', 'playback', 'sponsorblock', 'other']
 def settings_page():
     if request.method == 'GET':
         settings_by_category = {categ: [] for categ in categories}

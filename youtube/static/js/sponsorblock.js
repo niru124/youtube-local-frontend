@@ -15,17 +15,30 @@ window.load_sponsorblock = async function() {
 
   console.log("SponsorBlock: Video ID:", data.video_id);
 
-  const skipCategories = [
-    "sponsor",
-    "intro",
-    "outro",
-    "preview",
-    "selfpromo",
-    "exclusive_access",
-    "interaction",
-    "music_offtopic",
-    "filler",
-  ];
+  // Get skip settings from data object (set by server)
+  const skipSettings = {
+    sponsor: data.sb_sponsor !== false,
+    intro: data.sb_intro !== false,
+    outro: data.sb_outro !== false,
+    preview: data.sb_preview !== false,
+    selfpromo: data.sb_selfpromo !== false,
+    exclusive_access: data.sb_exclusive_access !== false,
+    interaction: data.sb_interaction !== false,
+    music_offtopic: data.sb_music_offtopic !== false,
+    filler: data.sb_filler !== false,
+  };
+
+  const colorSettings = {
+    sponsor: data.sb_sponsor_color || '#a6d189',
+    intro: data.sb_intro_color || '#89cff0',
+    outro: data.sb_outro_color || '#f0e68c',
+    preview: data.sb_preview_color || '#deb887',
+    selfpromo: data.sb_selfpromo_color || '#dda0dd',
+    exclusive_access: data.sb_exclusive_access_color || '#daa520',
+    interaction: data.sb_interaction_color || '#ff9966',
+    music_offtopic: data.sb_music_offtopic_color || '#b19cd9',
+    filler: data.sb_filler_color || '#ffd1dc',
+  };
 
   const url = `https://api.sponsor.ajay.app/api/searchSegments?videoID=${data.video_id}`;
   console.log("SponsorBlock: API URL:", url);
@@ -40,8 +53,14 @@ window.load_sponsorblock = async function() {
     console.log("SponsorBlock: Raw API response:", responseData);
 
     let segmentsToSkip = responseData.segments
-      .filter((seg) => skipCategories.includes(seg.category))
-      .map((seg) => ({ start: seg.startTime, end: seg.endTime, skipped: false }));
+      .filter((seg) => skipSettings[seg.category])
+      .map((seg) => ({ 
+        start: seg.startTime, 
+        end: seg.endTime, 
+        skipped: false,
+        category: seg.category,
+        color: colorSettings[seg.category] || '#a6d189'
+      }));
 
     if (segmentsToSkip.length) {
       console.log("SponsorBlock: Segments to skip:", segmentsToSkip);
@@ -59,13 +78,13 @@ window.load_sponsorblock = async function() {
             left: ${startPercent}%;
             width: ${widthPercent}%;
             height: 100%;
-            background-color:#a6d189; /* Distinct color for markers */
-            opacity: 1;
+            background-color: ${seg.color};
+            opacity: 0.8;
             z-index: 0.8;
-            pointer-events: none; /* Allow clicks to pass through to the actual progress bar */
+            pointer-events: none;
           `;
           plyrProgress.appendChild(marker);
-          console.log(`SponsorBlock: Added marker from ${seg.start.toFixed(2)} to ${seg.end.toFixed(2)}`);
+          console.log(`SponsorBlock: Added marker from ${seg.start.toFixed(2)} to ${seg.end.toFixed(2)} (${seg.category})`);
         });
       } else if (!plyrProgress) {
         console.warn("SponsorBlock: Plyr progress bar not found for adding markers.");
@@ -74,8 +93,8 @@ window.load_sponsorblock = async function() {
       }
 
       // Attempt immediate skip if video hasn't started or is at the very beginning
-      if (video_obj.currentTime < 1) { // Check if current time is near 0
-        const firstSegment = segmentsToSkip.find(s => s.start < 1); // Find a segment starting near 0
+      if (video_obj.currentTime < 1) {
+        const firstSegment = segmentsToSkip.find(s => s.start < 1);
         if (firstSegment) {
           video_obj.currentTime = firstSegment.end;
           firstSegment.skipped = true;
@@ -84,20 +103,16 @@ window.load_sponsorblock = async function() {
       }
 
       video_obj.addEventListener("timeupdate", function () {
-        // console.log("SponsorBlock: timeupdate fired, current time:", this.currentTime);
-        if (this.paused || this.seeking) return; // Don't skip if paused or seeking
+        if (this.paused || this.seeking) return;
         const t = this.currentTime;
-        // Find a segment that is currently active and hasn't been skipped yet
         const seg = segmentsToSkip.find((s) => t >= s.start && t < s.end && !s.skipped);
 
         if (seg) {
-          // Mark segment as skipped to prevent re-skipping
           seg.skipped = true;
           this.currentTime = seg.end;
-          console.log(`SponsorBlock: Skipped segment from ${seg.start.toFixed(2)} to ${seg.end.toFixed(2)}`);
+          console.log(`SponsorBlock: Skipped segment from ${seg.start.toFixed(2)} to ${seg.end.toFixed(2)} (${seg.category})`);
         }
 
-        // Reset skipped flag for segments that have been passed
         segmentsToSkip.forEach(s => {
             if (t >= s.end && s.skipped) {
                 s.skipped = false;

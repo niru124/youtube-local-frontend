@@ -201,10 +201,25 @@
                 display: flex;
                 gap: 10px; /* Space between controls */
                 align-items: center;
+                flex-wrap: wrap;
             }
                 #speed-control, #quality-select {
                     width: 120px; /* Wider for better usability */
                     text-align: center;
+                }
+                #sb-submit-btn {
+                    background-color: var(--ctp-mauve);
+                    color: var(--ctp-crust);
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s ease-in-out;
+                }
+                #sb-submit-btn:hover {
+                    background-color: var(--ctp-pink);
                 }
             .video-info > .checkbox{
                 grid-area: v-checkbox;
@@ -1068,6 +1083,9 @@ Reload without invidious (for usage of new identity button).</a>
                         <option value='{"type": "pair", "index": {{ loop.index0}}}' {{ 'selected' if loop.index0 == pair_idx and using_pair_sources else '' }} >{{ src_pair['quality_string'] }}</option>
                     {% endfor %}
                 </select>
+            {% endif %}
+            {% if settings.use_sponsorblock_js %}
+                <button type="button" id="sb-submit-btn" class="material-button" onclick="startSBSubmission()">Submit Segment</button>
             {% endif %}
         </div>
         <input class="checkbox" name="video_info_list" value="{{ video_info }}" form="playlist-edit" type="checkbox">

@@ -1,0 +1,255 @@
+{% set page_title = 'SponsorBlock Stats' %}
+{% extends "base.html" %}
+{% block style %}
+    .sb-stats-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .sb-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .sb-header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .sb-user-id {
+        background: var(--ctp-surface0);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        word-break: break-all;
+    }
+
+    .sb-user-id strong {
+        color: var(--ctp-mauve);
+    }
+
+    .sb-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .sb-stat-card {
+        background: var(--ctp-surface0);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .sb-stat-card .value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--ctp-blue);
+        margin-bottom: 5px;
+    }
+
+    .sb-stat-card .label {
+        font-size: 0.9rem;
+        color: var(--ctp-overlay2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .sb-categories {
+        background: var(--ctp-surface0);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .sb-categories h2 {
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+    }
+
+    .sb-category-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+    }
+
+    .sb-category-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 15px;
+        background: var(--ctp-surface1);
+        border-radius: 8px;
+    }
+
+    .sb-category-item .name {
+        text-transform: capitalize;
+    }
+
+    .sb-category-item .count {
+        font-weight: bold;
+        color: var(--ctp-green);
+    }
+
+    .sb-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .sb-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sb-btn-primary {
+        background: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .sb-btn-primary:hover {
+        background: var(--ctp-sapphire);
+    }
+
+    .sb-btn-secondary {
+        background: var(--ctp-surface1);
+        color: var(--ctp-text);
+    }
+
+    .sb-btn-secondary:hover {
+        background: var(--ctp-surface2);
+    }
+
+    .sb-info {
+        text-align: center;
+        color: var(--ctp-overlay2);
+        font-size: 0.9rem;
+        margin-top: 20px;
+    }
+
+    .sb-error {
+        background: var(--ctp-surface0);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        color: var(--ctp-red);
+    }
+
+    .sb-reset-btn {
+        margin-top: 15px;
+        padding: 8px 16px;
+        background: var(--ctp-red);
+        color: var(--ctp-crust);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .sb-reset-btn:hover {
+        opacity: 0.9;
+    }
+{% endblock style %}
+
+{% block main %}
+    <script>
+        // Check for user_id in localStorage and redirect if needed
+        if (!window.location.search.includes('user_id=')) {
+            const storedUserId = localStorage.getItem('sponsorblock_userID');
+            if (storedUserId) {
+                window.location.href = '/sponsorblock-stats?user_id=' + encodeURIComponent(storedUserId);
+                throw new Error('Redirecting...');
+            }
+        }
+    </script>
+
+    <div class="sb-stats-container">
+        <div class="sb-header">
+            <h1>SponsorBlock Stats</h1>
+            <p>Track your contributions to the SponsorBlock community</p>
+        </div>
+
+        {% if error %}
+        <div class="sb-error">
+            <p>{{ error }}</p>
+            {% if 'userID' in error %}
+            <button class="sb-reset-btn" onclick="resetUserID()">Generate New User ID</button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="sb-user-id">
+            <strong>Your User ID:</strong><br>
+            <code>{{ user_id }}</code>
+        </div>
+
+        <div class="sb-stats-grid">
+            <div class="sb-stat-card">
+                <div class="value">{{ stats.minutesSaved|default(0)|round(1) }}</div>
+                <div class="label">Minutes Saved</div>
+            </div>
+            <div class="sb-stat-card">
+                <div class="value">{{ stats.viewCount|default(0) }}</div>
+                <div class="label">Views on Segments</div>
+            </div>
+            <div class="sb-stat-card">
+                <div class="value">{{ stats.segmentCount|default(0) }}</div>
+                <div class="label">Segments Submitted</div>
+            </div>
+            <div class="sb-stat-card">
+                <div class="value">{{ stats.ignoredSegmentCount|default(0) }}</div>
+                <div class="label">Segments Ignored</div>
+            </div>
+        </div>
+
+        {% if categoryStats %}
+        <div class="sb-categories">
+            <h2>Segments by Category</h2>
+            <div class="sb-category-list">
+                {% for category, count in categoryStats.items() %}
+                <div class="sb-category-item">
+                    <span class="name">{{ category|replace('_', ' ') }}</span>
+                    <span class="count">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="sb-actions">
+            <button class="sb-btn sb-btn-secondary" onclick="refreshStats()">Refresh Stats</button>
+            <button class="sb-btn sb-btn-secondary" onclick="copyUserID()">Copy User ID</button>
+            <a href="{{ util.URL_ORIGIN }}/settings" class="sb-btn sb-btn-secondary">Settings</a>
+        </div>
+
+        <div class="sb-info">
+            <p>Stats are fetched from the SponsorBlock API</p>
+            <p>Your User ID is stored locally in your browser</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function refreshStats() {
+            window.location.reload();
+        }
+
+        function copyUserID() {
+            const userId = document.querySelector('.sb-user-id code').textContent;
+            navigator.clipboard.writeText(userId).then(() => {
+                alert('User ID copied to clipboard!');
+            });
+        }
+
+        function resetUserID() {
+            if (confirm('This will generate a new User ID. Your old submissions will still exist but won\'t be linked to this browser. Continue?')) {
+                localStorage.removeItem('sponsorblock_userID');
+                window.location.reload();
+            }
+        }
+    </script>
+{% endblock main %}

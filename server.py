@@ -277,6 +277,11 @@ def site_dispatch(env, start_response):
             env["PATH_INFO"] = path
             yield from yt_app(env, start_response)
             return
+        elif path.startswith("/sponsorblock-stats"):
+            env["SERVER_NAME"] = "youtube.com"
+            env["PATH_INFO"] = path
+            yield from yt_app(env, start_response)
+            return
 
         try:
             env["SERVER_NAME"], env["PATH_INFO"] = split_url(path[1:])

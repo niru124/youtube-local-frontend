@@ -840,6 +840,44 @@ def get_watch_page(video_id=None):
     )
 
 
+@yt_app.route('/api/sponsorblock/submit', methods=['POST'])
+def sponsorblock_submit():
+    try:
+        data = request.get_json()
+        
+        video_id = data.get('videoID')
+        user_id = data.get('userID')
+        user_agent = data.get('userAgent', 'Youtube-Local/1.0')
+        video_duration = data.get('videoDuration', 0)
+        segments = data.get('segments', [])
+        
+        if not video_id or not user_id or not segments:
+            return flask.jsonify({'error': 'Missing required fields'}), 400
+        
+        sb_payload = {
+            'videoID': video_id,
+            'userID': user_id,
+            'userAgent': user_agent,
+            'videoDuration': video_duration,
+            'segments': segments
+        }
+        
+        result = util.fetch_url(
+            'https://sponsor.ajay.app/api/skipSegments',
+            data=json.dumps(sb_payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'},
+            report_text='Submitting SponsorBlock segment'
+        )
+        
+        if isinstance(result, bytes):
+            result = result.decode('utf-8')
+        
+        return result, 200, {'Content-Type': 'application/json'}
+    
+    except Exception as e:
+        return flask.jsonify({'error': str(e)}), 500
+
+
 @yt_app.route('/api/<path:dummy>')
 def get_captions(dummy):
     result = util.fetch_url('https://www.youtube.com' + request.full_path)

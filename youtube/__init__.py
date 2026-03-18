@@ -16,6 +16,45 @@ yt_app.jinja_env.add_extension('jinja2.ext.do') # why
 
 yt_app.add_url_rule('/settings', 'settings_page', settings.settings_page, methods=['POST', 'GET'])
 
+@yt_app.route('/sponsorblock-stats')
+def sponsorblock_stats():
+    import urllib.request
+    import json
+    
+    user_id = request.args.get('user_id')
+    
+    if not user_id:
+        error = "No User ID provided. Please submit a sponsor segment first to generate a User ID."
+        return flask.render_template('sponsorblock_stats.html', error=error, util=util)
+    
+    try:
+        url = f'https://sponsor.ajay.app/api/userInfo?userID={user_id}&values=["userID","userName","minutesSaved","segmentCount","ignoredSegmentCount","viewCount","ignoredViewCount","warnings","reputation","vip"]'
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
+            user_info = json.loads(response.read().decode('utf-8'))
+        
+        stats_url = f'https://sponsor.ajay.app/api/userStats?userID={user_id}&fetchCategoryStats=true'
+        req2 = urllib.request.Request(stats_url)
+        with urllib.request.urlopen(req2) as response:
+            stats = json.loads(response.read().decode('utf-8'))
+        
+        category_stats = stats.get('categoryCount', {})
+        
+        return flask.render_template(
+            'sponsorblock_stats.html',
+            user_id=user_id,
+            stats=user_info,
+            categoryStats=category_stats,
+            error=None,
+            util=util
+        )
+    except Exception as e:
+        return flask.render_template(
+            'sponsorblock_stats.html',
+            error=str(e),
+            util=util
+        )
+
 @yt_app.route('/')
 def homepage():
     return flask.render_template('home.html', title="Youtube local")

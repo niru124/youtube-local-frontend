@@ -75,6 +75,38 @@
     .history-management-form input[type="submit"][value="Import History"]:hover {
         background-color: var(--ctp-teal);
     }
+
+    /* Color picker styles */
+    input[type="color"] {
+        -webkit-appearance: none;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 0;
+        background: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 2px;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+
+    .setting-item input[type="text"][style] {
+        font-family: monospace;
+    }
+
+    /* Color preview swatch */
+    .setting-item [id$="_preview"] {
+        vertical-align: middle;
+        border: 1px solid var(--ctp-surface1);
+        flex-shrink: 0;
+    }
 {% endblock style %}
 
 {% block main %}
@@ -108,7 +140,17 @@
                         {% elif setting_info['type'].__name__ == 'float' %}
 
                         {% elif setting_info['type'].__name__ == 'str' %}
+                            {% if setting_name.endswith('_color') %}
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="color" id="{{ 'setting_' + setting_name }}_picker" value="{{ value }}" 
+                                    onchange="document.getElementById('{{ 'setting_' + setting_name }}').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
+                                <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" 
+                                    style="width: 100px;" onchange="document.getElementById('{{ 'setting_' + setting_name }}_picker').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
+                                <span id="{{ setting_name }}_preview" style="width: 24px; height: 24px; border-radius: 4px; background-color: {{ value }}; border: 1px solid var(--ctp-surface1); display: inline-block;"></span>
+                            </div>
+                            {% else %}
                             <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}">
+                            {% endif %}
                         {% else %}
                             <span>Error: Unknown setting type: setting_info['type'].__name__</span>
                         {% endif %}
@@ -117,6 +159,11 @@
             {% endfor %}
             </ul>
         {% endfor %}
+        {% if 'sponsorblock' in categories %}
+        <div style="margin-top: 15px; padding: 15px; background: var(--ctp-surface0); border-radius: 8px;">
+            <a href="{{ util.URL_ORIGIN }}/sponsorblock-stats" style="color: var(--ctp-blue);">View SponsorBlock Stats</a>
+        </div>
+        {% endif %}
         <input type="submit" value="Save settings">
     </form>
     <h2>History Management</h2>
@@ -147,6 +194,24 @@
             defaultSpeedInput.addEventListener('change', function() {
                 localStorage.setItem('defaultPlaybackSpeed', this.value);
             });
+
+            // Sync color pickers with text inputs on load
+            document.querySelectorAll('input[type="color"]').forEach(function(colorPicker) {
+                const textInput = colorPicker.nextElementSibling;
+                if (textInput && textInput.type === 'text') {
+                    textInput.addEventListener('input', function() {
+                        colorPicker.value = this.value;
+                        updateColorPreview(this.id.replace('setting_', ''), this.value);
+                    });
+                }
+            });
         });
+
+        function updateColorPreview(settingName, color) {
+            const preview = document.getElementById(settingName + '_preview');
+            if (preview) {
+                preview.style.backgroundColor = color;
+            }
+        }
     </script>
 {% endblock main %}

@@ -35,10 +35,10 @@ function switchLayout(newLayout) {
         padding: 30px;
     }
     .list-view .homepage-video {
-        border: 1px solid #3A2A2A;
+        border: 1px solid var(--ctp-surface1);
         border-radius: 16px;
         padding: 24px;
-        background-color: #1A1110;
+        background-color: var(--ctp-base);
         display: flex;
         align-items: flex-start;
         gap: 24px;
@@ -48,7 +48,7 @@ function switchLayout(newLayout) {
     .list-view .homepage-video:hover {
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         transform: translateY(-4px);
-        border-color: #4A3A3A;
+        border-color: var(--ctp-surface2);
     }
     .list-view .homepage-video-thumbnail {
         flex-shrink: 0;
@@ -90,10 +90,10 @@ function switchLayout(newLayout) {
         padding: 30px;
     }
     .grid-view .homepage-video {
-        border: 1px solid #3A2A2A;
+        border: 1px solid var(--ctp-surface1);
         border-radius: 16px;
         padding: 24px;
-        background-color: #1A1110;
+        background-color: var(--ctp-base);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -104,7 +104,7 @@ function switchLayout(newLayout) {
     .grid-view .homepage-video:hover {
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         transform: translateY(-4px);
-        border-color: #4A3A3A;
+        border-color: var(--ctp-surface2);
     }
     .grid-view .homepage-video-thumbnail {
         margin-bottom: 16px;
@@ -147,8 +147,8 @@ function switchLayout(newLayout) {
         gap: 20px;
     }
     .item-box.video-item-box.horizontal-item-box.no-description {
-        background-color: #1A1110 !important;
-        border: 1px solid #3A2A2A !important;
+        background-color: var(--ctp-base) !important;
+        border: 1px solid var(--ctp-surface1) !important;
         border-radius: 12px !important;
         padding: 0 !important;
         transition: all 0.3s ease-in-out;
@@ -159,7 +159,7 @@ function switchLayout(newLayout) {
     .item-box.video-item-box.horizontal-item-box.no-description:hover {
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         transform: translateY(-4px);
-        border-color: #4A3A3A;
+        border-color: var(--ctp-surface2);
     }
     .item-box.video-item-box.horizontal-item-box.no-description .item {
         display: flex;
@@ -233,8 +233,8 @@ function switchLayout(newLayout) {
         justify-content: center;
         align-items: center;
         gap: 20px;
-        background-color: #1A1110;
-        border: 1px solid #3A2A2A;
+        background-color: var(--ctp-base);
+        border: 1px solid var(--ctp-surface1);
         border-radius: 12px;
         flex-wrap: wrap;
     }

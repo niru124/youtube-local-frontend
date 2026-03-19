@@ -314,8 +314,8 @@ window.load_sponsorblock = async function() {
       position: fixed;
       top: 80px;
       right: 20px;
-      background: var(--ctp-peach, #fab387);
-      color: var(--ctp-crust, #11111b);
+      background: #a6d189;
+      color: #000;
       padding: 8px 16px;
       border-radius: 8px;
       font-weight: 500;

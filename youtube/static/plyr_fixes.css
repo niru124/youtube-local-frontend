@@ -52,8 +52,8 @@ e.g. Firefox playback speed options */
 .plyr div[role="menu"]{
     overflow-y: scroll;
     max-height: calc(var(--video_height)*1px - 10px - 40px);
-    background-color: #1A1110;
-    border: 1px solid #3A2A2A;
+    background-color: var(--ctp-base);
+    border: 1px solid var(--ctp-surface1);
     border-radius: 8px;
 }
 
@@ -63,8 +63,8 @@ e.g. Firefox playback speed options */
     /* Subtract margin between controls and menu, and controls height,
        and height of top menu button*/
     max-height: calc(var(--video_height)*1px - 10px - 40px - 42px*var(--plyr-control-spacing-num)/10);
-    background-color: #1A1110;
-    border: 1px solid #3A2A2A;
+    background-color: var(--ctp-base);
+    border: 1px solid var(--ctp-surface1);
     border-radius: 8px;
 }
 

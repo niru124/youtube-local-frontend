@@ -1,8 +1,8 @@
 body{
     --interface-color: var(--ctp-surface0);
     --text-color: var(--ctp-text);
-    --background-color: #0C0705;
-    --video-background-color: var(--ctp-mantle);
+    --background-color: var(--ctp-mantle);
+    --video-background-color: var(--ctp-base);
     --link-color-rgb: 137, 180, 250; /* ctp-blue-rgb */
     --visited-link-color-rgb: 180, 190, 254; /* ctp-lavender-rgb */
 }

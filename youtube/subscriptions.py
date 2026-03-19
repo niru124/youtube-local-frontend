@@ -1236,6 +1236,8 @@ def get_subscriptions_page():
                         filtered_videos.append(video)
                 videos = filtered_videos
 
+            videos = [v for v in videos if not settings.is_video_blocked(v.get("title", ""))]
+
             for video in videos:
                 video["thumbnail"] = (
                     util.URL_ORIGIN

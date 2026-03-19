@@ -89,6 +89,7 @@ def homepage_route():
                 print(f"Error fetching related for {video_id}: {e}")
                 searched_related = []
     recent_videos = db.get_recent_videos(num)
+    recent_videos = [v for v in recent_videos if not settings.is_video_blocked(v.get('title', ''))]
     videos_with_related = []
 
     def fetch_related(vid):
@@ -96,6 +97,7 @@ def homepage_route():
         try:
             info = watch.extract_info(vid['video_id'], use_invidious=False)
             related = info.get('related_videos', [])
+            related = [r for r in related if not settings.is_video_blocked(r.get('title', ''))]
             for rel in related:
                 rel['url'] = f'/youtube.com/watch?v={rel["id"]}'
                 rel['thumbnail'] = util.get_thumbnail_url(rel['id'])

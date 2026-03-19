@@ -101,6 +101,10 @@ def get_search_page():
             if duration_seconds < 60:
                 continue
 
+        # Filter out videos with blocked words in title
+        if item.get('type') == 'video' and settings.is_video_blocked(item.get('title', '')):
+            continue
+
         filtered_results.append(item)
     search_info['items'] = filtered_results
 

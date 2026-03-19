@@ -625,6 +625,7 @@ def get_watch_page(video_id=None):
     }
 
     # prefix urls, and other post-processing not handled by yt_data_extract
+    info['related_videos'] = [v for v in info['related_videos'] if not settings.is_video_blocked(v.get('title', ''))]
     for item in info['related_videos']:
         util.prefix_urls(item)
         util.add_extra_html_info(item)

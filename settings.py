@@ -224,6 +224,14 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'category': 'interface',
     }),
 
+    ('blocked_words', {
+        'label': 'Blocked words (filter videos)',
+        'type': str,
+        'default': '',
+        'comment': 'Comma-separated words/phrases. Videos containing these in the title will be hidden.',
+        'category': 'interface',
+    }),
+
     ('video_player', {
         'type': int,
         'default': 1,
@@ -757,3 +765,28 @@ def settings_page():
         return flask.redirect(util.URL_ORIGIN + '/settings', 303)
     else:
         flask.abort(400)
+
+
+def get_blocked_words():
+    """Get list of blocked words from settings."""
+    blocked = blocked_words.strip() if blocked_words else ''
+    if not blocked:
+        return []
+    return [w.strip().lower() for w in blocked.split(',') if w.strip()]
+
+
+def is_video_blocked(title):
+    """Check if a video title contains blocked words."""
+    blocked = get_blocked_words()
+    if not blocked:
+        return False
+    title_lower = title.lower()
+    for word in blocked:
+        if word in title_lower:
+            return True
+    return False
+
+
+def filter_video_list(video_list):
+    """Filter a list of videos, removing those with blocked words in title."""
+    return [v for v in video_list if not is_video_blocked(v.get('title', ''))]

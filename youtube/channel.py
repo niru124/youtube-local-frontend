@@ -534,9 +534,6 @@ def get_channel_page_general_url(base_url, tab, request, channel_id=None):
                 filtered_items.append(item)
         info['items'] = filtered_items
 
-    if tab in ('videos', 'shorts', 'streams', 'search'):
-        info['items'] = [i for i in info['items'] if not settings.is_video_blocked(i.get('title', ''))]
-
     if channel_id:
         info['channel_url'] = 'https://www.youtube.com/channel/' + channel_id
         info['channel_id'] = channel_id
@@ -572,6 +569,8 @@ def get_channel_page_general_url(base_url, tab, request, channel_id=None):
         info['header_playlist_names'] = local_playlist.get_playlist_names()
     if tab in ('search', 'playlists'):
         info['page_number'] = page_number
+        info['current_tab'] = tab
+        info['header_playlist_names'] = local_playlist.get_playlist_names()
     info['subscribed'] = subscriptions.is_subscribed(info['channel_id'])
 
     post_process_channel_info(info)

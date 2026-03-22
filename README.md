@@ -21,8 +21,7 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
 - **Live Chat Replay**: Watch live chat replay for streams
 - **Download**: Download videos and audio in various formats
 - **Themes**: Light/dark mode with customizable colors
-- **Keyboard Shortcuts**: Full control over video playback (MPv-like)
-- **Miniplayer**: Picture-in-picture style viewing
+- **Keyboard Shortcuts**: Full control over video playback (MPV-like)
 - **Heavily Customizable Settings**: Extensive settings for playback, interface, network, and SponsorBlock options
 
 ### Enhanced Features

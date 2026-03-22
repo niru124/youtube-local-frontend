@@ -879,13 +879,6 @@ def sponsorblock_submit():
         return flask.jsonify({'error': str(e)}), 500
 
 
-@yt_app.route('/api/<path:dummy>')
-def get_captions(dummy):
-    result = util.fetch_url('https://www.youtube.com' + request.full_path)
-    result = result.replace(b"align:start position:0%", b"")
-    return result
-
-
 times_reg = re.compile(r'^\d\d:\d\d:\d\d\.\d\d\d --> \d\d:\d\d:\d\d\.\d\d\d.*$')
 inner_timestamp_removal_reg = re.compile(r'<[^>]+>')
 @yt_app.route('/watch/transcript/<path:caption_path>')
@@ -951,29 +944,65 @@ def get_transcript(caption_path):
 
 @yt_app.route('/api/<path:dummy>')
 def get_captions_api(dummy):
-    url = 'https://www.youtube.com/api/' + dummy
-    xml_content = util.fetch_url(url)
-    xml_content = xml_content.replace(b"align:start position:0%", b"")
-
-    # Parse XML and convert to VTT
-    import xml.etree.ElementTree as ET
-    root = ET.fromstring(xml_content.decode('utf-8'))
-
-    vtt_lines = ['WEBVTT\n\n']
-
-    for body in root.findall('.//body'):
-        for p in body.findall('.//p'):
-            start = p.get('t', '0')
-            dur = p.get('d', '0')
-            start_sec = int(start) / 1000.0
-            end_sec = start_sec + int(dur) / 1000.0
-
-            start_time = f"{int(start_sec // 3600):02d}:{int((start_sec % 3600) // 60):02d}:{start_sec % 60:06.3f}"
-            end_time = f"{int(end_sec // 3600):02d}:{int((end_sec % 3600) // 60):02d}:{end_sec % 60:06.3f}"
-
-            text = ''.join(p.itertext()).strip()
-            if text:
-                vtt_lines.append(f"{start_time} --> {end_time}\n{text}\n\n")
-
-    vtt_content = ''.join(vtt_lines)
-    return flask.Response(vtt_content.encode('utf-8'), mimetype='text/vtt; charset=utf-8')
+    import subprocess
+    import os
+    import tempfile
+    
+    # Parse query params from dummy path
+    # dummy will be like: "timedtext?lang=en&v=VIDEO_ID&kind=asr"
+    import urllib.parse
+    
+    # Get query string from Flask request
+    query_string = request.query_string.decode('utf-8')
+    params = dict(urllib.parse.parse_qsl(query_string))
+    
+    video_id = params.get('v', '')
+    lang = params.get('lang', 'en')
+    kind = params.get('kind', '')
+    
+    if not video_id:
+        return flask.Response('', status=400)
+    
+    try:
+        # Create temp directory for yt-dlp output
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_template = os.path.join(tmpdir, 'subtitle')
+            
+            # Build yt-dlp command for subtitles only
+            cmd = [
+                'yt-dlp',
+                '--write-auto-subs' if kind == 'asr' else '--write-subs',
+                '--sub-lang', lang,
+                '--skip-download',
+                '--no-playlist',
+                '--output', output_template,
+                f'https://www.youtube.com/watch?v={video_id}'
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            
+            # Find the generated subtitle file
+            vtt_file = None
+            for ext in ['.vtt', '.en.vtt', f'.{lang}.vtt']:
+                potential = os.path.join(tmpdir, f'subtitle{ext}')
+                if os.path.exists(potential):
+                    vtt_file = potential
+                    break
+            
+            if vtt_file and os.path.exists(vtt_file):
+                with open(vtt_file, 'r', encoding='utf-8') as f:
+                    vtt_content = f.read()
+                
+                response = flask.Response(vtt_content, mimetype='text/vtt; charset=utf-8')
+                response.headers['Access-Control-Allow-Origin'] = '*'
+                return response
+            else:
+                print(f"yt-dlp subtitle download failed: {result.stderr}")
+                return flask.Response('', status=404)
+                
+    except subprocess.TimeoutExpired:
+        print("yt-dlp subtitle download timed out")
+        return flask.Response('', status=504)
+    except Exception as e:
+        print(f"yt-dlp subtitle error: {e}")
+        return flask.Response('', status=500)

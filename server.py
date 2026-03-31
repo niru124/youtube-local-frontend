@@ -18,6 +18,7 @@ from youtube import (
     subscriptions,
     videolog,
     watch_later,
+    shortcuts,
 )
 
 import settings
@@ -35,6 +36,7 @@ import time
 
 # Register blueprints
 yt_app.register_blueprint(watch_later.watch_later_bp)
+yt_app.register_blueprint(shortcuts.shortcuts_bp)
 
 
 def youtu_be(env, start_response):
@@ -274,6 +276,11 @@ def site_dispatch(env, start_response):
         elif path.startswith("/watch_later"):
             env["SERVER_NAME"] = "youtube.com"  # Dummy server name for yt_app
             # Preserve the full path for watch_later routes
+            env["PATH_INFO"] = path
+            yield from yt_app(env, start_response)
+            return
+        elif path.startswith("/shortcuts"):
+            env["SERVER_NAME"] = "youtube.com"
             env["PATH_INFO"] = path
             yield from yt_app(env, start_response)
             return

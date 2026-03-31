@@ -1,0 +1,21 @@
+{
+  "play_pause": "k",
+  "seek_back_5": "arrowleft",
+  "seek_forward_5": "arrowright",
+  "seek_back_10": "h",
+  "seek_forward_10": "l",
+  "seek_back_30": "arrowdown",
+  "seek_forward_30": "arrowup",
+  "volume_up": "0",
+  "volume_down": "9",
+  "speed_up": "]",
+  "speed_down": "[",
+  "fullscreen": "f",
+  "mute": "m",
+  "loop": "g",
+  "screenshot": "s",
+  "copy_timestamp": "y",
+  "save_note": "ctrl+k",
+  "record_clip": "ctrl+l",
+  "jump_to_time": "ctrl+g"
+}

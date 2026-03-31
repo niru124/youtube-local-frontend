@@ -1,8 +1,55 @@
 let isClipping = false;
 let mediaRecorder = null;
 let recordedChunks = [];
+let shortcuts = {};
 
-// --- Add the OSD element ---
+function loadShortcuts() {
+    return fetch('/shortcuts/json')
+        .then(res => res.json())
+        .then(data => {
+            shortcuts = data;
+        })
+        .catch(() => {});
+}
+
+function getShortcutKey(shortcutName) {
+    return shortcuts[shortcutName] || '';
+}
+
+function parseShortcut(shortcutStr) {
+    if (!shortcutStr) return null;
+    
+    const parts = shortcutStr.toLowerCase().split('+');
+    const result = {
+        ctrl: parts.includes('ctrl'),
+        alt: parts.includes('alt'),
+        shift: parts.includes('shift'),
+        key: parts.filter(p => !['ctrl', 'alt', 'shift'].includes(p))[0] || ''
+    };
+    return result.key ? result : null;
+}
+
+function matchesShortcut(e, shortcutStr) {
+    const parsed = parseShortcut(shortcutStr);
+    if (!parsed) return false;
+    
+    const eKey = e.key.toLowerCase();
+    const expectedKey = parsed.key;
+    
+    if (eKey !== expectedKey && 
+        !(eKey === ' ' && expectedKey === 'space') &&
+        !(expectedKey === 'arrowleft' && eKey === 'arrowleft') &&
+        !(expectedKey === 'arrowright' && eKey === 'arrowright') &&
+        !(expectedKey === 'arrowup' && eKey === 'arrowup') &&
+        !(expectedKey === 'arrowdown' && eKey === 'arrowdown')) {
+        return false;
+    }
+    
+    return e.ctrlKey === parsed.ctrl && 
+           e.altKey === parsed.alt && 
+           e.shiftKey === parsed.shift;
+}
+
 const osd = document.createElement('div');
 osd.style.position = 'absolute';
 osd.style.top = '10px';
@@ -26,65 +73,51 @@ if (plyrContainer) {
 function updateOSD(text) {
     osd.textContent = text;
     osd.style.display = 'block';
-    clearTimeout(osd.timeout); // Clear any previous timeout
+    clearTimeout(osd.timeout);
     osd.timeout = setTimeout(() => {
         osd.style.display = 'none';
-    }, 2000); // Hide after 2 seconds
+    }, 2000);
 }
 
-// Helper to find quality by resolution string
 function findQualitySelection(resolution) {
-    console.log("findQualitySelection: Searching for resolution", resolution);
     if (typeof data === 'undefined' || (!data.uni_sources && !data.pair_sources)) {
-        console.warn("findQualitySelection: Quality data (data.uni_sources or data.pair_sources) not available.");
         return null;
     }
 
     const targetQualityString = `${resolution}p`;
-    console.log("findQualitySelection: Target quality string", targetQualityString);
 
-    // Check unified sources first
     if (data.uni_sources) {
-        console.log("findQualitySelection: Checking uni_sources:", data.uni_sources);
         for (let i = 0; i < data.uni_sources.length; i++) {
-            console.log(`findQualitySelection: Comparing '${data.uni_sources[i].quality_string}' with '${targetQualityString}'`);
             if (data.uni_sources[i].quality_string === targetQualityString) {
-                console.log("findQualitySelection: Match found in uni_sources.");
                 return { type: 'uni', index: i, quality: targetQualityString };
             }
         }
     }
 
-    // If not found in unified, check paired sources
     if (data.pair_sources) {
-        console.log("findQualitySelection: Checking pair_sources:", data.pair_sources);
         for (let i = 0; i < data.pair_sources.length; i++) {
-            console.log(`findQualitySelection: Comparing '${data.pair_sources[i].quality_string}' with '${targetQualityString}'`);
             if (data.pair_sources[i].quality_string === targetQualityString) {
-                console.log("findQualitySelection: Match found in pair_sources.");
                 return { type: 'pair', index: i, quality: targetQualityString };
             }
         }
     }
-    console.log("findQualitySelection: No match found for", targetQualityString);
     return null;
 }
 
 function onKeyDown(e) {
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return false;
 
-    const v = Q("video");
+    const v = document.querySelector('video');
     if (!v || !e.isTrusted) return;
 
     const c = e.key.toLowerCase();
 
-    // Hotkeys for quality change (Ctrl + 1-8)
     if (e.ctrlKey && c >= '1' && c <= '8') {
         e.preventDefault();
         let resolution;
         switch (c) {
-            case '1': resolution = 2160; break; // 4K
-            case '2': resolution = 1440; break; // 1440p
+            case '1': resolution = 2160; break;
+            case '2': resolution = 1440; break;
             case '3': resolution = 1080; break;
             case '4': resolution = 720; break;
             case '5': resolution = 480; break;
@@ -96,12 +129,10 @@ function onKeyDown(e) {
 
         const selection = findQualitySelection(resolution);
         if (selection) {
-            // Assuming changeQuality is globally available from watch.js
             if (typeof changeQuality === 'function') {
                 changeQuality({ type: selection.type, index: selection.index });
                 updateOSD(`Quality: ${selection.quality}`);
             } else {
-                console.error("changeQuality function not found.");
                 updateOSD("Error: Quality change failed.");
             }
         } else {
@@ -110,8 +141,7 @@ function onKeyDown(e) {
         return;
     }
 
-    // Press 'c' to start/stop recording a clip
-    if (c === 'c') {
+    if (matchesShortcut(e, getShortcutKey('record_clip'))) {
         e.preventDefault();
         if (!isClipping) {
             startRecordingClip(v);
@@ -122,16 +152,15 @@ function onKeyDown(e) {
         }
         return;
     }
-    // --- Screenshot: S --else if (c === 'i') {
-    else if (c === 's') {
+
+    if (matchesShortcut(e, getShortcutKey('screenshot'))) {
         e.preventDefault();
         takeVideoScreenshot(v);
         updateOSD("Screenshot taken");
         return;
     }
 
-    // --- Ctrl+G: Jump to time ---
-    if (e.ctrlKey && c === 'g') {
+    if (matchesShortcut(e, getShortcutKey('jump_to_time'))) {
         e.preventDefault();
         const timeInput = prompt('Jump to time (e.g., 1:30 or 90):');
         if (timeInput) {
@@ -141,59 +170,91 @@ function onKeyDown(e) {
         return;
     }
 
-    if (e.ctrlKey) return;
-
-    // --- Playback & navigation ---
-    if (c === "k" || c === " ") {
+    if (matchesShortcut(e, getShortcutKey('play_pause'))) {
         e.preventDefault();
         v.paused ? v.play() : v.pause();
         updateOSD(v.paused ? "Paused" : "Playing");
-    } else if (c === "arrowleft") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_back_5'))) {
         e.preventDefault();
         v.currentTime -= 5;
         updateOSD("-5 seconds");
-    } else if (c === "arrowright") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_forward_5'))) {
         e.preventDefault();
         v.currentTime += 5;
         updateOSD("+5 seconds");
-    } else if (c === "j") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_back_10'))) {
         e.preventDefault();
         v.currentTime -= 10;
         updateOSD("-10 seconds");
-    } else if (c === "l") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_forward_10'))) {
         e.preventDefault();
         v.currentTime += 10;
         updateOSD("+10 seconds");
-    } else if (c === "arrowdown") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_back_30'))) {
         e.preventDefault();
         v.currentTime -= 30;
         updateOSD("-30 seconds");
-    } else if (c === "arrowup") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('seek_forward_30'))) {
         e.preventDefault();
         v.currentTime += 30;
         updateOSD("+30 seconds");
-    } else if (c === "0") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('volume_up'))) {
         e.preventDefault();
         v.volume = Math.min(1, v.volume + 0.05);
         updateOSD(`Volume: ${Math.round(v.volume * 100)}%`);
-    } else if (c === "9") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('volume_down'))) {
         e.preventDefault();
         v.volume = Math.max(0, v.volume - 0.05);
         updateOSD(`Volume: ${Math.round(v.volume * 100)}%`);
-    } else if (c === "]") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('speed_up'))) {
         e.preventDefault();
         v.playbackRate = Math.min(4, v.playbackRate + 0.1);
         updateOSD(`Speed: ${v.playbackRate.toFixed(1)}x`);
-    } else if (c === "[") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('speed_down'))) {
         e.preventDefault();
         v.playbackRate = Math.max(0.1, v.playbackRate - 0.1);
         updateOSD(`Speed: ${v.playbackRate.toFixed(1)}x`);
-    }else if (c === 'g') {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('loop'))) {
         e.preventDefault();
-        // Assuming v is your Plyr instance
         v.loop = !v.loop;
         updateOSD(`Loop ${v.loop ? 'enabled' : 'disabled'}`);
-    } else if (c === "f") {
+        return;
+    }
+
+    if (matchesShortcut(e, getShortcutKey('fullscreen'))) {
         e.preventDefault();
         if (typeof data !== 'undefined' && data.settings?.video_player === 1) {
             player.fullscreen.toggle();
@@ -202,16 +263,17 @@ function onKeyDown(e) {
             else v.requestFullscreen();
         }
         updateOSD("Fullscreen toggled");
+        return;
     }
-    else if (c === 'm') {
+
+    if (matchesShortcut(e, getShortcutKey('mute'))) {
         e.preventDefault();
         v.muted = !v.muted;
         updateOSD(v.muted ? 'Muted' : 'Unmuted');
         return;
     }
 
-    // --- X: Save note ---
-    else if (c === 'x') {
+    if (matchesShortcut(e, getShortcutKey('save_note'))) {
         e.preventDefault();
         const note = prompt("Enter note for this timestamp:");
         if (note) {
@@ -219,17 +281,17 @@ function onKeyDown(e) {
             localStorage.setItem(`note_${timestamp}`, note);
             updateOSD(`Note saved at ${timestamp}s`);
         }
+        return;
     }
 
-    // --- T: Copy YouTube timestamp link ---
-    else if (c === "t") {
+    if (matchesShortcut(e, getShortcutKey('copy_timestamp'))) {
         const ts = Math.floor(v.currentTime);
         copyTextToClipboard(`https://youtu.be/${data.video_id}?t=${ts}`);
         updateOSD("Timestamp copied");
+        return;
     }
 }
 
-// --- Screenshot function ---
 function takeVideoScreenshot(video) {
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
@@ -247,7 +309,6 @@ function takeVideoScreenshot(video) {
     }, 'image/png');
 }
 
-// --- Jump to time helper ---
 function jumpToTime(timeString, video) {
     let seconds = 0;
 
@@ -331,19 +392,18 @@ function stopRecordingClip() {
     mediaRecorder.stop();
 }
 
-// --- Clipboard copy ---
 function copyTextToClipboard(text) {
     navigator.clipboard.writeText(text)
         .then(() => console.log('Copied:', text))
         .catch(err => console.error('Copy failed:', err));
 }
 
-// Query shortcut
 function Q(sel) {
     return document.querySelector(sel);
 }
 
-// Shortcuts init
 window.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener('keydown', onKeyDown);
+    loadShortcuts().then(() => {
+        document.addEventListener('keydown', onKeyDown);
+    });
 });

@@ -157,7 +157,7 @@ def timestamp_replacement(match):
         + '</a>'
     )
 
-TIMESTAMP_RE = re.compile(r'\b(\d?\d:)?\d?\d:\d\d\b')
+TIMESTAMP_RE = re.compile(r'\b\d+:\d{2}(?::\d{2})?\b')
 @yt_app.template_filter('timestamps')
 def timestamps(text):
     return TIMESTAMP_RE.sub(timestamp_replacement, text)

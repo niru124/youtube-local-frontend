@@ -254,6 +254,119 @@
         font-weight: 500;
     }
 
+    .video-card .video-notes {
+        background-color: var(--ctp-surface1);
+        color: var(--ctp-overlay2);
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .video-card .video-notes:hover {
+        background-color: var(--ctp-surface2);
+        color: var(--ctp-text);
+    }
+
+    .notes-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .notes-modal-overlay.active {
+        display: flex;
+    }
+
+    .notes-modal {
+        background-color: var(--ctp-surface0);
+        border-radius: 16px;
+        padding: 24px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .notes-modal h3 {
+        margin: 0 0 16px 0;
+        color: var(--ctp-text);
+        font-size: 1.3rem;
+    }
+
+    .notes-modal .video-title-display {
+        color: var(--ctp-overlay2);
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .notes-modal textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+        font-size: 1rem;
+        resize: vertical;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .notes-modal textarea:focus {
+        outline: none;
+        border-color: var(--ctp-blue);
+        box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.3);
+    }
+
+    .notes-modal .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .notes-modal .modal-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .notes-modal .modal-btn.cancel {
+        background-color: var(--ctp-surface1);
+        color: var(--ctp-text);
+    }
+
+    .notes-modal .modal-btn.cancel:hover {
+        background-color: var(--ctp-surface2);
+    }
+
+    .notes-modal .modal-btn.save {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .notes-modal .modal-btn.save:hover {
+        background-color: var(--ctp-sapphire);
+    }
+
     .video-card .card-actions {
         display: flex;
         gap: 8px;
@@ -426,6 +539,18 @@
 {% block main %}
     <div class="toast-container" id="toastContainer"></div>
 
+    <div class="notes-modal-overlay" id="notesModal">
+        <div class="notes-modal">
+            <h3>Edit Notes</h3>
+            <div class="video-title-display" id="modalVideoTitle"></div>
+            <textarea id="notesTextarea" placeholder="Add your notes here..."></textarea>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeNotesModal()">Cancel</button>
+                <button class="modal-btn save" onclick="saveNotes()">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
     <div class="watch-later-header">
         <h1>Watch Later</h1>
         <div class="watch-later-stats">
@@ -492,9 +617,12 @@
                         <span class="playlist-tag" title="From playlist: {{ video.playlist_name }}">From: {{ video.playlist_name }}</span>
                         {% endif %}
                     </div>
+                    {% if video.comment %}
+                    <div class="video-notes" onclick="editVideo('{{ video.video_id }}', '{{ video.title|escape }}', '{{ video.comment|escape }}')" title="Click to edit notes">{{ video.comment }}</div>
+                    {% endif %}
                     <div class="card-actions">
                         <a href="{{ util.URL_ORIGIN }}/watch?v={{ video.video_id }}" class="watch-btn">Watch</a>
-                        <button class="edit-btn" onclick="editVideo('{{ video.video_id }}')">Edit</button>
+                        <button class="edit-btn" onclick="editVideo('{{ video.video_id }}', '{{ video.title|escape }}', '{{ video.comment|escape }}')">Edit</button>
                         <button class="remove-btn" onclick="removeVideo('{{ video.video_id }}')">Remove</button>
                     </div>
                 </div>
@@ -634,24 +762,55 @@
             }
         }
 
-        function editVideo(videoId) {
-            const newComment = prompt('Edit notes for this video:');
-            if (newComment !== null) {
-                fetch('/watch_later/update_comment', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: 'video_id=' + videoId + '&comment=' + encodeURIComponent(newComment)
-                }).then(response => response.json()).then(result => {
-                    if (result.status === 'success') {
-                        showToast('Notes updated successfully', 'success');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showToast(result.message, 'error');
-                    }
-                }).catch(error => {
-                    showToast('Error updating notes: ' + error.message, 'error');
-                });
-            }
+        let currentEditVideoId = null;
+
+        function editVideo(videoId, title, currentComment) {
+            currentEditVideoId = videoId;
+            document.getElementById('modalVideoTitle').textContent = title || 'Video';
+            document.getElementById('notesTextarea').value = currentComment || '';
+            document.getElementById('notesModal').classList.add('active');
+            document.getElementById('notesTextarea').focus();
         }
+
+        function closeNotesModal() {
+            document.getElementById('notesModal').classList.remove('active');
+            currentEditVideoId = null;
+        }
+
+        function saveNotes() {
+            if (!currentEditVideoId) return;
+            
+            const newComment = document.getElementById('notesTextarea').value;
+            fetch('/watch_later/update_comment', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'video_id=' + currentEditVideoId + '&comment=' + encodeURIComponent(newComment)
+            }).then(response => response.json()).then(result => {
+                if (result.status === 'success') {
+                    showToast('Notes updated successfully', 'success');
+                    closeNotesModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            }).catch(error => {
+                showToast('Error updating notes: ' + error.message, 'error');
+            });
+        }
+
+        document.getElementById('notesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNotesModal();
+            }
+        });
+
+        document.getElementById('notesTextarea').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                saveNotes();
+            }
+            if (e.key === 'Escape') {
+                closeNotesModal();
+            }
+        });
     </script>
 {% endblock main %}

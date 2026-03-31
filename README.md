@@ -18,9 +18,7 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
 - **Comments**: View and browse video comments
 - **Chapter Navigation**: Jump to video chapters easily
 - **SponsorBlock**: Auto-skip sponsored segments with customizable categories
-- **Live Chat Replay**: Watch live chat replay for streams
 - **Download**: Download videos and audio in various formats
-- **Themes**: Light/dark mode with customizable colors
 - **Keyboard Shortcuts**: Full control over video playback (MPV-like)
 - **Heavily Customizable Settings**: Extensive settings for playback, interface, network, and SponsorBlock options
 
@@ -34,7 +32,7 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
   - Time input in HH:MM:SS:MS format with "Now" buttons
   - View your submission stats
 - **Content Filtering**: Block videos by keywords in settings (hides matching videos from search, related, homepage, and subscriptions)
-- **Improved UI**: Enhanced grid view for channel pages with better thumbnails
+- **Improved UI**: Enhanced grid/list view for channel pages with better thumbnails
 
 ## Installation
 
@@ -46,14 +44,14 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/youtube-local.git
+git clone https://github.com/niru124/youtube-local.git
 cd youtube-local
 
-# Install dependencies
-pip install -r requirements.txt
+# Run Install Script 
+./install-systemd.sh
 
-# Run the server
-python server.py
+# Uninstall the program completely 🫪
+./uninstall.sh
 ```
 
 Open your browser and go to `http://localhost:8080` (or the port configured in settings).
@@ -67,7 +65,8 @@ Open your browser and go to `http://localhost:8080` (or the port configured in s
 - `K` - Play/Pause
 - `F` - Fullscreen
 - `M` - Mute
-- `,` / `.` - Frame step (when paused)
+- `[` / `]` - Playback Speed
+- `0` / `9` - Volume Up/Down
 - `;` - Start/stop SponsorBlock segment marking
 
 ### SponsorBlock

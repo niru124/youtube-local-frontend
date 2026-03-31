@@ -515,12 +515,14 @@ def normalize_youtube_url(url):
     if not url:
         return url
     
-    # Pattern to match localhost proxy URLs
-    # e.g., http://localhost:8081/https://www.youtube.com/watch?v=xxx
-    pattern = r'^https?://[^/]+/https://(www\.youtube\.com|youtu\.be|youtube\.com)/'
+    pattern = r'^https?://[^/]+/(https?://)?(www\.)?(youtube\.com|youtu\.be)/'
     match = re.match(pattern, url)
     if match:
-        return 'https://' + url[match.regs[2][0]:]
+        prefix = 'https://www.' if match.group(3) else 'https://'
+        rest = url[match.regs[0][1]:]
+        if rest.startswith('//'):
+            rest = rest[1:]
+        return prefix + rest
     
     return url
 

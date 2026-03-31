@@ -1,0 +1,313 @@
+/**
+ * ==========================================================================
+ * YouTube-Local Custom Theme
+ * ==========================================================================
+ * 
+ * This file allows you to customize the look and feel of YouTube-Local.
+ * All colors use CSS custom properties (variables), making it easy to theme.
+ * 
+ * HOW TO USE:
+ * Simply edit the values below. Changes take effect on page refresh.
+ * 
+ * COLOR PALETTES:
+ * - Catppuccin Mocha (Dark): https://github.com/catppuccin/catppuccin#palette-demo
+ * - Catppuccin Frappé: https://github.com/catppuccin/catppuccin#-palettes
+ * - Catppuccin Macchiato: https://github.com/catppuccin/catppuccin#-palettes
+ * - Catppuccin Latte: https://github.com/catppuccin/catppuccin#-palettes
+ * - Nord: https://www.nordtheme.com/
+ * - Dracula: https://draculatheme.com/
+ * 
+ * ==========================================================================
+ */
+
+:root {
+    /* =====================================================================
+       Catppuccin Mocha Accent Colors
+       ===================================================================== */
+    --ctp-rosewater: #F5E0DC;
+    --ctp-flamingo: #F2CDCD;
+    --ctp-pink: #F5C2E7;
+    --ctp-mauve: #CBA6F7;
+    --ctp-red: #F38BA8;
+    --ctp-maroon: #EBA0AC;
+    --ctp-peach: #FAB387;
+    --ctp-yellow: #F9E2AF;
+    --ctp-green: #A6E3A1;
+    --ctp-teal: #94E2D5;
+    --ctp-sky: #89DCEB;
+    --ctp-sapphire: #74C7CE;
+    --ctp-blue: #89B4FA;
+    --ctp-lavender: #B4BEFE;
+
+    /* =====================================================================
+       Text Colors
+       ===================================================================== */
+    --ctp-text: #CDD6F4;
+    --ctp-subtext1: #BAC2DE;
+    --ctp-subtext0: #A6ADC8;
+    --ctp-overlay2: #9399B2;
+    --ctp-overlay1: #7F849C;
+    --ctp-overlay0: #6C7086;
+
+    /* =====================================================================
+       Surface Colors (Backgrounds)
+       ===================================================================== */
+    --ctp-surface2: #585B70;
+    --ctp-surface1: #45475A;
+    --ctp-surface0: #313244;
+    --ctp-base: #1E1E2E;
+    --ctp-mantle: #181825;
+    --ctp-crust: #11111B;
+
+    /* =====================================================================
+       RGB Values (for box-shadows with transparency)
+       ===================================================================== */
+    --ctp-blue-rgb: 137, 180, 250;
+    --ctp-lavender-rgb: 180, 190, 254;
+    --ctp-green-rgb: 166, 227, 161;
+    --ctp-red-rgb: 243, 139, 168;
+    --ctp-peach-rgb: 250, 179, 135;
+    --ctp-yellow-rgb: 249, 226, 175;
+    --ctp-teal-rgb: 148, 226, 213;
+    --ctp-pink-rgb: 245, 194, 231;
+    --ctp-mauve-rgb: 203, 166, 247;
+    --ctp-sky-rgb: 137, 220, 235;
+    --ctp-sapphire-rgb: 116, 199, 206;
+    --ctp-maroon-rgb: 235, 160, 172;
+    --ctp-rosewater-rgb: 245, 224, 220;
+    --ctp-flamingo-rgb: 242, 205, 205;
+
+    /* =====================================================================
+       Mapped Variables
+       ===================================================================== */
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --link-color: var(--ctp-blue);
+    --link-hover: var(--ctp-lavender);
+    --link-color-rgb: var(--ctp-blue-rgb);
+    --visited-link-color-rgb: var(--ctp-lavender-rgb);
+    
+    /* Surface system */
+    --surface-color: var(--ctp-base);
+    --surface-elevated: var(--ctp-surface0);
+    --surface-overlay: var(--ctp-surface1);
+    --surface-high: var(--ctp-surface2);
+    --border-color: var(--ctp-surface1);
+    --border-subtle: var(--ctp-surface0);
+}
+
+
+/* ==========================================================================
+   EXAMPLE THEMES
+   Uncomment one of these sections to try different color schemes.
+   ========================================================================== */
+
+/* 
+ * EXAMPLE: Nord Theme
+ * https://www.nordtheme.com/
+ *
+:root {
+    --ctp-rosewater: #D8DEE9;
+    --ctp-flamingo: #E5C07B;
+    --ctp-pink: #E06C75;
+    --ctp-mauve: #C678DD;
+    --ctp-red: #E06C75;
+    --ctp-maroon: #BE5046;
+    --ctp-peach: #D19A66;
+    --ctp-yellow: #E5C07B;
+    --ctp-green: #98C379;
+    --ctp-teal: #56B6C2;
+    --ctp-sky: #61AFEF;
+    --ctp-sapphire: #81A1C1;
+    --ctp-blue: #61AFEF;
+    --ctp-lavender: #B4BEFE;
+    --ctp-text: #ECEFF4;
+    --ctp-subtext1: #D8DEE9;
+    --ctp-subtext0: #9DA5B4;
+    --ctp-overlay2: #828B9E;
+    --ctp-overlay1: #6C7178;
+    --ctp-overlay0: #565C68;
+    --ctp-surface2: #434957;
+    --ctp-surface1: #3B4253;
+    --ctp-surface0: #2E3440;
+    --ctp-base: #242933;
+    --ctp-mantle: #1E222A;
+    --ctp-crust: #181C20;
+    --ctp-blue-rgb: 97, 175, 239;
+    --ctp-green-rgb: 152, 195, 121;
+    --ctp-red-rgb: 224, 108, 117;
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --link-color: var(--ctp-blue);
+    --link-hover: var(--ctp-sky);
+    --link-color-rgb: var(--ctp-blue-rgb);
+    --surface-color: var(--ctp-base);
+    --surface-elevated: var(--ctp-surface0);
+    --surface-overlay: var(--ctp-surface1);
+    --surface-high: var(--ctp-surface2);
+    --border-color: var(--ctp-surface1);
+    --border-subtle: var(--ctp-surface0);
+}
+*/
+
+/*
+ * EXAMPLE: Dracula Theme
+ * https://draculatheme.com/
+ *
+:root {
+    --ctp-rosewater: #FF79C6;
+    --ctp-flamingo: #F8F8F2;
+    --ctp-pink: #FF79C6;
+    --ctp-mauve: #BD93F9;
+    --ctp-red: #FF5555;
+    --ctp-maroon: #FF5555;
+    --ctp-peach: #FFB86C;
+    --ctp-yellow: #F1FA8C;
+    --ctp-green: #50FA7B;
+    --ctp-teal: #8BE9FD;
+    --ctp-sky: #8BE9FD;
+    --ctp-sapphire: #8BE9FD;
+    --ctp-blue: #BD93F9;
+    --ctp-lavender: #B4BEFE;
+    --ctp-text: #F8F8F2;
+    --ctp-subtext1: #E6E6E6;
+    --ctp-subtext0: #CCCCCC;
+    --ctp-overlay2: #999999;
+    --ctp-overlay1: #777777;
+    --ctp-overlay0: #555555;
+    --ctp-surface2: #44475A;
+    --ctp-surface1: #383A47;
+    --ctp-surface0: #2E3040;
+    --ctp-base: #282A36;
+    --ctp-mantle: #1E1F29;
+    --ctp-crust: #17181F;
+    --ctp-blue-rgb: 189, 147, 249;
+    --ctp-green-rgb: 80, 250, 123;
+    --ctp-red-rgb: 255, 85, 85;
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --link-color: var(--ctp-mauve);
+    --link-hover: var(--ctp-pink);
+    --link-color-rgb: var(--ctp-blue-rgb);
+    --surface-color: var(--ctp-base);
+    --surface-elevated: var(--ctp-surface0);
+    --surface-overlay: var(--ctp-surface1);
+    --surface-high: var(--ctp-surface2);
+    --border-color: var(--ctp-surface1);
+    --border-subtle: var(--ctp-surface0);
+}
+*/
+
+/*
+ * EXAMPLE: Tokyo Night Theme
+ * https://github.com/enkia/tokyo-night-vscode-theme
+ *
+:root {
+    --ctp-rosewater: #F7768E;
+    --ctp-flamingo: #F7768E;
+    --ctp-pink: #FF007C;
+    --ctp-mauve: #BB9AF7;
+    --ctp-red: #F7768E;
+    --ctp-maroon: #F7768E;
+    --ctp-peach: #FF9E64;
+    --ctp-yellow: #E0AF68;
+    --ctp-green: #9ECE6A;
+    --ctp-teal: #73DACA;
+    --ctp-sky: #7AA2F7;
+    --ctp-sapphire: #7AA2F7;
+    --ctp-blue: #7AA2F7;
+    --ctp-lavender: #7AA2F7;
+    --ctp-text: #C0CAF5;
+    --ctp-subtext1: #A9B1D6;
+    --ctp-subtext0: #9AA5CE;
+    --ctp-overlay2: #787C99;
+    --ctp-overlay1: #5A5F73;
+    --ctp-overlay0: #414868;
+    --ctp-surface2: #3B4261;
+    --ctp-surface1: #2A2E4A;
+    --ctp-surface0: #1F2335;
+    --ctp-base: #1A1B26;
+    --ctp-mantle: #16161E;
+    --ctp-crust: #131316;
+    --ctp-blue-rgb: 122, 162, 247;
+    --ctp-green-rgb: 158, 206, 106;
+    --ctp-red-rgb: 247, 118, 142;
+    --text-color: var(--ctp-text);
+    --background-color: var(--ctp-crust);
+    --link-color: var(--ctp-blue);
+    --link-hover: var(--ctp-sky);
+    --link-color-rgb: var(--ctp-blue-rgb);
+    --surface-color: var(--ctp-base);
+    --surface-elevated: var(--ctp-surface0);
+    --surface-overlay: var(--ctp-surface1);
+    --surface-high: var(--ctp-surface2);
+    --border-color: var(--ctp-surface1);
+    --border-subtle: var(--ctp-surface0);
+}
+*/
+
+
+/* ==========================================================================
+   CUSTOM STYLES
+   Add your own custom CSS below. Use !important to override defaults.
+   ========================================================================== */
+
+/* Example: Change header background */
+/*
+header {
+    background-color: rgba(30, 30, 46, 0.95) !important;
+}
+*/
+
+/* Example: Custom button style */
+/*
+.material-button {
+    background: linear-gradient(135deg, var(--ctp-peach), var(--ctp-pink)) !important;
+    border: none !important;
+    color: var(--ctp-crust) !important;
+}
+.material-button:hover {
+    filter: brightness(1.1) !important;
+    box-shadow: 0 4px 20px rgba(245, 194, 231, 0.4) !important;
+}
+*/
+
+/* Example: Custom card hover effect */
+/*
+.item-box {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.item-box:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 12px 40px rgba(137, 180, 250, 0.2) !important;
+}
+*/
+
+/* Example: Neon glow effect on links */
+/*
+a {
+    text-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+a:hover {
+    color: var(--ctp-mauve) !important;
+    text-shadow: 0 0 10px var(--ctp-mauve), 0 0 20px var(--ctp-mauve) !important;
+}
+*/
+
+/* Example: Custom scrollbar */
+/*
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--ctp-blue), var(--ctp-mauve)) !important;
+    border: none !important;
+}
+*/
+
+/* Example: Glassmorphism effect */
+/*
+.item-box {
+    background: rgba(30, 30, 46, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+*/

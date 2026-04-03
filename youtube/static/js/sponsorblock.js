@@ -12,6 +12,10 @@ function generateUserID() {
 }
 
 function getSponsorBlockUserID() {
+  // Check if custom user ID is set in server settings
+  if (window.data && window.data.sb_custom_user_id && window.data.sb_custom_user_id.length === 32) {
+    return window.data.sb_custom_user_id;
+  }
   let userID = localStorage.getItem('sponsorblock_userID');
   if (!userID) {
     userID = generateUserID();

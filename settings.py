@@ -402,6 +402,14 @@ Defaults to -1, which means no default value is forced and the browser will set 
         'category': 'sponsorblock',
     }),
 
+    ('sponsorblock_user_id', {
+        'label': 'SponsorBlock: Custom User ID',
+        'type': str,
+        'default': '',
+        'comment': 'Enter your existing SponsorBlock user ID to keep your submission history. Leave empty to generate a new ID.',
+        'category': 'sponsorblock',
+    }),
+
     ('theme', {
         'type': int,
         'default': 0,

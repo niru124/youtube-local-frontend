@@ -834,6 +834,7 @@ def get_watch_page(video_id=None):
             'sb_music_offtopic_color': getattr(settings, 'sponsorblock_music_offtopic_color', '#b19cd9'),
             'sb_filler': getattr(settings, 'sponsorblock_filler', False),
             'sb_filler_color': getattr(settings, 'sponsorblock_filler_color', '#ffd1dc'),
+            'sb_custom_user_id': getattr(settings, 'sponsorblock_user_id', ''),
         },
         font_family = youtube.font_choices[settings.font], # for embed page
         **source_info,

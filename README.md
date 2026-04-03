@@ -2,9 +2,22 @@
 
 A privacy-focused YouTube client that runs entirely on your machine. Watch videos without tracking, download content, and enjoy YouTube without ads or Google's data collection.
 
+## Why Use It?
+
+YouTube Local gives you back control over your viewing experience:
+
+- **Zero Tracking** - No Google account required. Your watch history stays on your machine,your subcriptions are local and so does your watch later.
+- **No Ads** - Enjoy ad-free video playback with SponsorBlock integration to skip sponsor segments.
+- **Lightweight & Fast** - Built with plain HTML/CSS: ~(16MB-19MB) idle, ~150MB for 1440p(25fps) video, ~170-190MB for 2160p(25).
+- **Privacy** - All data stored locally. Optional Tor routing for enhanced anonymity.
+- **MPV-like Controls** - Familiar keyboard shortcuts for power users.
+
+![Homepage](youtube_images/homepage.png)
+
 ## Features
 
 ### Core Features (from original)
+
 - **Watch Videos Locally**: Stream YouTube videos directly on your machine without browser tracking
 - **Video Log**: Browse and search through your watch history with detailed information including watch date, duration, and channel
 - **Watch Later**: Save videos to watch later, with support for YouTube playlists (not just local playlists)
@@ -23,6 +36,7 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
 - **Heavily Customizable Settings**: Extensive settings for playback, interface, network, and SponsorBlock options
 
 ### Enhanced Features
+
 - **Dynamic URL Handling**: Automatically detects and handles YouTube URLs from any format
 - **Watch Later Playlists**: Support for YouTube playlists (not just local)
 - **SponsorBlock Enhancements**:
@@ -34,11 +48,16 @@ A privacy-focused YouTube client that runs entirely on your machine. Watch video
 - **Content Filtering**: Block videos by keywords in settings (hides matching videos from search, related, homepage, and subscriptions)
 - **Improved UI**: Enhanced grid/list view for channel pages with better thumbnails
 
+![Subscriptions](youtube_images/subscriptions.png)
+![Video Log](youtube_images/videolog.png)
+![Settings](youtube_images/settings.png)
+![SponsorBlock](youtube_images/SponsorBlock-edited.png)
+
 ## Installation
 
 ### Prerequisites
+
 - Python 3.8+
-- FFmpeg (for video/audio downloading)
 
 ### Quick Start
 
@@ -58,7 +77,8 @@ Open your browser and go to `http://localhost:8080` (or the port configured in s
 
 ## Usage
 
-### Basic Controls
+### Basic Controls(Customizable)
+
 - `Space` - Play/Pause
 - `J` - Rewind 10 seconds
 - `L` - Forward 10 seconds
@@ -72,6 +92,7 @@ Open your browser and go to `http://localhost:8080` (or the port configured in s
 ### SponsorBlock
 
 To submit segments:
+
 1. Press `;` to start marking at current position
 2. Press `;` again to stop marking
 3. Adjust times if needed using the input fields or "Now" buttons
@@ -79,26 +100,17 @@ To submit segments:
 
 To view your submission stats, go to Settings > SponsorBlock and click "View SponsorBlock Stats".
 
-### Content Filtering
-
-To block videos by keywords:
-1. Go to Settings > Interface
-2. Find "Blocked words (filter videos)"
-3. Enter comma-separated words or phrases
-4. Save settings
-
-Blocked videos will be hidden from search results, related videos, homepage, and subscriptions.
-
 ## Configuration
 
 Settings can be modified through the web interface at `/settings` or by editing `settings.json`.
 
 Key settings:
+
 - `port_number` - Server port (default: 8080)
 - `route_tor` - Route traffic through Tor
 - `default_resolution` - Preferred video quality
 - `related_videos_mode` - Show/hide related videos
-- `dark_mode` - Enable/disable dark theme
+- `blocked_keywords` - Block keywords(block keywords that u don't want to appear in search history/recommendations[, seperated])
 
 ## Acknowledgements
 

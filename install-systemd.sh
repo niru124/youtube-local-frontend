@@ -57,6 +57,15 @@ if [ -d "$TARGET_DIR/youtube" ]; then
 fi
 sudo cp -r "$SCRIPT_DIR/youtube" "$TARGET_DIR/"
 
+# Copy data directory
+if [ -d "$SCRIPT_DIR/data" ]; then
+    if [ -d "$TARGET_DIR/data" ]; then
+        echo "Updating data directory..."
+        sudo rm -rf "$TARGET_DIR/data"
+    fi
+    sudo cp -r "$SCRIPT_DIR/data" "$TARGET_DIR/"
+fi
+
 # Set permissions
 sudo chown -R $USER:$USER "$TARGET_DIR"
 

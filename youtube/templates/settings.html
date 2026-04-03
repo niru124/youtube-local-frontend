@@ -2,85 +2,83 @@
 {% extends "base.html" %}
 {% import "common_elements.html" as common_elements %}
 {% block style %}
-    .settings-form {
-        margin: auto;
-        max-width: 600px;
-        margin-top:10px;
-        padding: 10px;
-        display: block;
+    .settings-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-category {
+        margin-bottom: 30px;
         background-color: var(--interface-color);
-    }
-        .settings-list{
-            list-style: none;
-            padding: 0px;
-        }
-            .setting-item{
-                margin-bottom: 10px;
-                padding: 5px;
-            }
-                .setting-item label{
-                    display: inline-block;
-                    width: 250px;
-                }
-    @media (max-width:650px){
-        h2{
-            text-align: center;
-        }
-        .setting-item{
-        }
-            .setting-item label{
-                display: block; /* make the setting input wrap */
-                margin-bottom: 5px;
-            }
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .history-management-form {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .history-management-form input[type="file"] {
-        padding: 8px;
-        border: 1px solid var(--ctp-surface1);
-        border-radius: 8px;
-        background-color: var(--ctp-base);
+    .settings-category h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--ctp-surface1);
         color: var(--ctp-text);
     }
 
-    .history-management-form input[type="submit"] {
-        padding: 10px 20px;
-        border: none;
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .setting-item {
+        padding: 12px;
+        background: var(--ctp-surface0);
         border-radius: 8px;
-        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .setting-item label {
+        font-weight: 500;
+        color: var(--ctp-subtext1);
+        font-size: 0.9rem;
+    }
+
+    .setting-item input[type="text"],
+    .setting-item input[type="number"],
+    .setting-item select {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--ctp-surface1);
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
         font-size: 0.95rem;
-        transition: all 0.2s ease-in-out;
     }
 
-    .history-management-form input[type="submit"][value="Export History"] {
-        background-color: var(--ctp-blue);
-        color: var(--ctp-crust);
+    .setting-item input[type="text"]:focus,
+    .setting-item input[type="number"]:focus,
+    .setting-item select:focus {
+        outline: none;
+        border-color: var(--ctp-blue);
     }
 
-    .history-management-form input[type="submit"][value="Export History"]:hover {
-        background-color: var(--ctp-sapphire);
+    .setting-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
     }
 
-    .history-management-form input[type="submit"][value="Import History"] {
-        background-color: var(--ctp-green);
-        color: var(--ctp-crust);
+    .color-setting {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .history-management-form input[type="submit"][value="Import History"]:hover {
-        background-color: var(--ctp-teal);
-    }
-
-    /* Color picker styles */
-    input[type="color"] {
+    .color-setting input[type="color"] {
         -webkit-appearance: none;
         border: none;
-        width: 40px;
+        width: 50px;
         height: 40px;
         border-radius: 6px;
         cursor: pointer;
@@ -88,123 +86,253 @@
         background: none;
     }
 
-    input[type="color"]::-webkit-color-swatch-wrapper {
+    .color-setting input[type="color"]::-webkit-color-swatch-wrapper {
         padding: 2px;
     }
 
-    input[type="color"]::-webkit-color-swatch {
+    .color-setting input[type="color"]::-webkit-color-swatch {
         border: none;
         border-radius: 4px;
     }
 
-    .setting-item input[type="text"][style] {
+    .color-setting input[type="text"] {
+        width: 100px;
         font-family: monospace;
     }
 
-    /* Color preview swatch */
-    .setting-item [id$="_preview"] {
-        vertical-align: middle;
+    .color-preview {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
         border: 1px solid var(--ctp-surface1);
         flex-shrink: 0;
+    }
+
+    .links-section {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--ctp-surface1);
+    }
+
+    .links-section a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: var(--ctp-surface0);
+        border-radius: 8px;
+        color: var(--ctp-blue);
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .links-section a:hover {
+        background: var(--ctp-surface1);
+    }
+
+    .save-button {
+        margin-top: 30px;
+        padding: 15px 40px;
+        background: var(--ctp-blue);
+        color: var(--ctp-crust);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .save-button:hover {
+        background: var(--ctp-sapphire);
+    }
+
+    .history-management {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: var(--interface-color);
+        border-radius: 12px;
+    }
+
+    .history-management h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    .history-forms {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .history-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .history-form input[type="file"] {
+        padding: 8px;
+        border: 1px solid var(--ctp-surface1);
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+    }
+
+    .history-form input[type="submit"] {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .history-form input[type="submit"][value="Export History"] {
+        background-color: var(--ctp-blue);
+        color: var(--ctp-crust);
+    }
+
+    .history-form input[type="submit"][value="Export History"]:hover {
+        background-color: var(--ctp-sapphire);
+    }
+
+    .history-form input[type="submit"][value="Import History"] {
+        background-color: var(--ctp-green);
+        color: var(--ctp-crust);
+    }
+
+    .history-form input[type="submit"][value="Import History"]:hover {
+        background-color: var(--ctp-teal);
+    }
+
+    .history-form select {
+        padding: 10px;
+        border-radius: 8px;
+        background-color: var(--ctp-base);
+        color: var(--ctp-text);
+        border: 1px solid var(--ctp-surface1);
+    }
+
+    @media (max-width: 768px) {
+        .settings-container {
+            padding: 10px;
+        }
+
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .history-forms {
+            flex-direction: column;
+        }
     }
 {% endblock style %}
 
 {% block main %}
-    <form method="POST" class="settings-form">
-        {% for categ in categories %}
-            <h2>{{ categ|capitalize }}</h2>
-            <ul class="settings-list">
-            {% for setting_name, setting_info, value in settings_by_category[categ] %}
-                {% if not setting_info.get('hidden', false) %}
-                    <li class="setting-item">
-                        {% if 'label' is in(setting_info) %}
-                            <label for="{{ 'setting_' + setting_name }}">{{ setting_info['label'] }}</label>
-                        {% else %}
-                            <label for="{{ 'setting_' + setting_name }}">{{ setting_name.replace('_', ' ')|capitalize }}</label>
-                        {% endif %}
+    <div class="settings-container">
+        <form method="POST">
+            {% for categ in categories %}
+                <div class="settings-category">
+                    <h2>{{ categ|capitalize }}</h2>
+                    <div class="settings-grid">
+                    {% for setting_name, setting_info, value in settings_by_category[categ] %}
+                        {% if not setting_info.get('hidden', false) %}
+                            <div class="setting-item">
+                                {% if 'label' is in(setting_info) %}
+                                    <label for="{{ 'setting_' + setting_name }}">{{ setting_info['label'] }}</label>
+                                {% else %}
+                                    <label for="{{ 'setting_' + setting_name }}">{{ setting_name.replace('_', ' ')|capitalize }}</label>
+                                {% endif %}
 
-                        {% if setting_info['type'].__name__ == 'bool' %}
-                            <input type="checkbox" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" {{ 'checked' if value else '' }}>
-                        {% elif setting_info['type'].__name__ == 'int' %}
-                            {% if 'options' is in(setting_info) %}
-                                <select id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}">
-                                    {% for option in setting_info['options'] %}
-                                        <option value="{{ option[0] }}" {{ 'selected' if option[0] == value else '' }}>{{ option[1] }}</option>
-                                    {% endfor %}
-                                </select>
-                            {% elif 'max' in setting_info and 'min' in setting_info %}
-                                <input type="number" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" min="{{ setting_info['min'] }}" max="{{ setting_info['max'] }}">
-                            {% else %}
-                                <input type="number" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" step="1">
-                            {% endif %}
-                        {% elif setting_info['type'].__name__ == 'float' %}
+                                {% if setting_info['type'].__name__ == 'bool' %}
+                                    <input type="checkbox" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" {{ 'checked' if value else '' }}>
+                                {% elif setting_info['type'].__name__ == 'int' %}
+                                    {% if 'options' is in(setting_info) %}
+                                        <select id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}">
+                                            {% for option in setting_info['options'] %}
+                                                <option value="{{ option[0] }}" {{ 'selected' if option[0] == value else '' }}>{{ option[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    {% elif 'max' in setting_info and 'min' in setting_info %}
+                                        <input type="number" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" min="{{ setting_info['min'] }}" max="{{ setting_info['max'] }}">
+                                    {% else %}
+                                        <input type="number" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" step="1">
+                                    {% endif %}
+                                {% elif setting_info['type'].__name__ == 'float' %}
 
-                        {% elif setting_info['type'].__name__ == 'str' %}
-                            {% if setting_name.endswith('_color') %}
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="color" id="{{ 'setting_' + setting_name }}_picker" value="{{ value }}" 
-                                    onchange="document.getElementById('{{ 'setting_' + setting_name }}').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
-                                <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" 
-                                    style="width: 100px;" onchange="document.getElementById('{{ 'setting_' + setting_name }}_picker').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
-                                <span id="{{ setting_name }}_preview" style="width: 24px; height: 24px; border-radius: 4px; background-color: {{ value }}; border: 1px solid var(--ctp-surface1); display: inline-block;"></span>
+                                {% elif setting_info['type'].__name__ == 'str' %}
+                                    {% if setting_name.endswith('_color') %}
+                                    <div class="color-setting">
+                                        <input type="color" id="{{ 'setting_' + setting_name }}_picker" value="{{ value }}" 
+                                            onchange="document.getElementById('{{ 'setting_' + setting_name }}').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
+                                        <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" 
+                                            onchange="document.getElementById('{{ 'setting_' + setting_name }}_picker').value = this.value; updateColorPreview('{{ setting_name }}', this.value);">
+                                        <span id="{{ setting_name }}_preview" class="color-preview" style="background-color: {{ value }};"></span>
+                                    </div>
+                                    {% else %}
+                                    <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}">
+                                    {% endif %}
+                                {% else %}
+                                    <span>Error: Unknown setting type: setting_info['type'].__name__</span>
+                                {% endif %}
                             </div>
-                            {% else %}
-                            <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}">
-                            {% endif %}
-                        {% else %}
-                            <span>Error: Unknown setting type: setting_info['type'].__name__</span>
                         {% endif %}
-                    </li>
-                {% endif %}
+                    {% endfor %}
+                    </div>
+                </div>
             {% endfor %}
-            </ul>
-        {% endfor %}
-        {% if 'sponsorblock' in categories %}
-        <div style="margin-top: 15px; padding: 15px; background: var(--ctp-surface0); border-radius: 8px;">
-            <a href="{{ util.URL_ORIGIN }}/sponsorblock-stats" style="color: var(--ctp-blue);">View SponsorBlock Stats</a>
-        </div>
-        {% endif %}
-        <div style="margin-top: 15px; padding: 15px; background: var(--ctp-surface0); border-radius: 8px;">
-            <a href="{{ util.URL_ORIGIN }}/shortcuts" style="color: var(--ctp-blue);">Configure Keyboard Shortcuts</a>
-        </div>
-        <input type="submit" value="Save settings">
-    </form>
-    <h2>History Management</h2>
-    <div class="settings-form">
-        <form class="history-management-form" action="{{ util.URL_ORIGIN }}/videolog/export" method="GET">
-            <input type="submit" value="Export History">
-            <select name="format" style="padding: 8px; border-radius: 8px; background-color: var(--ctp-base); color: var(--ctp-text); border: 1px solid var(--ctp-surface1);">
-                <option value="txt">Plain Text (.txt)</option>
-                <option value="json">JSON (.json)</option>
-            </select>
+
+            <div class="links-section">
+                {% if 'sponsorblock' in categories %}
+                <a href="{{ util.URL_ORIGIN }}/sponsorblock-stats">View SponsorBlock Stats</a>
+                {% endif %}
+                <a href="{{ util.URL_ORIGIN }}/shortcuts">Configure Keyboard Shortcuts</a>
+            </div>
+
+            <button type="submit" class="save-button">Save Settings</button>
         </form>
-        <form class="history-management-form" action="{{ util.URL_ORIGIN }}/videolog/import" method="POST" enctype="multipart/form-data">
-            <input type="file" name="history_file" accept=".txt">
-            <input type="submit" value="Import History">
-        </form>
+
+        <div class="history-management">
+            <h2>History Management</h2>
+            <div class="history-forms">
+                <form class="history-form" action="{{ util.URL_ORIGIN }}/videolog/export" method="GET">
+                    <input type="submit" value="Export History">
+                    <select name="format">
+                        <option value="txt">Plain Text (.txt)</option>
+                        <option value="json">JSON (.json)</option>
+                    </select>
+                </form>
+                <form class="history-form" action="{{ util.URL_ORIGIN }}/videolog/import" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="history_file" accept=".txt">
+                    <input type="submit" value="Import History">
+                </form>
+            </div>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const defaultSpeedInput = document.getElementById('setting_default_playback_speed');
-
-            // Load saved default speed on page load
-            const savedDefaultSpeed = localStorage.getItem('defaultPlaybackSpeed');
-            if (savedDefaultSpeed) {
-                defaultSpeedInput.value = savedDefaultSpeed;
+            if (defaultSpeedInput) {
+                const savedDefaultSpeed = localStorage.getItem('defaultPlaybackSpeed');
+                if (savedDefaultSpeed) {
+                    defaultSpeedInput.value = savedDefaultSpeed;
+                }
+                defaultSpeedInput.addEventListener('change', function() {
+                    localStorage.setItem('defaultPlaybackSpeed', this.value);
+                });
             }
 
-            // Save default speed when input changes
-            defaultSpeedInput.addEventListener('change', function() {
-                localStorage.setItem('defaultPlaybackSpeed', this.value);
-            });
-
-            // Sync color pickers with text inputs on load
             document.querySelectorAll('input[type="color"]').forEach(function(colorPicker) {
                 const textInput = colorPicker.nextElementSibling;
                 if (textInput && textInput.type === 'text') {
                     textInput.addEventListener('input', function() {
                         colorPicker.value = this.value;
-                        updateColorPreview(this.id.replace('setting_', ''), this.value);
+                        const settingName = this.id.replace('setting_', '');
+                        updateColorPreview(settingName, this.value);
                     });
                 }
             });

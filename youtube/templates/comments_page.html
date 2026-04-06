@@ -31,18 +31,18 @@
         {% if not comments_info['is_replies'] %}
             <div class="comment-links">
                 {% for link_text, link_url in comments_info['comment_links'] %}
-                    <a class="sort-button" href="{{ link_url }}">{{ link_text }}</a>
+                    <a class="sort-button" data-sort-url="{{ link_url }}" href="javascript:void(0)">{{ link_text }}</a>
                 {% endfor %}
             </div>
         {% endif %}
 
-        <div class="comments">
+        <div class="comments" id="comments-container">
             {% for comment in comments_info['comments'] %}
                 {{ comments.render_comment(comment, comments_info['include_avatars'], slim) }}
             {% endfor %}
         </div>
         {% if 'more_comments_url' is in comments_info %}
-            <a class="page-button more-comments" href="{{ comments_info['more_comments_url'] }}">More comments</a>
+            <a class="page-button more-comments" data-more-url="{{ comments_info['more_comments_url'] }}" href="javascript:void(0)">More comments</a>
         {% endif %}
     </section>
 

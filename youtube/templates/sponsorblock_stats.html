@@ -268,8 +268,11 @@
 
         // Format minutes saved on page load
         document.addEventListener('DOMContentLoaded', function() {
-            const minutesSaved = {{ stats.minutesSaved|default(0) }};
-            const formatted = formatTime(minutesSaved);
+            var minutesSaved = 0;
+            {% if stats and stats.minutesSaved is defined %}
+            minutesSaved = {{ stats.minutesSaved }};
+            {% endif %}
+            var formatted = formatTime(minutesSaved);
             document.getElementById('minutes-saved').textContent = formatted.value;
             document.getElementById('minutes-label').textContent = formatted.label;
         });

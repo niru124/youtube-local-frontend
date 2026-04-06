@@ -724,37 +724,104 @@ def extract_watch_info(polymer_json):
     # fallback stuff from microformat (needed for description fallback in chapters section below)
     mf = deep_get(top_level, 'playerResponse', 'microformat', 'playerMicroformatRenderer', default={})
 
-    # chapters - always parse from description for better chapter titles
+    # chapters - parse from description for better chapter titles
+    # Supports multiple formats:
+    # - 0:58 Chapter 1
+    # - 00:00 - 01:28 Introduction
+    # - 01:28 - 05:23 Syllabus Overview
+    # - 05:24 - 10:32 — How the Internet Works (em dash)
     chapters = []
     description = vd.get('shortDescription', '') or mf.get('description', '')
     if description:
         lines = description.split('\n')
+        
+        # Chapter parsing from description
+        # Supports formats:
+        # Simple: "0:00 Title", "1:43 RCB vs CSK", "10:22 MrBeast"
+        # Range: "00:00 - 01:28 Introduction", "01:28 - 05:23 Syllabus"
+        # Range with em-dash: "05:24 - 10:32 — How the Internet Works"
+        # Range with seconds: "02:36:59 - 02:37:25 — Outro"
+        
+        # Pattern for range format - must detect " - " or " — " after first timestamp
+        # Group 1-3: first timestamp (HH:)MM:SS
+        # Group 4: second timestamp hours (optional)
+        # Group 5: second timestamp minutes
+        # Group 6: second timestamp seconds (optional)
+        # Group 7: title after dash/dash-em
+        range_pattern = re.compile(
+            r'^(\d+):(\d{2})(?::(\d{2}))?\s*(?:-{1,3}|—)\s*(?:(\d+):)?(\d{2})(?::(\d{2}))?\s*(?:—|–|-)?\s*(.*)'
+        )
+        
+        # Simple format: single timestamp followed by space then title
+        # Negative lookahead ensures we don't match range format
+        simple_pattern = re.compile(r'^(\d+):(\d{2})(?::(\d{2}))?(?!\s*-\s*)(?:\s+)(.*)')
+        
         for line in lines:
             line = line.strip()
             if not line:
                 continue
             
-            # Match timestamps like 0:58, 40:52, 1:11:32, etc.
-            match = re.match(r'^(\d+):(\d{2})(?::(\d{2}))?\s*(.*)', line)
-            if match:
-                first = int(match.group(1))
-                minutes = int(match.group(2))
-                seconds = int(match.group(3)) if match.group(3) else 0
+            # Try range format first: "00:00 - 01:28 Introduction" or "01:28 - 05:23 Syllabus"
+            # Must have title after the dash for range format (group 7)
+            range_match = range_pattern.match(line)
+            if range_match and range_match.group(7) and range_match.group(7).strip():
+                # Parse first timestamp
+                first = int(range_match.group(1))
+                secs_or_mins = int(range_match.group(2))
+                secs = int(range_match.group(3)) if range_match.group(3) else 0
                 
-                # If first number is >= 60, treat as hours:minutes:seconds
-                # Otherwise treat as minutes:seconds
-                if first >= 60:
-                    hours = first
-                    mins = minutes
+                # Determine format based on presence of group3
+                if range_match.group(3):
+                    # Has seconds in first timestamp, format is HH:MM:SS
+                    start_hours = first
+                    start_mins = secs_or_mins
+                    start_secs = secs if secs else 0
                 else:
-                    hours = 0
-                    mins = first
+                    # No seconds in first timestamp - could be MM:SS or HH:MM
+                    if first >= 60:
+                        # First >= 60 means it's hours, format is H+:MM
+                        start_hours = first
+                        start_mins = first % 60
+                        start_secs = 0
+                    else:
+                        # Format is M:SS - use first as minutes, group2 as seconds
+                        start_hours = 0
+                        start_mins = 0
+                        start_secs = first * 60 + secs_or_mins
                 
-                total_seconds = hours * 3600 + mins * 60 + seconds
-                title = match.group(4).strip() if match.group(4) else ''
-                if not title:
-                    title = re.sub(r'^(\d+):(\d{2})(?::(\d{2}))?\s*', '', line).strip()
-                if title and total_seconds > 0:
+                total_seconds = start_hours * 3600 + start_mins * 60 + start_secs
+                
+                # Get title (everything after the dash/em-dash)
+                title = range_match.group(7).strip()
+                
+                if title:
+                    chapters.append({
+                        'title': title,
+                        'start_time': total_seconds,
+                        'end_time': 0,
+                    })
+                continue
+            
+            # Try simple format: "0:58 Chapter 1" or "40:52 Chapter 2" or "01:11:32 Chapter 3"
+            simple_match = simple_pattern.match(line)
+            if simple_match:
+                group3 = simple_match.group(3)
+                
+                if group3:
+                    # HH:MM:SS format
+                    hours = int(simple_match.group(1))
+                    mins = int(simple_match.group(2))
+                    secs = int(group3)
+                else:
+                    # MM:SS format - group1 is minutes, group2 is seconds
+                    mins = int(simple_match.group(1))
+                    secs = int(simple_match.group(2))
+                    hours = 0
+                
+                total_seconds = hours * 3600 + mins * 60 + secs
+                title = simple_match.group(4).strip()
+                
+                if title and total_seconds >= 0:
                     chapters.append({
                         'title': title,
                         'start_time': total_seconds,

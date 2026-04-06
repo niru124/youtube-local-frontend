@@ -724,38 +724,66 @@ def extract_watch_info(polymer_json):
     # fallback stuff from microformat (needed for description fallback in chapters section below)
     mf = deep_get(top_level, 'playerResponse', 'microformat', 'playerMicroformatRenderer', default={})
 
-    # chapters
+    # chapters - always parse from description for better chapter titles
     chapters = []
+    description = vd.get('shortDescription', '') or mf.get('description', '')
+    if description:
+        lines = description.split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # Match timestamps like 0:58, 40:52, 1:11:32, etc.
+            match = re.match(r'^(\d+):(\d{2})(?::(\d{2}))?\s*(.*)', line)
+            if match:
+                first = int(match.group(1))
+                minutes = int(match.group(2))
+                seconds = int(match.group(3)) if match.group(3) else 0
+                
+                # If first number is >= 60, treat as hours:minutes:seconds
+                # Otherwise treat as minutes:seconds
+                if first >= 60:
+                    hours = first
+                    mins = minutes
+                else:
+                    hours = 0
+                    mins = first
+                
+                total_seconds = hours * 3600 + mins * 60 + seconds
+                title = match.group(4).strip() if match.group(4) else ''
+                if not title:
+                    title = re.sub(r'^(\d+):(\d{2})(?::(\d{2}))?\s*', '', line).strip()
+                if title and total_seconds > 0:
+                    chapters.append({
+                        'title': title,
+                        'start_time': total_seconds,
+                        'end_time': 0,
+                    })
+    
+    # Get chapters from YouTube metadata to get end times and fill missing titles
+    yt_chapters = []
     for chapter in vd.get('chapters', []):
-        chapters.append({
+        yt_chapters.append({
             'title': chapter.get('title', {}).get('simpleText', ''),
             'start_time': chapter.get('timeRangeStartMillis', 0) / 1000,
             'end_time': chapter.get('timeRangeEndMillis', 0) / 1000,
         })
-
-    # Fallback: parse chapters from description if no chapters from metadata
-    if not chapters:
-        description = vd.get('shortDescription', '') or mf.get('description', '')
-        if description:
-            lines = description.split('\n')
-            time_regex = re.compile(r'^(\d{1,2}):(\d{2})(?::(\d{2}))?')
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                match = time_regex.match(line)
-                if match:
-                    hours = int(match.group(1)) if match.group(1) else 0
-                    minutes = int(match.group(2))
-                    seconds = int(match.group(3)) if match.group(3) else 0
-                    total_seconds = hours * 3600 + minutes * 60 + seconds
-                    title = time_regex.sub('', line).strip()
-                    if title:
-                        chapters.append({
-                            'title': title,
-                            'start_time': total_seconds,
-                            'end_time': 0,  # No end time for parsed chapters
-                        })
+    
+    # Merge: use description titles with YouTube metadata end times
+    if yt_chapters:
+        for i, yt_ch in enumerate(yt_chapters):
+            if i < len(chapters):
+                # Update end time from YouTube metadata
+                chapters[i]['end_time'] = yt_ch.get('end_time', 0)
+            else:
+                # Use YouTube title if no description chapter found
+                if yt_ch.get('title') and yt_ch.get('start_time', 0) > 0:
+                    chapters.append({
+                        'title': yt_ch.get('title', ''),
+                        'start_time': yt_ch.get('start_time', 0),
+                        'end_time': yt_ch.get('end_time', 0),
+                    })
 
     info['chapters'] = chapters
 

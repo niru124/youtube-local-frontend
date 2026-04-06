@@ -189,8 +189,8 @@
 
         <div class="sb-stats-grid">
             <div class="sb-stat-card">
-                <div class="value">{{ stats.minutesSaved|default(0)|round(1) }}</div>
-                <div class="label">Minutes Saved</div>
+                <div class="value" id="minutes-saved">{{ stats.minutesSaved|default(0)|round(1) }}</div>
+                <div class="label" id="minutes-label">Minutes Saved</div>
             </div>
             <div class="sb-stat-card">
                 <div class="value">{{ stats.viewCount|default(0) }}</div>
@@ -234,6 +234,46 @@
     </div>
 
     <script>
+        function formatTime(minutes) {
+            if (!minutes || minutes <= 0) return { value: '0', label: 'Minutes Saved' };
+            
+            const minutesInHour = 60;
+            const minutesInDay = 24 * 60;
+            const minutesInWeek = 7 * 24 * 60;
+            const minutesInMonth = 30 * 24 * 60;
+            
+            if (minutes >= minutesInMonth) {
+                const months = Math.floor(minutes / minutesInMonth);
+                const remainingMinutes = minutes % minutesInMonth;
+                const days = Math.floor(remainingMinutes / minutesInDay);
+                return { value: months + 'm ' + days + 'd', label: 'Months Saved' };
+            } else if (minutes >= minutesInWeek) {
+                const weeks = Math.floor(minutes / minutesInWeek);
+                const remainingMinutes = minutes % minutesInWeek;
+                const days = Math.floor(remainingMinutes / minutesInDay);
+                return { value: weeks + 'w ' + days + 'd', label: 'Weeks Saved' };
+            } else if (minutes >= minutesInDay) {
+                const days = Math.floor(minutes / minutesInDay);
+                const remainingMinutes = minutes % minutesInDay;
+                const hours = Math.floor(remainingMinutes / minutesInHour);
+                return { value: days + 'd ' + hours + 'h', label: 'Days Saved' };
+            } else if (minutes >= minutesInHour) {
+                const hours = Math.floor(minutes / minutesInHour);
+                const mins = Math.round(minutes % minutesInHour);
+                return { value: hours + 'h ' + mins + 'm', label: 'Hours Saved' };
+            } else {
+                return { value: Math.round(minutes * 10) / 10, label: 'Minutes Saved' };
+            }
+        }
+
+        // Format minutes saved on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const minutesSaved = {{ stats.minutesSaved|default(0) }};
+            const formatted = formatTime(minutesSaved);
+            document.getElementById('minutes-saved').textContent = formatted.value;
+            document.getElementById('minutes-label').textContent = formatted.label;
+        });
+
         function refreshStats() {
             window.location.reload();
         }

@@ -67,8 +67,24 @@ Object.defineProperty(Plyr.prototype, 'quality', {
     }
 });
 
+var markers = {
+    enabled: false,
+    points: [],
+};
+
+if (typeof video_chapters !== 'undefined' && video_chapters && video_chapters.length > 0) {
+    markers.enabled = true;
+    markers.points = video_chapters.map(function(chapter) {
+        return {
+            time: chapter.start_time,
+            label: chapter.title,
+        };
+    });
+}
+
 const playerOptions = {
     disableContextMenu: false,
+    markers: markers,
     captions: {
         active: captionsActive,
         language: data.settings.subtitles_language,
@@ -136,6 +152,158 @@ if (data.settings.default_volume !== -1) {
 }
 
 const player = new Plyr(document.querySelector('video'), playerOptions);
+
+// Add chapter markers to the progress bar
+if (markers.enabled) {
+    console.log('Markers enabled, points:', markers.points);
+
+    function addMarkers() {
+        var progress = player.elements.progress;
+        console.log('addMarkers called, progress:', progress);
+        if (!progress) return;
+        var old = progress.querySelectorAll('.plyr__progress__marker');
+        old.forEach(function(el) { el.remove(); });
+        var duration = player.media.duration;
+        console.log('Duration:', duration);
+        if (!duration || isNaN(duration) || duration <= 0) return;
+
+        markers.points.forEach(function(point) {
+            if (point.time <= 0 || point.time >= duration) {
+                console.log('Skipping point:', point.time, '>=', duration);
+                return;
+            }
+            var pct = (point.time / duration * 100);
+            console.log('Adding marker for:', point.label, 'at', point.time, 's (', pct, '%)');
+
+            var marker = document.createElement('span');
+            marker.className = 'plyr__progress__marker';
+            marker.style.position = 'absolute';
+            marker.style.left = pct + '%';
+            marker.style.top = '0';
+            marker.style.bottom = '0';
+            marker.style.width = '3px';
+            marker.style.background = '#fff';
+            marker.style.borderRadius = '1px';
+            marker.style.cursor = 'pointer';
+            marker.style.zIndex = '5';
+
+            marker.addEventListener('click', function() {
+                player.currentTime = point.time;
+            });
+
+            progress.appendChild(marker);
+        });
+    }
+
+    player.on('loadedmetadata', addMarkers);
+    player.on('durationchange', addMarkers);
+
+    // Chapter label - inside player container so it works in fullscreen
+    var chapterLabel = document.createElement('div');
+    chapterLabel.id = 'plyr-chapter-label';
+    chapterLabel.style.position = 'absolute';
+    chapterLabel.style.left = '10px';
+    chapterLabel.style.right = '10px';
+    chapterLabel.style.transform = 'none';
+    chapterLabel.style.background = 'rgba(0,0,0,0.85)';
+    chapterLabel.style.color = '#fff';
+    chapterLabel.style.padding = '6px 14px';
+    chapterLabel.style.borderRadius = '4px';
+    chapterLabel.style.fontSize = '13px';
+    chapterLabel.style.fontWeight = '500';
+    chapterLabel.style.whiteSpace = 'normal';
+    chapterLabel.style.maxWidth = 'calc(100% - 20px)';
+    chapterLabel.style.textAlign = 'left';
+    chapterLabel.style.lineHeight = '1.4';
+    chapterLabel.style.zIndex = '99';
+    chapterLabel.style.pointerEvents = 'none';
+    chapterLabel.style.display = 'none';
+    chapterLabel.style.transition = 'opacity 0.2s';
+    chapterLabel.style.bottom = '45px';
+
+    // Append to player container (goes into fullscreen with the player)
+    player.elements.container.style.position = 'relative';
+    player.elements.container.appendChild(chapterLabel);
+
+    var currentChapter = null;
+    var hideTimeout = null;
+
+    function showChapterForTime(t) {
+        var found = null;
+        for (var i = markers.points.length - 1; i >= 0; i--) {
+            if (t >= markers.points[i].time) {
+                found = markers.points[i];
+                break;
+            }
+        }
+
+        if (found) {
+            chapterLabel.textContent = found.label;
+            chapterLabel.style.display = 'block';
+            chapterLabel.style.opacity = '1';
+            // Position above the controls
+            var controls = player.elements.controls;
+            if (controls) {
+                var rect = controls.getBoundingClientRect();
+                chapterLabel.style.top = (rect.top - 40) + 'px';
+            }
+        } else {
+            chapterLabel.style.display = 'none';
+        }
+    }
+
+    function hideChapter() {
+        chapterLabel.style.display = 'none';
+        currentChapter = null;
+    }
+
+    // Show chapter on hover over progress area
+    var seekInput = player.elements.inputs.seek;
+    if (seekInput) {
+        seekInput.addEventListener('mousemove', function(e) {
+            var rect = seekInput.getBoundingClientRect();
+            var pct = ((e.clientX - rect.left) / rect.width) * 100;
+            var t = (pct / 100) * player.media.duration;
+            showChapterForTime(t);
+        });
+        seekInput.addEventListener('mouseleave', hideChapter);
+    }
+
+    // Also show chapter during playback (auto-hide after 4s)
+    player.on('timeupdate', function() {
+        var t = player.currentTime;
+        var found = null;
+        for (var i = markers.points.length - 1; i >= 0; i--) {
+            if (t >= markers.points[i].time) {
+                found = markers.points[i];
+                break;
+            }
+        }
+
+        if (found !== currentChapter) {
+            currentChapter = found;
+            if (found) {
+                showChapterForTime(t);
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(hideChapter, 4000);
+            } else {
+                hideChapter();
+            }
+        }
+    });
+
+    player.on('seeked', function() {
+        showChapterForTime(player.currentTime);
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(hideChapter, 4000);
+    });
+
+    player.on('play', function() {
+        showChapterForTime(player.currentTime);
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(hideChapter, 4000);
+    });
+}
 
 // disable double click to fullscreen
 // https://github.com/sampotts/plyr/issues/1370#issuecomment-528966795

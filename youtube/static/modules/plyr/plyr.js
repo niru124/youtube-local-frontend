@@ -2040,8 +2040,14 @@ typeof navigator === "object" && (function (global, factory) {
         percent = 100;
       } // Display the time a click would seek to
 
+      const seekTime = this.duration / 100 * percent;
+      const point = this.config.markers?.points?.find(({ time: t }) => t === Math.round(seekTime));
 
-      controls.updateTimeDisplay.call(this, this.elements.display.seekTooltip, this.duration / 100 * percent); // Set position
+      if (point) {
+        this.elements.display.seekTooltip.innerHTML = `${point.label}<br>${this.elements.display.seekTooltip.innerHTML}`;
+      }
+
+      controls.updateTimeDisplay.call(this, this.elements.display.seekTooltip, seekTime); // Set position
 
       this.elements.display.seekTooltip.style.left = `${percent}%`; // Show/hide the tooltip
       // If the event is a moues in/out and percentage is inside bounds
@@ -2049,6 +2055,78 @@ typeof navigator === "object" && (function (global, factory) {
       if (is.event(event) && ['mouseenter', 'mouseleave'].includes(event.type)) {
         toggle(event.type === 'mouseenter');
       }
+    },
+
+    // Add markers
+    setMarkers() {
+      if (!this.duration || this.elements.markers) return;
+
+      // Get valid points
+      const points = this.config.markers?.points?.filter(({ time }) => time > 0 && time < this.duration);
+      if (!points?.length) return;
+
+      const containerFragment = document.createDocumentFragment();
+      const pointsFragment = document.createDocumentFragment();
+      let tipElement = null;
+      const tipVisible = `${this.config.classNames.tooltip}--visible`;
+      const toggleTip = show => toggleClass(tipElement, tipVisible, show);
+
+      // Inject markers to progress container
+      points.forEach((point) => {
+        const markerElement = createElement(
+          'span',
+          {
+            class: this.config.classNames.marker,
+          },
+          '',
+        );
+
+        const left = `${(point.time / this.duration) * 100}%`;
+
+        if (tipElement) {
+          // Show on hover
+          markerElement.addEventListener('mouseenter', () => {
+            if (point.label) return;
+            tipElement.style.left = left;
+            tipElement.innerHTML = point.label;
+            toggleTip(true);
+          });
+
+          // Hide on leave
+          markerElement.addEventListener('mouseleave', () => {
+            toggleTip(false);
+          });
+        }
+
+        markerElement.addEventListener('click', () => {
+          this.currentTime = point.time;
+        });
+
+        markerElement.style.left = left;
+        pointsFragment.appendChild(markerElement);
+      });
+
+      containerFragment.appendChild(pointsFragment);
+
+      // Inject a tooltip if needed
+      if (!this.config.tooltips.seek) {
+        tipElement = createElement(
+          'span',
+          {
+            class: this.config.classNames.tooltip,
+          },
+          '',
+        );
+
+        containerFragment.appendChild(tipElement);
+      }
+
+      this.elements.markers = {
+        points: pointsFragment,
+        tip: tipElement,
+      };
+
+      this.elements.progress.appendChild(containerFragment);
     },
 
     // Handle time change event
@@ -2101,7 +2179,11 @@ typeof navigator === "object" && (function (global, factory) {
       } // Update the tooltip (if visible)
 
 
-      controls.updateSeekTooltip.call(this);
+      controls.updateSeekTooltip.call(this); // Add markers
+
+      if (this.config.markers.enabled) {
+        controls.setMarkers.call(this);
+      }
     },
 
     // Hide/show a tab
@@ -3613,6 +3695,7 @@ typeof navigator === "object" && (function (global, factory) {
         active: 'plyr--airplay-active'
       },
       tabFocus: 'plyr__tab-focus',
+      marker: 'plyr__progress__marker',
       previewThumbnails: {
         // Tooltip thumbs
         thumbContainer: 'plyr__preview-thumb',
@@ -3642,6 +3725,11 @@ typeof navigator === "object" && (function (global, factory) {
     previewThumbnails: {
       enabled: false,
       src: ''
+    },
+    // Markers
+    markers: {
+      enabled: false,
+      points: []
     },
     // Vimeo plugin
     vimeo: {

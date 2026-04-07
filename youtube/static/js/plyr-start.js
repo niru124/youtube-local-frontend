@@ -177,15 +177,16 @@ if (markers.enabled) {
 
             var marker = document.createElement('span');
             marker.className = 'plyr__progress__marker';
+            marker.textContent = '●';
             marker.style.position = 'absolute';
-            marker.style.left = pct + '%';
-            marker.style.top = '0';
-            marker.style.bottom = '0';
-            marker.style.width = '3px';
-            marker.style.background = '#fff';
-            marker.style.borderRadius = '1px';
+            marker.style.left = `calc(${pct}% - 4px)`;
+            marker.style.top = '50%';
+            marker.style.transform = 'translateY(-50%)';
+            marker.style.fontSize = '14px';
+            marker.style.color = '#fff';
             marker.style.cursor = 'pointer';
             marker.style.zIndex = '5';
+            marker.style.lineHeight = '1';
 
             marker.addEventListener('click', function() {
                 player.currentTime = point.time;
@@ -203,7 +204,6 @@ if (markers.enabled) {
     chapterLabel.id = 'plyr-chapter-label';
     chapterLabel.style.position = 'absolute';
     chapterLabel.style.left = '10px';
-    chapterLabel.style.right = '10px';
     chapterLabel.style.transform = 'none';
     chapterLabel.style.background = 'rgba(0,0,0,0.85)';
     chapterLabel.style.color = '#fff';
@@ -211,7 +211,7 @@ if (markers.enabled) {
     chapterLabel.style.borderRadius = '4px';
     chapterLabel.style.fontSize = '13px';
     chapterLabel.style.fontWeight = '500';
-    chapterLabel.style.whiteSpace = 'normal';
+    chapterLabel.style.whiteSpace = 'nowrap';
     chapterLabel.style.maxWidth = 'calc(100% - 20px)';
     chapterLabel.style.textAlign = 'left';
     chapterLabel.style.lineHeight = '1.4';
@@ -220,6 +220,8 @@ if (markers.enabled) {
     chapterLabel.style.display = 'none';
     chapterLabel.style.transition = 'opacity 0.2s';
     chapterLabel.style.bottom = '45px';
+    chapterLabel.style.width = 'fit-content';
+    chapterLabel.style.height = 'fit-content';
 
     // Append to player container (goes into fullscreen with the player)
     player.elements.container.style.position = 'relative';

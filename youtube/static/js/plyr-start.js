@@ -257,7 +257,7 @@ if (markers.enabled) {
         currentChapter = null;
     }
 
-    // Show chapter on hover over progress area
+    // Show chapter only when hovering over the timeline/seek input
     var seekInput = player.elements.inputs.seek;
     if (seekInput) {
         seekInput.addEventListener('mousemove', function(e) {
@@ -268,41 +268,6 @@ if (markers.enabled) {
         });
         seekInput.addEventListener('mouseleave', hideChapter);
     }
-
-    // Also show chapter during playback (auto-hide after 4s)
-    player.on('timeupdate', function() {
-        var t = player.currentTime;
-        var found = null;
-        for (var i = markers.points.length - 1; i >= 0; i--) {
-            if (t >= markers.points[i].time) {
-                found = markers.points[i];
-                break;
-            }
-        }
-
-        if (found !== currentChapter) {
-            currentChapter = found;
-            if (found) {
-                showChapterForTime(t);
-                clearTimeout(hideTimeout);
-                hideTimeout = setTimeout(hideChapter, 4000);
-            } else {
-                hideChapter();
-            }
-        }
-    });
-
-    player.on('seeked', function() {
-        showChapterForTime(player.currentTime);
-        clearTimeout(hideTimeout);
-        hideTimeout = setTimeout(hideChapter, 4000);
-    });
-
-    player.on('play', function() {
-        showChapterForTime(player.currentTime);
-        clearTimeout(hideTimeout);
-        hideTimeout = setTimeout(hideChapter, 4000);
-    });
 }
 
 // disable double click to fullscreen

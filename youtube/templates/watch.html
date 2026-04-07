@@ -983,6 +983,27 @@
     .plyr__controls {
         overflow: visible !important;
     }
+
+    /* Fix subtitle container - no full-width black bar */
+    .plyr__captions {
+        background: none !important;
+        padding: 0 !important;
+        bottom: 50px !important;
+        width: auto !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        max-width: 90% !important;
+    }
+    .plyr__caption {
+        background: none !important;
+        padding: 0 !important;
+    }
+    ::cue {
+        background: rgba(0, 0, 0, 0.6) !important;
+        color: #fff !important;
+        padding: 2px 8px !important;
+        border-radius: 3px !important;
+    }
 {% endblock style %}
 
 {% block head %}
